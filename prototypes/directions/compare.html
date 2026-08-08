@@ -9,29 +9,47 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Archivo',ui-sans-serif,system-ui,sans-serif;background:#0d0f13;color:#eef2f7;
        height:100vh;display:flex;flex-direction:column;overflow:hidden}
-  header{display:flex;align-items:center;gap:18px;padding:12px 18px;border-bottom:1px solid #23272f;
-         flex:0 0 auto}
+  header{display:flex;align-items:center;gap:8px 18px;padding:10px 16px;border-bottom:1px solid #23272f;
+         flex:0 0 auto;flex-wrap:wrap}
   header h1{font-size:14px;font-weight:800;letter-spacing:-.01em}
-  header .sub{font-size:12px;font-weight:500;color:#8b93a1}
-  header label{margin-left:auto;font-size:12px;font-weight:600;display:flex;align-items:center;
-               gap:7px;cursor:pointer;color:#c8d0dc}
+  header .sub{font-size:11.5px;font-weight:500;color:#8b93a1}
+  header .ctl{margin-left:auto;display:flex;align-items:center;gap:16px}
+  header label{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;
+               cursor:pointer;color:#c8d0dc;white-space:nowrap}
   .cols{flex:1 1 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#23272f;
         min-height:0}
   .col{display:flex;flex-direction:column;background:#0d0f13;min-height:0}
-  .col h2{font-size:12px;font-weight:800;letter-spacing:.02em;padding:10px 14px 4px;
+  .col h2{font-size:12px;font-weight:800;letter-spacing:.02em;padding:10px 14px 4px;flex:0 0 auto;
           display:flex;align-items:baseline;gap:8px}
   .col h2 em{font-style:normal;font-weight:500;color:#8b93a1;font-size:11.5px;letter-spacing:0}
   .col h2 a{margin-left:auto;color:#8ecbff;text-decoration:none;font-size:11px;font-weight:600}
-  .col p{font-size:11.5px;line-height:1.45;color:#98a1af;padding:0 14px 9px;font-weight:500}
+  .col p{font-size:11.5px;line-height:1.45;color:#98a1af;padding:0 14px 9px;font-weight:500;
+         flex:0 0 auto}
+  body.tight .col p{display:none}
+  body.tight .col h2{padding-bottom:8px}
   iframe{flex:1 1 auto;width:100%;border:0;background:#000;min-height:0}
-  @media (max-width:900px){ .cols{grid-template-columns:1fr;overflow:auto} iframe{height:70vh} }
+
+  /* Narrow window (VS Code panel, half a screen): stack, and give every panel a real height.
+     A grid row inside a locked 100vh box squashes to nothing instead of overflowing —
+     which is exactly what it did. The outer page scrolls here instead. */
+  @media (max-width:1080px){
+    body{height:auto;overflow:auto}
+    header{position:sticky;top:0;z-index:5;background:#0d0f13}
+    header .sub{flex:1 1 100%;order:3}
+    header .ctl{margin-left:0}
+    .cols{grid-template-columns:1fr}
+    .col{height:min(86vh,760px)}
+  }
 </style>
 </head>
 <body>
 <header>
   <h1>Human History — three visual directions</h1>
+  <div class="ctl">
+    <label><input type="checkbox" id="sync"> scroll together</label>
+    <label><input type="checkbox" id="tight"> hide notes</label>
+  </div>
   <span class="sub">ticket 13 · same 36 real cut-outs, same movements, same native scroll · nothing picked yet</span>
-  <label><input type="checkbox" id="sync"> scroll all three together</label>
 </header>
 <div class="cols">
   <div class="col">
@@ -52,7 +70,9 @@
 </div>
 <script>
 const frames = [...document.querySelectorAll('iframe')];
-const box = document.getElementById('sync');
+const sync = document.getElementById('sync');
+const tight = document.getElementById('tight');
+tight.onchange = () => document.body.classList.toggle('tight', tight.checked);
 let lock = false;
 function ratio(w){ const d = w.document.documentElement;
   return d.scrollTop / Math.max(1, d.scrollHeight - w.innerHeight); }
@@ -60,7 +80,7 @@ function wire(){
   frames.forEach(f => {
     const w = f.contentWindow;
     w.addEventListener('scroll', () => {
-      if (!box.checked || lock) return;
+      if (!sync.checked || lock) return;
       lock = true;
       const r = ratio(w);
       frames.forEach(o => {
