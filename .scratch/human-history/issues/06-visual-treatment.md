@@ -2,7 +2,7 @@
 
 Type: prototype
 Status: open
-Blocked by: 01, 02
+Blocked by: 01, 02, 11
 Parent: [Human History — Wayfinder Map](../map.md)
 
 ## Question
@@ -20,7 +20,7 @@ Decide:
 5. **Legibility as a measured gate, not a review note.** Deep Time proved unaided contrast over varied imagery bottoms out near 1:1 and that blurred-copy glows are worth nothing; its build-time solved scrim reached 3.02:1 and its text scrim solves to 4.5:1. Whatever device is chosen here must clear an equivalent **measured** gate over real source images, including the worst case (pale artifact on pale ground).
 6. **Attribution as design.** Every image needs a credit. At this volume credits are a visible, recurring design element, not an afterthought — decide whether they sit on the card, in a hover, or in a credits view, and make it look intentional.
 
-**Anchor before mocks:** lock a loved reference and an honest positioning statement before building anything. Then prototype on **real sourced images spanning the worst-case range** ([02](02-image-supply.md) supplies them) — a treatment that works on five hand-picked images and fails on an engraving is a false pass.
+**Anchor before mocks:** the anchor is no longer this ticket's first step — it is [11](11-visual-anchor.md), split out and unblocked so the direction is locked early rather than discovered late. **This ticket does not start until 11 is closed**, and every prototype it produces is checked against 11's references and NOT list. Then prototype on **real sourced images spanning the worst-case range** ([02](02-image-supply.md) supplies them) — a treatment that works on five hand-picked images and fails on an engraving is a false pass.
 
 **Deliverable:** a working prototype on a representative sample linked from this ticket, the treatment stated precisely enough to build a pipeline against, and its measured contrast result over the worst-case sample.
 

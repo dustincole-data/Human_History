@@ -26,7 +26,7 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 - **Mobile is first-class.** Real-device phone test is a ship gate. Prior scars: iOS first-tap-is-hover, iOS URL-bar canvas squash, canvas must re-sync from its own box via ResizeObserver.
 - **Decoded memory is the hard ceiling, and it is the #1 technical risk.** Decoded cost is `w × h × 4` regardless of encoding. Deep Time shipped **51 assets = 3.34 MB transfer / 75.56 MB decoded**, against an 80 MB gate. This site's images are the *content*, not decoration, and there will be more of them at larger sizes. Naive reuse blows the budget outright. See [03](issues/03-engine-reuse-or-clean-build.md).
 - **Nothing overlaps, anywhere, ever.** Deep Time's no-collision layout contract (reserved zones, non-overlapping slot grid, each arrival one self-contained box, verified by a scroll sweep asserting zero rectangle intersections) is proven and reusable. The sweep is a **ship gate**, not a review note.
-- **Anchor before mocks:** lock a loved reference + honest positioning before building any mock.
+- **Anchor before mocks:** lock a loved reference + honest positioning before building any mock. Split out as [11](issues/11-visual-anchor.md) and pulled early — the Latent post-mortem says nail look-and-feel first on visual projects; blind mock iteration late is the known failure mode.
 - **Copy is never corny, never sales-pitchy.** Flat declarative. No parallel triads, no feel-something clauses.
 
 ### The premise, and what may still challenge it
