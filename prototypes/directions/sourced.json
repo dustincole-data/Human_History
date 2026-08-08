@@ -1,0 +1,456 @@
+{
+ "ainghazal": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/%27Ain_Ghazal_statue%2C_Mus%C3%A9e_Louvre.jpg/1280px-%27Ain_Ghazal_statue%2C_Mus%C3%A9e_Louvre.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "MLWatts",
+  "page": "https://commons.wikimedia.org/wiki/File:%27Ain_Ghazal_statue,_Mus%C3%A9e_Louvre.jpg",
+  "found": "'Ain Ghazal statue, Musée Louvre.jpg",
+  "key": "ainghazal",
+  "name": "'Ain Ghazal statue",
+  "year": -7000,
+  "disp": "c. 7000 BCE",
+  "region": "Jordan",
+  "cov": 0.64,
+  "size": [
+   285,
+   841
+  ]
+ },
+ "nebra": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Nebra_disc_1.jpg/1920px-Nebra_disc_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Frank Vincentz",
+  "page": "https://commons.wikimedia.org/wiki/File:Nebra_disc_1.jpg",
+  "found": "Nebra disc 1.jpg",
+  "key": "nebra",
+  "name": "Nebra sky disc",
+  "year": -1600,
+  "disp": "c. 1600 BCE",
+  "region": "Germany",
+  "cov": 0.785,
+  "size": [
+   924,
+   884
+  ]
+ },
+ "olmec": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Olmec_Colossal_Head%2C_San_Lorenzo%2C_Veracruz%2C_1200-600_BC.jpg/1920px-Olmec_Colossal_Head%2C_San_Lorenzo%2C_Veracruz%2C_1200-600_BC.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "Gary Todd",
+  "page": "https://commons.wikimedia.org/wiki/File:Olmec_Colossal_Head,_San_Lorenzo,_Veracruz,_1200-600_BC.jpg",
+  "found": "Olmec Colossal Head, San Lorenzo, Veracruz, 1200-600 BC.jpg",
+  "key": "olmec",
+  "name": "Olmec colossal head",
+  "year": -900,
+  "disp": "c. 900 BCE",
+  "region": "Mexico",
+  "cov": 0.866,
+  "size": [
+   627,
+   923
+  ]
+ },
+ "moche": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DT1266.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Henry G. Marquand, 1882",
+  "page": "https://www.metmuseum.org/art/collection/search/307474",
+  "found": "Stirrup-spout bottle with seated figure",
+  "objdate": "200 CE–500 CE",
+  "key": "moche",
+  "name": "Moche stirrup-spout vessel",
+  "year": 500,
+  "disp": "c. 500 CE",
+  "region": "Peru",
+  "cov": 0.617,
+  "size": [
+   608,
+   744
+  ]
+ },
+ "benin": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DP295360.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Michael C. Rockefeller Memorial Collection, Gift of Nelson A. Rockefeller, 1965",
+  "page": "https://www.metmuseum.org/art/collection/search/310752",
+  "found": "Plaque with equestrian ọ́bà (king) and attendants",
+  "objdate": "ca. 1540–70",
+  "key": "benin",
+  "name": "Benin bronze plaque",
+  "year": 1550,
+  "disp": "c. 1550",
+  "region": "Nigeria",
+  "cov": 0.885,
+  "size": [
+   818,
+   986
+  ]
+ },
+ "ming": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DP-32251-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Robert E. Tod, 1937",
+  "page": "https://www.metmuseum.org/art/collection/search/39666",
+  "found": "Jar with dragon",
+  "objdate": "early 15th century",
+  "key": "ming",
+  "name": "Ming blue-and-white jar",
+  "year": 1450,
+  "disp": "c. 1450",
+  "region": "China",
+  "cov": 0.735,
+  "size": [
+   631,
+   670
+  ]
+ },
+ "samurai": {
+  "url": "https://images.metmuseum.org/CRDImages/aa/original/LC-TR_360_4a_l_2022-020-2-Edit.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Rosemarie and Leighton R. Longhi, in honor of John Carpenter, 2023",
+  "page": "https://www.metmuseum.org/art/collection/search/894753",
+  "found": "Armor (<i>Gusoku</i>) with Box",
+  "objdate": "19th century; helmet bowl, early 18th century",
+  "key": "samurai",
+  "name": "Japanese armour",
+  "year": 1700,
+  "disp": "c. 1700",
+  "region": "Japan",
+  "cov": 0.592,
+  "size": [
+   553,
+   1032
+  ]
+ },
+ "typewriter": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Remington_No._1_typewriter%2C_made_by_Remington_%26_Songs%2C_Ilion%2C_NY%2C_1873-1878%2C_the_first_Sholes_%26_Glidden_model_typewriter_made_by_Remington_-_Wisconsin_Historical_Museum_-_DSC02806.JPG/1920px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "Daderot",
+  "page": "https://commons.wikimedia.org/wiki/File:Remington_No._1_typewriter,_made_by_Remington_%26_Songs,_Ilion,_NY,_1873-1878,_the_first_Sholes_%26_Glidden_model_typewriter_made_by_Remington_-_Wisconsin_Historical_Museum_-_DSC02806.JPG",
+  "found": "Remington No. 1 typewriter, made by Remington & Songs, Ilion, NY, 1873-1878, the first Sholes & Glidden model typewriter made by Remington - Wisconsin Historical Museum - DSC02806.JPG",
+  "key": "typewriter",
+  "name": "Sholes & Glidden typewriter",
+  "year": 1874,
+  "disp": "1874",
+  "region": "United States",
+  "cov": 0.674,
+  "size": [
+   944,
+   1010
+  ]
+ },
+ "pennyfarthing": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/00_8333_Hochrad.jpg/1920px-00_8333_Hochrad.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "W. Bulach",
+  "page": "https://commons.wikimedia.org/wiki/File:00_8333_Hochrad.jpg",
+  "found": "00 8333 Hochrad.jpg",
+  "key": "pennyfarthing",
+  "name": "Penny-farthing bicycle",
+  "year": 1871,
+  "disp": "1871",
+  "region": "United Kingdom",
+  "cov": 0.321,
+  "size": [
+   559,
+   740
+  ]
+ },
+ "walkman": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Original_Sony_Walkman_TPS-L2.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Binarysequence",
+  "page": "https://commons.wikimedia.org/wiki/File:Original_Sony_Walkman_TPS-L2.JPG",
+  "found": "Original Sony Walkman TPS-L2.JPG",
+  "key": "walkman",
+  "name": "Sony Walkman TPS-L2",
+  "year": 1979,
+  "disp": "1979",
+  "region": "Japan",
+  "cov": 0.828,
+  "size": [
+   700,
+   1157
+  ]
+ },
+ "gameboy": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Game-Boy-FL.jpg/1920px-Game-Boy-FL.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Evan-Amos",
+  "page": "https://commons.wikimedia.org/wiki/File:Game-Boy-FL.jpg",
+  "found": "Game-Boy-FL.jpg",
+  "key": "gameboy",
+  "name": "Nintendo Game Boy",
+  "year": 1989,
+  "disp": "1989",
+  "region": "Japan",
+  "cov": 0.61,
+  "size": [
+   900,
+   1094
+  ]
+ },
+ "tutmask": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/King_Tut_Burial_Mask_%2823785641449%29.jpg/1920px-King_Tut_Burial_Mask_%2823785641449%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 2.0",
+  "credit": "Mark Fischer",
+  "page": "https://commons.wikimedia.org/wiki/File:King_Tut_Burial_Mask_(23785641449).jpg",
+  "found": "King Tut Burial Mask (23785641449).jpg",
+  "key": "tutmask",
+  "name": "Mask of Tutankhamun",
+  "year": -1323,
+  "disp": "c. 1323 BCE",
+  "region": "Egypt",
+  "cov": 0.677,
+  "size": [
+   549,
+   770
+  ]
+ },
+ "terracotta": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Terracotta_warriors.jpg/1920px-Terracotta_warriors.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "TarnishedPath",
+  "page": "https://commons.wikimedia.org/wiki/File:Terracotta_warriors.jpg",
+  "found": "Terracotta warriors.jpg",
+  "key": "terracotta",
+  "name": "Terracotta Army warrior",
+  "year": -210,
+  "disp": "c. 210 BCE",
+  "region": "China",
+  "cov": 0.448,
+  "size": [
+   392,
+   750
+  ]
+ },
+ "buddha": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DP123372.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Purchase, Lita Annenberg Hazen Charitable Trust Gift, 1991",
+  "page": "https://www.metmuseum.org/art/collection/search/38474",
+  "found": "Standing Bodhisattva Maitreya (Buddha of the Future)",
+  "key": "buddha",
+  "name": "Standing Buddha, Gandhara",
+  "year": 200,
+  "disp": "c. 200 CE",
+  "region": "Gandhara",
+  "cov": 0.812,
+  "size": [
+   367,
+   1095
+  ]
+ },
+ "telescope": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Galilei%27s_older_telescope%2C_eyepiece_part%2C_Museo_Galileo%2C_Florence%2C_Inv._2428%2C_224093.jpg/1920px-Galilei%27s_older_telescope%2C_eyepiece_part%2C_Museo_Galileo%2C_Florence%2C_Inv._2428%2C_224093.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Zde",
+  "page": "https://commons.wikimedia.org/wiki/File:Galilei%27s_older_telescope,_eyepiece_part,_Museo_Galileo,_Florence,_Inv._2428,_224093.jpg",
+  "found": "Galilei's older telescope, eyepiece part, Museo Galileo, Florence, Inv. 2428, 224093.jpg",
+  "key": "telescope",
+  "name": "Galileo's telescope",
+  "year": 1609,
+  "disp": "1609",
+  "region": "Italy",
+  "cov": 0.252,
+  "size": [
+   1050,
+   500
+  ]
+ },
+ "polaroid": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Polaroid_SX-70_camera.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY 2.0",
+  "credit": "Michael Gatchell",
+  "page": "https://commons.wikimedia.org/wiki/File:Polaroid_SX-70_camera.jpg",
+  "found": "Polaroid SX-70 camera.jpg",
+  "key": "polaroid",
+  "name": "Polaroid SX-70",
+  "year": 1972,
+  "disp": "1972",
+  "region": "United States",
+  "cov": 0.637,
+  "size": [
+   635,
+   585
+  ]
+ },
+ "rubik": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Solved_Rubik%27s_cube.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Alessandro Di Pretoro",
+  "page": "https://commons.wikimedia.org/wiki/File:Solved_Rubik%27s_cube.jpg",
+  "found": "Solved Rubik's cube.jpg",
+  "key": "rubik",
+  "name": "Rubik's Cube",
+  "year": 1974,
+  "disp": "1974",
+  "region": "Hungary",
+  "cov": 0.782,
+  "size": [
+   481,
+   527
+  ]
+ },
+ "cuneiform": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Cuneiform_Akkadian_clay_tablet_1.jpg/1920px-Cuneiform_Akkadian_clay_tablet_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Original author unknown. Translation help provided by Manuel Molina.",
+  "page": "https://commons.wikimedia.org/wiki/File:Cuneiform_Akkadian_clay_tablet_1.jpg",
+  "found": "Cuneiform Akkadian clay tablet 1.jpg",
+  "key": "cuneiform",
+  "name": "Cuneiform tablet",
+  "year": -2500,
+  "disp": "c. 2500 BCE",
+  "region": "Mesopotamia",
+  "cov": 0.882,
+  "size": [
+   938,
+   1035
+  ]
+ },
+ "jomon": {
+  "url": "https://openaccess-cdn.clevelandart.org/1984.68/1984.68_web.jpg",
+  "src": "Cleveland Museum of Art",
+  "lic": "CC0",
+  "credit": "John L. Severance Fund",
+  "page": "https://clevelandart.org/art/1984.68",
+  "found": "Fire-flame Cooking Vessel (Ka'en Doki)",
+  "key": "jomon",
+  "name": "Jōmon vessel",
+  "year": -3000,
+  "disp": "c. 3000 BCE",
+  "region": "Japan",
+  "cov": 0.604,
+  "size": [
+   547,
+   665
+  ]
+ },
+ "astrolabe": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Persian_astrolabe.jpg/1920px-Persian_astrolabe.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Jacopo188",
+  "page": "https://commons.wikimedia.org/wiki/File:Persian_astrolabe.jpg",
+  "found": "Persian astrolabe.jpg",
+  "key": "astrolabe",
+  "name": "Astrolabe",
+  "year": 1250,
+  "disp": "c. 1250",
+  "region": "Islamic world",
+  "cov": 0.652,
+  "size": [
+   829,
+   1050
+  ]
+ },
+ "modelt": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Model_T_Ford_%2813212007373%29.jpg/1280px-Model_T_Ford_%2813212007373%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "Bernard Spragg. NZ from Christchurch, New Zealand",
+  "page": "https://commons.wikimedia.org/wiki/File:Model_T_Ford_(13212007373).jpg",
+  "found": "Model T Ford (13212007373).jpg",
+  "key": "modelt",
+  "name": "Ford Model T",
+  "year": 1908,
+  "disp": "1908",
+  "region": "United States",
+  "cov": 0.583,
+  "size": [
+   752,
+   447
+  ]
+ },
+ "sputnik": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Sputnik%2C_National_Air_and_Space_Museum.jpg/1280px-Sputnik%2C_National_Air_and_Space_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Photograph by Mike Peel (www.mikepeel.net).",
+  "page": "https://commons.wikimedia.org/wiki/File:Sputnik,_National_Air_and_Space_Museum.jpg",
+  "found": "Sputnik, National Air and Space Museum.jpg",
+  "key": "sputnik",
+  "name": "Sputnik 1 (replica)",
+  "year": 1957,
+  "disp": "1957",
+  "region": "USSR",
+  "cov": 0.115,
+  "size": [
+   358,
+   284
+  ]
+ },
+ "aldrin": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Aldrin_Apollo_11_original.jpg/1280px-Aldrin_Apollo_11_original.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Neil Armstrong",
+  "page": "https://commons.wikimedia.org/wiki/File:Aldrin_Apollo_11_original.jpg",
+  "found": "Aldrin Apollo 11 original.jpg",
+  "key": "aldrin",
+  "name": "Buzz Aldrin on the Moon",
+  "year": 1969,
+  "disp": "1969",
+  "region": "Moon",
+  "cov": 0.644,
+  "size": [
+   261,
+   518
+  ]
+ },
+ "mac": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Computer_macintosh_128k%2C_1984_%28all_about_Apple_onlus%29.jpg/1280px-Computer_macintosh_128k%2C_1984_%28all_about_Apple_onlus%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY 3.0",
+  "credit": "Sailko",
+  "page": "https://commons.wikimedia.org/wiki/File:Computer_macintosh_128k,_1984_(all_about_Apple_onlus).jpg",
+  "found": "Computer macintosh 128k, 1984 (all about Apple onlus).jpg",
+  "key": "mac",
+  "name": "Macintosh 128K",
+  "year": 1984,
+  "disp": "1984",
+  "region": "United States",
+  "cov": 0.639,
+  "size": [
+   835,
+   771
+  ]
+ },
+ "vaccine": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/COVID-19_vaccine_vial_%282024%29.jpg/1280px-COVID-19_vaccine_vial_%282024%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "Whispyhistory",
+  "page": "https://commons.wikimedia.org/wiki/File:COVID-19_vaccine_vial_(2024).jpg",
+  "found": "COVID-19 vaccine vial (2024).jpg",
+  "key": "vaccine",
+  "name": "COVID-19 vaccine vials",
+  "year": 2020,
+  "disp": "2020",
+  "region": "global",
+  "cov": 0.881,
+  "size": [
+   233,
+   487
+  ]
+ }
+}

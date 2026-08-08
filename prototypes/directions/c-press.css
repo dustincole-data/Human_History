@@ -1,0 +1,110 @@
+/* C — PRESS. The page is printed matter, and the printing changes as the printing changed:
+   incised clay, one-block woodcut, letterpress with a spot colour, four-stone chromolitho
+   that never quite registers, then screen RGB with no ink at all. Colour lives in the ink
+   and the type; the photographs are never touched. Contemporaries share a sheet. */
+
+.press{background:#0b0d12}
+
+.sheet{position:relative;overflow:hidden;background:var(--sheet);color:var(--ink);
+       padding:clamp(30px,6vh,80px) 0 clamp(48px,9vh,120px)}
+
+/* left gutter keeps every label clear of the fixed HUD */
+.head{position:relative;z-index:3;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 18px;
+      padding:0 clamp(18px,4vw,56px) clamp(20px,3vh,40px) clamp(112px,13vw,220px)}
+.head b{font-size:clamp(20px,3.2vw,46px);font-weight:900;letter-spacing:-.035em;line-height:.95;
+        color:var(--ink2)}
+.head span{font-size:clamp(12px,1.2vw,14.5px);font-weight:500;opacity:.7;max-width:44ch;
+           line-height:1.45}
+
+/* rules — the grammar's own furniture, redrawn per movement */
+.rules{position:relative;z-index:2;margin:0 clamp(18px,4vw,56px) clamp(26px,4vh,54px)}
+.rules i{display:block;background:var(--ink);opacity:.85}
+[data-g="incised"]  .rules i{height:1px;opacity:.35}
+[data-g="woodblock"] .rules i{height:6px}
+[data-g="woodblock"] .rules i+i{height:2px;margin-top:5px}
+[data-g="letterpress"] .rules i{height:3px}
+[data-g="letterpress"] .rules i+i{height:1px;margin-top:4px}
+[data-g="letterpress"] .rules i+i+i{height:7px;margin-top:14px;background:var(--ink2);opacity:1}
+[data-g="chromo"] .rules i{height:9px;background:var(--ink2);opacity:1}
+[data-g="chromo"] .rules i+i{height:9px;margin-top:3px;background:var(--ink3)}
+[data-g="chromo"] .rules i+i+i{height:9px;margin-top:3px;background:var(--ink4)}
+[data-g="screen"] .rules{display:none}
+
+.spread{position:relative;padding:clamp(14px,2.2vh,32px) 0}
+
+/* the year, set as a colour shape rather than a label. it moves at its own rate.
+   sits high in the spread so it lands behind the objects, not behind the captions. */
+.num{position:absolute;z-index:1;left:50%;top:38%;pointer-events:none;user-select:none;
+     transform:translate(-50%,-50%) translateY(calc((0.5 - var(--p,.5)) * 150px));
+     font-size:clamp(96px,25vw,340px);font-weight:900;letter-spacing:-.06em;line-height:.8;
+     color:var(--ink2);opacity:.22;white-space:nowrap}
+[data-g="incised"] .num{color:transparent;-webkit-text-stroke:2px var(--ink);opacity:.28}
+[data-g="chromo"] .num{opacity:.85;mix-blend-mode:multiply}
+[data-g="chromo"] .num::after{content:attr(data-y);position:absolute;left:7px;top:6px;
+     color:var(--ink3);mix-blend-mode:multiply}
+[data-g="screen"] .num{opacity:.9;mix-blend-mode:multiply}
+[data-g="screen"] .num::after{content:attr(data-y);position:absolute;left:9px;top:0;
+     color:var(--ink3);mix-blend-mode:multiply}
+
+.row{position:relative;z-index:2;display:flex;flex-wrap:wrap;align-items:flex-end;
+     justify-content:center;gap:clamp(18px,var(--gap,4vw),64px);
+     padding:0 clamp(14px,4vw,56px)}
+.row.bleed{width:114%;margin-left:-7%}
+.item{max-width:42vw;text-align:center;
+      transform:translateY(calc((0.5 - var(--p,.5)) * -22px))}
+.row .item:nth-child(even){margin-bottom:clamp(14px,3vh,42px)}
+.item .pic{display:flex;align-items:flex-end;justify-content:center;height:var(--h)}
+.item img{max-height:var(--h);width:auto;max-width:36vw;
+          filter:drop-shadow(0 12px 20px rgba(0,0,0,.28))}
+[data-g="screen"] .item img{filter:drop-shadow(0 14px 24px rgba(11,13,18,.24))}
+
+.cap{margin-top:14px}
+.name{font-size:clamp(12px,1.35vw,16px);font-weight:800;letter-spacing:-.015em}
+.yr{font-size:clamp(11px,1.15vw,13px);font-weight:700;font-variant-numeric:tabular-nums;
+    color:var(--ink2);margin-top:.3em}
+[data-g="screen"] .yr{color:#b3006f}
+.also{font-size:clamp(10px,1.05vw,12px);font-weight:500;opacity:.78;margin:.7em auto 0;
+      line-height:1.5;max-width:28ch}
+.cap .cite{margin-top:.8em}
+
+.runner{position:relative;z-index:3;margin-top:clamp(24px,4vh,48px);
+        padding:0 clamp(18px,4vw,56px);font-size:11.5px;font-weight:700;letter-spacing:.16em;
+        text-transform:uppercase;opacity:.6;
+        transform:translateY(calc((0.5 - var(--p,.5)) * 44px))}
+
+.callout{position:relative;z-index:3;margin:clamp(30px,5vh,64px) clamp(18px,4vw,56px) 0;
+         max-width:22ch;font-size:clamp(19px,3vw,42px);font-weight:900;letter-spacing:-.03em;
+         line-height:1.04}
+.callout b{background:var(--ink2);color:var(--sheet);padding:0 .12em}
+[data-g="screen"] .callout b{background:var(--ink3);color:#0b0d12}
+
+.intro{background:#c1663a;color:#2a1206;padding:34vh clamp(18px,5vw,64px) 12vh}
+.intro h1{font-size:clamp(21px,3.4vw,44px);font-weight:900;letter-spacing:-.035em;max-width:19ch;
+          line-height:1.04;text-wrap:balance}
+.intro p{margin-top:1.6em;font-size:clamp(12px,1.2vw,14.5px);font-weight:500;opacity:.75;
+         max-width:46ch;line-height:1.55}
+.stop{background:#0b0d12;color:#f2f4f8;padding:26vh clamp(18px,5vw,64px) 30vh}
+.stop h2{font-size:clamp(17px,2.4vw,30px);font-weight:900;letter-spacing:-.03em;max-width:22ch}
+.stop p{margin-top:1.2em;font-size:13px;font-weight:500;opacity:.55;max-width:44ch;line-height:1.6}
+
+#hud{position:fixed;top:0;left:0;padding:20px clamp(16px,2.4vw,28px);z-index:60;
+     pointer-events:none;color:var(--hud-ink,#2b1d10)}
+#hud .num2{display:block;font-size:clamp(28px,3.6vw,50px);font-weight:900;line-height:.9;
+           font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+#hud .unit{display:block;font-size:11px;font-weight:700;letter-spacing:.2em;opacity:.55;
+           margin-top:.7em}
+#hud .era{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;margin-top:1.5em;
+          text-transform:uppercase;color:var(--hud-spot,inherit);max-width:14ch;line-height:1.4}
+
+@media (max-width:700px){
+  .item{max-width:44vw}
+  .item img{max-width:42vw}
+  .row{gap:14px}
+  .row.bleed{width:100%;margin-left:0}
+  .head{padding-left:92px}
+  #hud{padding:12px 14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .num,.item,.runner{transform:translate(-50%,-50%)}
+  .item,.runner{transform:none}
+}
