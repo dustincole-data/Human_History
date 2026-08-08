@@ -20,6 +20,40 @@ Hand-picked images on a hand-picked span. It cannot pass [06](../../.scratch/hum
 legibility gate, which needs [02](../../.scratch/human-history/issues/02-image-supply.md)'s real spread
 including the ugly cases. Treat every number below as an indication, not a pass.
 
+---
+
+## SUPERSEDED, 2026-08-08 — read this first
+
+**The look was rejected outright.** Dustin: *"this is complete garbage… a lot of the images did not remove
+the background properly."* Direction re-opened as [13](../../.scratch/human-history/issues/13-visual-direction-v2.md),
+with the evidence in [12](../../.scratch/human-history/issues/12-scrollytelling-craft.md). Keep this page only
+as the record of what not to do: it is a flat line — one treatment, one rhythm, no motion, no colour.
+
+**The background removal was also my error, not a limit of the problem.** I hand-rolled a flood fill
+(`knockout.py`, now deleted) instead of using a matting model. Replaced with `matte.py` — `rembg` with
+`isnet-general-use`, running locally, free, no API. Results in `img-ml/`, contact sheet in
+`matting-comparison.png`.
+
+**This overturns a ruling.** [11](../../.scratch/human-history/issues/11-visual-anchor.md) decided that
+*"if a thing cannot be cut out of its photograph and still be recognized, it doesn't go in"*, and assumed
+that meant sourcing objects on clean museum sweeps. On the ten subjects that **completely defeated** the
+flood fill, the model cut **nine**:
+
+| Subject | Old method | Model |
+|---|---|---|
+| Aldrin in the visor photo | impossible (lunar scene) | clean figure |
+| Sputnik incl. thin antennas | impossible | clean, antennas intact |
+| Jōmon flame vessel | impossible (non-uniform sweep) | clean |
+| Astrolabe openwork | no candidate | clean through the piercings |
+| Macintosh 128K, Model T, vaccine vials, cuneiform | impossible / halos | clean |
+| Lunar Module on the surface | impossible | **still fails** |
+
+So the admission filter is **far less restrictive than 11 assumed** — a person can be cut out of a scene,
+which means famous *moments* can become objects after all. Findings 1–3 and 5 below are now historical:
+they describe the limits of the flood fill, not the limits of the task. **Findings 4, 6 and 7 still stand.**
+
+---
+
 ## Findings that cost real time, and that 02/06 should not rediscover
 
 1. **Museum sweeps are gradients, not flat colours.** A fixed-tolerance flood fill leaves grey halos on
