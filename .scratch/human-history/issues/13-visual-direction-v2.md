@@ -141,3 +141,56 @@ need a real texture/LOD strategy at 200–400 objects rather than 36; 2's pile h
 what the *index* is; none of the four has been tested on a real phone.
 
 **Still open.** Same rule: he picks, or mixes.
+
+---
+
+## Round 3, 2026-08-08 — GRAVITY picked, and it gained a mechanic
+
+**Verdict, verbatim:** *"I think I like the idea of gravity the most, but it's all piling up too
+quickly… four of them fell at once, but only one was labeled. They fell so fast that I couldn't even
+read the one that was labeled. Also, they're going to need to be buried over time as the new items
+come in… maybe the Earth overlays it, and time kind of buries all the objects. We're going to need a
+lot more images, but I'm starting to kind of like the concept."*
+
+**The burial is his idea and it is a better one than the heap.** It converts a pile into a
+**sediment**, and in doing so it quietly solves three separate problems the flat round could not:
+
+- it gives the piece a **designed shape with movements** ([12](12-scrollytelling-craft.md), finding 1)
+  without a single grammar change — the *ground level itself* is the movement;
+- it gives **reward** (finding 6): things are covered, and you can still half-see them down there;
+- it reconciles GRAVITY with what STRATA was reaching for. The strata are dated earth — earth, silt,
+  stone, clay, soot, ash, concrete — laid down at the moment each object lands. **Directions 2 and A
+  are the same idea; the burial is the join.**
+
+**Built this round:**
+
+| Complaint | Fix |
+|---|---|
+| piles up too quickly | 1,000 px of scroll per object, and a hard 880 ms floor between drops — a fast scroll **queues**, it never dumps |
+| four at once | one at a time, always |
+| too fast to read | gravity 0.52 with air friction; a fall now takes seconds, from a spawn point 0.72 viewports up |
+| only one labelled | **every** object carries its own label from the moment it appears, and the label fades only as the earth covers it |
+| needs many more images | 36 → **72** |
+
+Plus: the camera tracks the top of the pile, so you are always standing on the present; museum credit
+lines are truncated to the attribution (a Met credit ran six lines on a label).
+
+**Sourcing pass 4** (`source4.py`, chunked so rembg cannot exhaust memory): 48 more named artifacts,
+Met CC0 first. **Eight thrown out on the contact sheet, and one of those matters** — a "Space Shuttle"
+hit was a *Smithsonian 3D model render*, which is a **constraint breach, not merely a wrong result**.
+That is the trap [02](02-image-supply.md) named, caught by eye, and it is the argument for never
+letting an automated pass write straight into the set. Seven more were renamed to what they actually
+are (a "Nataraja" was an Ardhanarishvara; a "PlayStation" was a Vita).
+
+`data.js` is now **generated** by `build_data.py` from `sourced.json` — hand-maintaining it stopped
+being safe past three dozen, and the drops and renames now live in one visible place.
+
+Decoded texture cost at 72 objects: **34.8 MB** against the 80 MB gate.
+
+### Still open on GRAVITY
+
+- **The set.** 72 is not 200–400. [05](05-arrival-set.md) still owns the real one.
+- **What the index is.** The martini glass needs a bowl; a buried pile has no obvious one. Possibly
+  digging back down — which the burial makes literal, and which nothing else has offered.
+- **Mobile.** Untested on a real device. A physics sim plus a tall page is the riskiest of the four.
+- **Whether the strata should be the pigment ramp** from direction A rather than plain earth tones.

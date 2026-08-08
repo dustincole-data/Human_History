@@ -452,5 +452,779 @@
    233,
    487
   ]
+ },
+ "worshiper": {
+  "url": "https://images.metmuseum.org/CRDImages/an/original/DP-39988-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Fletcher Fund, 1940",
+  "page": "https://www.metmuseum.org/art/collection/search/323735",
+  "found": "Standing male worshiper",
+  "key": "worshiper",
+  "name": "Sumerian worshipper figure",
+  "year": -2700,
+  "disp": "c. 2700 BCE",
+  "region": "Mesopotamia",
+  "cov": 0.665,
+  "size": [
+   304,
+   712
+  ]
+ },
+ "hippo": {
+  "url": "https://images.metmuseum.org/CRDImages/eg/original/DP248993.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Edward S. Harkness, 1917",
+  "page": "https://www.metmuseum.org/art/collection/search/544227",
+  "found": "Hippopotamus (\"William\")",
+  "key": "hippo",
+  "name": "Faience hippopotamus",
+  "year": -1950,
+  "disp": "c. 1950 BCE",
+  "region": "Egypt",
+  "cov": 0.689,
+  "size": [
+   509,
+   369
+  ]
+ },
+ "gu": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DP219834.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Munsey Fund, 1931",
+  "page": "https://www.metmuseum.org/art/collection/search/42172",
+  "found": "Ritual Wine Vessel (Jue)",
+  "key": "gu",
+  "name": "Shang ritual wine vessel",
+  "year": -1200,
+  "disp": "c. 1200 BCE",
+  "region": "China",
+  "cov": 0.32,
+  "size": [
+   557,
+   619
+  ]
+ },
+ "kouros": {
+  "url": "https://images.metmuseum.org/CRDImages/gr/original/DP-23263-005.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Fletcher Fund, 1932",
+  "page": "https://www.metmuseum.org/art/collection/search/253370",
+  "found": "Marble statue of a kouros (youth)",
+  "key": "kouros",
+  "name": "Marble kouros",
+  "year": -590,
+  "disp": "c. 590 BCE",
+  "region": "Greece",
+  "cov": 0.627,
+  "size": [
+   212,
+   808
+  ]
+ },
+ "corinth": {
+  "url": "https://images.metmuseum.org/CRDImages/gr/original/3424.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Rogers Fund, 1907",
+  "page": "https://www.metmuseum.org/art/collection/search/247983",
+  "found": "Bronze helmet of the Corinthian type",
+  "key": "corinth",
+  "name": "Corinthian helmet",
+  "year": -550,
+  "disp": "c. 550 BCE",
+  "region": "Greece",
+  "cov": 0.758,
+  "size": [
+   613,
+   726
+  ]
+ },
+ "krater": {
+  "url": "https://images.metmuseum.org/CRDImages/gr/original/DP-23276-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Rogers Fund, 1950",
+  "page": "https://www.metmuseum.org/art/collection/search/254649",
+  "found": "Terracotta column-krater (bowl for mixing wine and water)",
+  "key": "krater",
+  "name": "Terracotta krater",
+  "year": -450,
+  "disp": "c. 450 BCE",
+  "region": "Greece",
+  "cov": 0.662,
+  "size": [
+   508,
+   658
+  ]
+ },
+ "tanghorse": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DP-42381-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Seymour Fund, 1951",
+  "page": "https://www.metmuseum.org/art/collection/search/49513",
+  "found": "Horse",
+  "key": "tanghorse",
+  "name": "Tang sancai horse",
+  "year": 700,
+  "disp": "c. 700 CE",
+  "region": "China",
+  "cov": 0.478,
+  "size": [
+   511,
+   605
+  ]
+ },
+ "hanfigure": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DT206.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Charlotte C. and John C. Weber Collection, Gift of Charlotte C. and John C. Weber, 1992",
+  "page": "https://www.metmuseum.org/art/collection/search/42178",
+  "found": "Female Dancer",
+  "key": "hanfigure",
+  "name": "Han tomb figure",
+  "year": -50,
+  "disp": "c. 50 BCE",
+  "region": "China",
+  "cov": 0.627,
+  "size": [
+   287,
+   734
+  ]
+ },
+ "nataraja": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DT8683.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Samuel Eilenberg Collection, Gift of Samuel Eilenberg, 1987",
+  "page": "https://www.metmuseum.org/art/collection/search/39153",
+  "found": "The Half-Male, Half-Female Form of Shiva (Shiva Ardhanarishvara)",
+  "key": "nataraja",
+  "name": "Shiva Nataraja",
+  "year": 1050,
+  "disp": "c. 1050",
+  "region": "India",
+  "cov": 0.614,
+  "size": [
+   382,
+   783
+  ]
+ },
+ "mosquelamp": {
+  "url": "https://images.metmuseum.org/CRDImages/is/original/DP-17265-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Edward C. Moore Collection, Bequest of Edward C. Moore, 1891",
+  "page": "https://www.metmuseum.org/art/collection/search/444718",
+  "found": "Mosque Lamp",
+  "key": "mosquelamp",
+  "name": "Mamluk mosque lamp",
+  "year": 1350,
+  "disp": "c. 1350",
+  "region": "Egypt / Syria",
+  "cov": 0.671,
+  "size": [
+   363,
+   500
+  ]
+ },
+ "ewer": {
+  "url": "https://images.metmuseum.org/CRDImages/is/original/DP241076.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Rogers Fund, 1944",
+  "page": "https://www.metmuseum.org/art/collection/search/450513",
+  "found": "Ewer",
+  "key": "ewer",
+  "name": "Islamic brass ewer",
+  "year": 1200,
+  "disp": "c. 1200",
+  "region": "Iran",
+  "cov": 0.631,
+  "size": [
+   342,
+   718
+  ]
+ },
+ "mayavessel": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DP-23468-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Michael C. Rockefeller Memorial Collection, Gift of Nelson A. Rockefeller, 1963",
+  "page": "https://www.metmuseum.org/art/collection/search/310542",
+  "found": "Whistling vessel",
+  "key": "mayavessel",
+  "name": "Maya cylinder vessel",
+  "year": 750,
+  "disp": "c. 750 CE",
+  "region": "Guatemala",
+  "cov": 0.652,
+  "size": [
+   476,
+   734
+  ]
+ },
+ "chimu": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DP-25939-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Jan Mitchell and Sons Collection, Gift of Jan Mitchell, 1991",
+  "page": "https://www.metmuseum.org/art/collection/search/316435",
+  "found": "Earflare with figure holding beakers",
+  "key": "chimu",
+  "name": "Chimú gold ornament",
+  "year": 1350,
+  "disp": "c. 1350",
+  "region": "Peru",
+  "cov": 0.676,
+  "size": [
+   690,
+   761
+  ]
+ },
+ "kubamask": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DP-25421-001.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Samuel and Gabrielle Lurie, in celebration of the Museum's 150th Anniversary, 2018",
+  "page": "https://www.metmuseum.org/art/collection/search/812107",
+  "found": "Helmet mask",
+  "key": "kubamask",
+  "name": "Kuba mask",
+  "year": 1880,
+  "disp": "c. 1880",
+  "region": "DR Congo",
+  "cov": 0.668,
+  "size": [
+   478,
+   849
+  ]
+ },
+ "dogon": {
+  "url": "https://images.metmuseum.org/CRDImages/ao/original/DT1216.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Michael C. Rockefeller Memorial Collection, Bequest of Nelson A. Rockefeller, 1979",
+  "page": "https://www.metmuseum.org/art/collection/search/312231",
+  "found": "Aduno Koro (Ark of the World) vessel with ancestral figures",
+  "key": "dogon",
+  "name": "Dogon figure",
+  "year": 1700,
+  "disp": "c. 1700",
+  "region": "Mali",
+  "cov": 0.669,
+  "size": [
+   795,
+   223
+  ]
+ },
+ "netsuke": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/10_211_1768_O1_sf.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Mrs. Russell Sage, 1910",
+  "page": "https://www.metmuseum.org/art/collection/search/59068",
+  "found": "Netsuke",
+  "key": "netsuke",
+  "name": "Netsuke",
+  "year": 1800,
+  "disp": "c. 1800",
+  "region": "Japan",
+  "cov": 0.714,
+  "size": [
+   313,
+   291
+  ]
+ },
+ "katana": {
+  "url": "https://images.metmuseum.org/CRDImages/aa/original/DT306021.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Howard Mansfield Collection, Gift of Howard Mansfield, 1936",
+  "page": "https://www.metmuseum.org/art/collection/search/27789",
+  "found": "Blades and Mountings for a Pair of Swords (Daishō)",
+  "key": "katana",
+  "name": "Japanese blade",
+  "year": 1500,
+  "disp": "c. 1500",
+  "region": "Japan",
+  "cov": 0.293,
+  "size": [
+   766,
+   176
+  ]
+ },
+ "haniwa": {
+  "url": "https://images.metmuseum.org/CRDImages/as/original/DT10526.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Harry G. C. Packard Collection of Asian Art, Gift of Harry G. C. Packard, and Purchase, Fletcher, Rogers, Harris Brisbane Dick, and Louis V. Bell Funds, Joseph Pulitzer Bequest, and The Annenberg Fund Inc. Gift, 1975",
+  "page": "https://www.metmuseum.org/art/collection/search/44832",
+  "found": "Head of a Clay Tomb Sculpture (Haniwa)",
+  "key": "haniwa",
+  "name": "Haniwa figure",
+  "year": 500,
+  "disp": "c. 500 CE",
+  "region": "Japan",
+  "cov": 0.613,
+  "size": [
+   429,
+   705
+  ]
+ },
+ "stradivari": {
+  "url": "https://images.metmuseum.org/CRDImages/mi/original/DP230469.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Evelyn Stark, 1997",
+  "page": "https://www.metmuseum.org/art/collection/search/500905",
+  "found": "Violin",
+  "key": "stradivari",
+  "name": "Stradivari violin",
+  "year": 1693,
+  "disp": "1693",
+  "region": "Italy",
+  "cov": 0.52,
+  "size": [
+   240,
+   706
+  ]
+ },
+ "armillary": {
+  "url": "https://images.metmuseum.org/CRDImages/es/original/DP349125.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Helena Woolworth McCann Collection, Purchase, Winfield Foundation Gift, 1967",
+  "page": "https://www.metmuseum.org/art/collection/search/204716",
+  "found": "Dish with IHS monogram, armillary sphere, and Portuguese royal arms",
+  "key": "armillary",
+  "name": "Armillary sphere",
+  "year": 1600,
+  "disp": "c. 1600",
+  "region": "Europe",
+  "cov": 0.784,
+  "size": [
+   545,
+   542
+  ]
+ },
+ "chalice": {
+  "url": "https://images.metmuseum.org/CRDImages/cl/original/DP366852.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "The Cloisters Collection, 1947",
+  "page": "https://www.metmuseum.org/art/collection/search/474435",
+  "found": "Chalice",
+  "key": "chalice",
+  "name": "Medieval chalice",
+  "year": 1300,
+  "disp": "c. 1300",
+  "region": "Europe",
+  "cov": 0.64,
+  "size": [
+   509,
+   676
+  ]
+ },
+ "crossbow": {
+  "url": "https://images.metmuseum.org/CRDImages/aa/original/DP295989.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Bashford Dean Memorial Collection, Funds from various donors, 1929",
+  "page": "https://www.metmuseum.org/art/collection/search/23337",
+  "found": "Crossbow (Halbe Rüstung) with Winder (Cranequin)",
+  "key": "crossbow",
+  "name": "Crossbow",
+  "year": 1500,
+  "disp": "c. 1500",
+  "region": "Europe",
+  "cov": 0.218,
+  "size": [
+   740,
+   517
+  ]
+ },
+ "tableclock": {
+  "url": "https://images.metmuseum.org/CRDImages/es/original/DP210717.jpg",
+  "src": "The Met",
+  "lic": "CC0",
+  "credit": "Gift of Samuel H. Kress Foundation, 1958",
+  "page": "https://www.metmuseum.org/art/collection/search/202227",
+  "found": "Mantel clock with musical movement",
+  "key": "tableclock",
+  "name": "Table clock",
+  "year": 1580,
+  "disp": "c. 1580",
+  "region": "Germany",
+  "cov": 0.539,
+  "size": [
+   421,
+   745
+  ]
+ },
+ "colt": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/2019_Colt_Navy_1851_Leech%26Rigdon.jpg/1280px-2019_Colt_Navy_1851_Leech%26Rigdon.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Jacek Halicki",
+  "page": "https://commons.wikimedia.org/wiki/File:2019_Colt_Navy_1851_Leech%26Rigdon.jpg",
+  "found": "2019 Colt Navy 1851 Leech&Rigdon.jpg",
+  "key": "colt",
+  "name": "Colt revolver",
+  "year": 1851,
+  "disp": "c. 1851",
+  "region": "United States",
+  "cov": 0.32,
+  "size": [
+   807,
+   296
+  ]
+ },
+ "telegraph": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Morse_Telegraph_1837_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Zubro",
+  "page": "https://commons.wikimedia.org/wiki/File:Morse_Telegraph_1837_cropped.jpg",
+  "found": "Morse Telegraph 1837 cropped.jpg",
+  "key": "telegraph",
+  "name": "Morse telegraph key",
+  "year": 1844,
+  "disp": "c. 1844",
+  "region": "United States",
+  "cov": 0.26,
+  "size": [
+   791,
+   428
+  ]
+ },
+ "phonograph": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Dictation_using_cylinder_phonograph.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "The drawing is signed, 'Electrical World, N.Y.'",
+  "page": "https://commons.wikimedia.org/wiki/File:Dictation_using_cylinder_phonograph.png",
+  "found": "Dictation using cylinder phonograph.png",
+  "key": "phonograph",
+  "name": "Edison phonograph",
+  "year": 1899,
+  "disp": "c. 1899",
+  "region": "United States",
+  "cov": 0.559,
+  "size": [
+   621,
+   618
+  ]
+ },
+ "leica": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Leica_I_Camera_Austin_Calhoon_Photograph.jpg/1280px-Leica_I_Camera_Austin_Calhoon_Photograph.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Austin Calhoon",
+  "page": "https://commons.wikimedia.org/wiki/File:Leica_I_Camera_Austin_Calhoon_Photograph.jpg",
+  "found": "Leica I Camera Austin Calhoon Photograph.jpg",
+  "key": "leica",
+  "name": "Leica I camera",
+  "year": 1925,
+  "disp": "1925",
+  "region": "Germany",
+  "cov": 0.57,
+  "size": [
+   717,
+   343
+  ]
+ },
+ "cokebottle": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/1915_contour_Coca-Cola_contour_bottle_prototype.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Gavinmacqueen (talk)",
+  "page": "https://commons.wikimedia.org/wiki/File:1915_contour_Coca-Cola_contour_bottle_prototype.png",
+  "found": "1915 contour Coca-Cola contour bottle prototype.png",
+  "key": "cokebottle",
+  "name": "Coca-Cola contour bottle",
+  "year": 1915,
+  "disp": "1915",
+  "region": "United States",
+  "cov": 0.703,
+  "size": [
+   176,
+   489
+  ]
+ },
+ "beetle": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/1957_Volkswagen_Beetle%2C_export_model%2C_in_front_of_Porta_Nigra_in_Trier_2023-05-01.jpg/1280px-1957_Volkswagen_Beetle%2C_export_model%2C_in_front_of_Porta_Nigra_in_Trier_2023-05-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Palauenc05",
+  "page": "https://commons.wikimedia.org/wiki/File:1957_Volkswagen_Beetle,_export_model,_in_front_of_Porta_Nigra_in_Trier_2023-05-01.jpg",
+  "found": "1957 Volkswagen Beetle, export model, in front of Porta Nigra in Trier 2023-05-01.jpg",
+  "key": "beetle",
+  "name": "Volkswagen Beetle",
+  "year": 1938,
+  "disp": "1938",
+  "region": "Germany",
+  "cov": 0.647,
+  "size": [
+   763,
+   431
+  ]
+ },
+ "enigma": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Enigma-IMG_0487-black.jpg/1280px-Enigma-IMG_0487-black.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 2.0 fr",
+  "credit": "Rama",
+  "page": "https://commons.wikimedia.org/wiki/File:Enigma-IMG_0487-black.jpg",
+  "found": "Enigma-IMG 0487-black.jpg",
+  "key": "enigma",
+  "name": "Enigma machine",
+  "year": 1938,
+  "disp": "c. 1938",
+  "region": "Germany",
+  "cov": 0.781,
+  "size": [
+   864,
+   496
+  ]
+ },
+ "vespa": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Piaggio_Vespa_in_M%C3%BCnchen.jpg/1280px-Piaggio_Vespa_in_M%C3%BCnchen.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY 4.0",
+  "credit": "AuHaidhausen",
+  "page": "https://commons.wikimedia.org/wiki/File:Piaggio_Vespa_in_M%C3%BCnchen.jpg",
+  "found": "Piaggio Vespa in München.jpg",
+  "key": "vespa",
+  "name": "Vespa scooter",
+  "year": 1946,
+  "disp": "1946",
+  "region": "Italy",
+  "cov": 0.489,
+  "size": [
+   682,
+   639
+  ]
+ },
+ "lego": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/14-05-28-LEGO-by-RalfR-061.jpg/1280px-14-05-28-LEGO-by-RalfR-061.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "GFDL 1.2",
+  "credit": "Ralf Roletschek",
+  "page": "https://commons.wikimedia.org/wiki/File:14-05-28-LEGO-by-RalfR-061.jpg",
+  "found": "14-05-28-LEGO-by-RalfR-061.jpg",
+  "key": "lego",
+  "name": "Lego brick",
+  "year": 1958,
+  "disp": "1958",
+  "region": "Denmark",
+  "cov": 0.378,
+  "size": [
+   521,
+   431
+  ]
+ },
+ "barbie": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/The_%22Gay_Parisienne%22_Bisque_Barbie_Doll_-_DPLA_-_8afdcfc39cc137d9f78a1a9178ebd5ac_%28page_7%29.jpg/1280px-The_%22Gay_Parisienne%22_Bisque_Barbie_Doll_-_DPLA_-_8afdcfc39cc137d9f78a1a9178ebd5ac_%28page_7%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Mattel, Inc",
+  "page": "https://commons.wikimedia.org/wiki/File:The_%22Gay_Parisienne%22_Bisque_Barbie_Doll_-_DPLA_-_8afdcfc39cc137d9f78a1a9178ebd5ac_(page_7).jpg",
+  "found": "The \"Gay Parisienne\" Bisque Barbie Doll - DPLA - 8afdcfc39cc137d9f78a1a9178ebd5ac (page 7).jpg",
+  "key": "barbie",
+  "name": "Barbie doll",
+  "year": 1959,
+  "disp": "1959",
+  "region": "United States",
+  "cov": 0.823,
+  "size": [
+   767,
+   419
+  ]
+ },
+ "nes": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Nintendo-Super-NES-Console-101-FL.jpg/1280px-Nintendo-Super-NES-Console-101-FL.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Evan-Amos",
+  "page": "https://commons.wikimedia.org/wiki/File:Nintendo-Super-NES-Console-101-FL.jpg",
+  "found": "Nintendo-Super-NES-Console-101-FL.jpg",
+  "key": "nes",
+  "name": "Nintendo Entertainment System",
+  "year": 1985,
+  "disp": "1985",
+  "region": "Japan",
+  "cov": 0.653,
+  "size": [
+   768,
+   514
+  ]
+ },
+ "playstation": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/PlayStation-Vita-1101-FL.jpg/1280px-PlayStation-Vita-1101-FL.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Evan-Amos",
+  "page": "https://commons.wikimedia.org/wiki/File:PlayStation-Vita-1101-FL.jpg",
+  "found": "PlayStation-Vita-1101-FL.jpg",
+  "key": "playstation",
+  "name": "Sony PlayStation",
+  "year": 1994,
+  "disp": "1994",
+  "region": "Japan",
+  "cov": 0.73,
+  "size": [
+   860,
+   497
+  ]
+ },
+ "dynatac": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/7/74/DynaTAC8000X.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Redrum0486",
+  "page": "https://commons.wikimedia.org/wiki/File:DynaTAC8000X.jpg",
+  "found": "DynaTAC8000X.jpg",
+  "key": "dynatac",
+  "name": "Motorola DynaTAC",
+  "year": 1983,
+  "disp": "1983",
+  "region": "United States",
+  "cov": 0.876,
+  "size": [
+   213,
+   622
+  ]
+ },
+ "rotaryphone": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Bakelite_Telephone_%2820967111954%29.jpg/1280px-Bakelite_Telephone_%2820967111954%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY 2.0",
+  "credit": "William Warby from London, England",
+  "page": "https://commons.wikimedia.org/wiki/File:Bakelite_Telephone_(20967111954).jpg",
+  "found": "Bakelite Telephone (20967111954).jpg",
+  "key": "rotaryphone",
+  "name": "Rotary telephone",
+  "year": 1950,
+  "disp": "c. 1950",
+  "region": "United States",
+  "cov": 0.62,
+  "size": [
+   580,
+   499
+  ]
+ },
+ "cassette": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Digital8_%26_Compact_Cassette_hor.jpg/1280px-Digital8_%26_Compact_Cassette_hor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "Inpriva",
+  "page": "https://commons.wikimedia.org/wiki/File:Digital8_%26_Compact_Cassette_hor.jpg",
+  "found": "Digital8 & Compact Cassette hor.jpg",
+  "key": "cassette",
+  "name": "Compact cassette",
+  "year": 1963,
+  "disp": "1963",
+  "region": "Netherlands",
+  "cov": 0.91,
+  "size": [
+   588,
+   186
+  ]
+ },
+ "vinyl": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/12in-Vinyl-LP-Record-Angle.jpg/1280px-12in-Vinyl-LP-Record-Angle.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "Public domain",
+  "credit": "Evan-Amos",
+  "page": "https://commons.wikimedia.org/wiki/File:12in-Vinyl-LP-Record-Angle.jpg",
+  "found": "12in-Vinyl-LP-Record-Angle.jpg",
+  "key": "vinyl",
+  "name": "Vinyl LP record",
+  "year": 1948,
+  "disp": "1948",
+  "region": "United States",
+  "cov": 0.786,
+  "size": [
+   760,
+   777
+  ]
+ },
+ "imac": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/IMac_G3_Bondi_Blue%2C_three-quarters_view.png/1280px-IMac_G3_Bondi_Blue%2C_three-quarters_view.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Alterations by David Fuchs; original by Rama, licensed CC-by-SA",
+  "page": "https://commons.wikimedia.org/wiki/File:IMac_G3_Bondi_Blue,_three-quarters_view.png",
+  "found": "IMac G3 Bondi Blue, three-quarters view.png",
+  "key": "imac",
+  "name": "iMac G3",
+  "year": 1998,
+  "disp": "1998",
+  "region": "United States",
+  "cov": 0.763,
+  "size": [
+   869,
+   804
+  ]
+ },
+ "ipod": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/IPod_Line.png/1280px-IPod_Line.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 3.0",
+  "credit": "User:Aido2002",
+  "page": "https://commons.wikimedia.org/wiki/File:IPod_Line.png",
+  "found": "IPod Line.png",
+  "key": "ipod",
+  "name": "iPod",
+  "year": 2001,
+  "disp": "2001",
+  "region": "United States",
+  "cov": 0.769,
+  "size": [
+   698,
+   423
+  ]
+ },
+ "iphone": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Original_iPhone_docked.jpg/1280px-Original_iPhone_docked.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC BY-SA 2.0",
+  "credit": "Andrew from London, UK",
+  "page": "https://commons.wikimedia.org/wiki/File:Original_iPhone_docked.jpg",
+  "found": "Original iPhone docked.jpg",
+  "key": "iphone",
+  "name": "iPhone",
+  "year": 2007,
+  "disp": "2007",
+  "region": "United States",
+  "cov": 0.766,
+  "size": [
+   427,
+   796
+  ]
+ },
+ "shuttle": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Smithsonian_3D_model_of_Space_Shuttle_Discovery.stl/1280px-Smithsonian_3D_model_of_Space_Shuttle_Discovery.stl.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "src": "Wikimedia Commons",
+  "lic": "CC0",
+  "credit": "The Smithsonian Institution",
+  "page": "https://commons.wikimedia.org/wiki/File:Smithsonian_3D_model_of_Space_Shuttle_Discovery.stl",
+  "found": "Smithsonian 3D model of Space Shuttle Discovery.stl",
+  "key": "shuttle",
+  "name": "Space Shuttle orbiter",
+  "year": 1981,
+  "disp": "1981",
+  "region": "United States",
+  "cov": 0.496,
+  "size": [
+   199,
+   468
+  ]
  }
 }

@@ -23,6 +23,12 @@ export const lightFor = y => LIGHTS.filter(l => y >= l[0]).pop();
 
 export const fmt = y => (y < 0 ? Math.abs(y).toLocaleString('en-US') : String(y));
 export const unit = y => (y < 0 ? 'BCE' : 'CE');
+/* museum credit lines run to six lines on a label. keep the attribution, lose the endowment. */
+export const shortCred = c => {
+  const t = String(c || '').split(/,| Collection| Fund| Bequest| Gift of /)[0].trim();
+  return (t.length > 46 ? t.slice(0, 44) + '…' : t) || String(c || '');
+};
+
 export const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255);
 
 /* deterministic per-item scatter, so a reload looks identical */
@@ -74,7 +80,7 @@ export function makeLabels(items) {
     el.className = 'lab';
     el.style.opacity = 0;
     el.innerHTML = `<div class="n">${it.n}</div><div class="y">${it.disp}</div>
-      <div class="c">${it.src} · ${it.lic} · ${it.cred}</div>`;
+      <div class="c">${it.src} · ${it.lic} · ${shortCred(it.cred)}</div>`;
     layer.appendChild(el);
     return el;
   });
