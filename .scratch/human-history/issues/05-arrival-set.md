@@ -26,3 +26,21 @@ Then apply the two editorial tests that decide quality:
 Also rule on: whether "built" is literal (objects, buildings, artifacts) or includes events, ideas and documents — the inherited 58 already mixes them (Trinity Test, the Human Genome Project, the March on Washington). An unstated definition here produces an incoherent set.
 
 **Deliverable:** the complete set as a data file in the repo, every field populated, with a coverage table (by era and by region) and an explicit list of **notable things deliberately excluded and why** — the exclusions are what prove the set was edited rather than accumulated.
+
+---
+
+## Input from [01](01-the-fun-thesis.md) (closed 2026-08-07)
+
+**Target: 200–400 items.** This is the project's main cost and it lands here.
+
+The **admission test** this ticket asked for is now settled, and it is neither pure recognition nor pure discovery:
+
+> An item is admissible **as a neighbour of a famous one**, never as a screen's headline. Every screen must carry at least one thing a stranger recognizes; obscure items earn their place by being *next to* it in time.
+
+That resolves the recognition-vs-discovery tension the ticket flagged as most likely to be fudged — the ratio is not a global percentage, it is a **per-screen floor**. State it as: *no screen ships without a recognizable anchor.* Measure the finished set against that, screen by screen, once [04](04-scroll-mechanic.md) fixes what a screen holds.
+
+Two more consequences:
+
+- **Weight the new work post-1500.** The earlier instruction to weight toward the thin pre-1500 stretch is **superseded**. 01 ruled the deep head is a fast prologue of ~a dozen spectacle items; the density the mechanism eats is in 1500 → now. Pre-1500 needs *strength*, not volume.
+- **Contemporaries are a selection criterion, not just an output.** Items are chosen partly for who they sit beside. An item with no interesting neighbour in time is weaker than a lesser item that creates a real double-take — record the intended adjacency alongside each entry so [04](04-scroll-mechanic.md) and [06](06-visual-treatment.md) can build to it.
+- **Global balance is unchanged and still binding.** The per-screen recognisability floor must not quietly become a Western-canon floor; where non-Western supply is shallow ([02](02-image-supply.md) measures it), say so in the record rather than skewing the set.

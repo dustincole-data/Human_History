@@ -29,3 +29,11 @@ Then answer the two questions that actually decide this:
 Note the ordering trap: [04](04-scroll-mechanic.md) can propose a mechanic this ticket's memory ceiling forbids. Publish the ceiling as a **number with an explicit assumption set**, so 04 can design against it rather than around it.
 
 **Deliverable:** a carry/adapt/discard table with reasons, a stated stack, and a decoded-memory ceiling expressed as *max simultaneously-resident image pixels* plus the mechanism that holds the site under it.
+
+---
+
+## Input from [01](01-the-fun-thesis.md) (closed 2026-08-07)
+
+- **Compute the ceiling against 200–400 items**, not 58. That is now the set size the mechanism requires.
+- **Two surfaces to budget, not one.** [01](01-the-fun-thesis.md) added a browsable index ([10](10-the-index-surface.md)) — the one screen that may want *every* item resident at once. Budget it separately and state whether index thumbnails must be independently derived assets rather than the full-resolution files scaled in CSS. (Decoded cost is `w × h × 4` from intrinsic dimensions; CSS scaling does not reduce it.)
+- **The mechanic will push against you.** [01](01-the-fun-thesis.md)'s judgment test rewards putting *more* recognizable items on one screen at once, so [04](04-scroll-mechanic.md) is now actively incentivized toward the densest screens the arithmetic allows. Publishing the ceiling as a hard number with its assumption set is therefore more load-bearing than when this ticket was written — 04 will design right up to it.

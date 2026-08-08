@@ -19,7 +19,7 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 ### Hard constraints
 
 - **Fun is the payoff, not awe.** Dustin, verbatim: *"I dont care about scale shock. i want it to be fun to the users."* Deep Time's currency was awe at emptiness. This site's currency is enjoyment — recognition, surprise, density of real things. **Every decision is judged by whether a stranger enjoys scrolling it.** Any argument that reaches for "but it's profound" has lost.
-- **True scale is no longer a given.** The original brief asked for Deep Time's true-scale discipline; the fun ruling above supersedes it as a *goal*. True scale survives only if [04](issues/04-scroll-mechanic.md) shows it makes the site more fun, not less. Honesty about dates is still absolute — that is a separate constraint and it does not bend.
+- **True scale is dead as the global spine — settled by [01](issues/01-the-fun-thesis.md) on evidence, not argument.** A 1px = 1 year demo over the real set was ~11,500 px of near-emptiness followed by every recognizable item crushed into the final inch. **Scroll distance is spaced by density, not by time.** [04](issues/04-scroll-mechanic.md) chooses the exact function, not whether to warp. Honesty about dates is absolute and unaffected — warping distance is a design choice, misstating a date is not.
 - **Citation rigor equals Deep Time's.** Every arrival carries source, licence, credit. No fabricated or unsourced date. Contested dates are hedged in notation, not prose.
 - **Real artifacts and photographs only. No generated imagery, anywhere.** Dustin's brief: *"no AI-slop visuals."* This is now fully achievable — the entire span sits inside the artifact record. Any ticket that proposes generating a subject has misread the project.
 - **Global, not America-specific.** The set must not read as a Western canon with tokens attached. This is an editorial requirement on [05](issues/05-arrival-set.md), not a nice-to-have.
@@ -54,14 +54,13 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 
 <!-- one line per closed ticket: gist + link -->
 
-*(none yet — map charted 2026-08-07)*
+- [01 — The fun thesis](issues/01-the-fun-thesis.md) — **simultaneity surprise** is the mechanism, fed by recognition density; delivered as **ambient contemporaries** on every item plus 10–15 planted callouts. True scale killed as the global spine; axis spaced by density. Span stays 12k with the sparse head as a fast prologue. Quiet stop → browsable index; body is scroll-only. **Cost: a 4–6× content bill — 200–400 items, not 58.** Judgment test: *more things a stranger recognizes on the same screen as each other, without shrinking any item below enjoyable.*
 
 ## Not yet specified
 
 - **The build phase.** Everything after [09 — Spec assembly](issues/09-spec-assembly.md): scaffold, data pipeline, image acquisition and processing, layout, the collision/contrast/memory gates, deploy, subdomain, project card. Graduates into tickets once the spec exists — charting it now would be guessing at a shape [04](issues/04-scroll-mechanic.md) and [06](issues/06-visual-treatment.md) haven't decided.
-- **Whether the site has an ending beat at all.** Deep Time's whole architecture served one final moment. If fun rather than awe is the currency, the ending may be a quiet stop, a shareable artifact, or an index. Blocked on [01](issues/01-the-fun-thesis.md) — until the delight mechanism is named there is nothing to shape an ending around.
-- **Whether anything beyond scroll is interactive.** Filtering, search, a "what happened in your lifetime" input, tap-to-expand. Depends entirely on [01](issues/01-the-fun-thesis.md); listing options now would pre-slice fog.
-- **The share artifact and social card.** Deep Time rendered its finale fan as a build-time still. Shape here is unknown until the ending is.
+- **The share artifact and social card.** Deep Time rendered its finale fan as a build-time still. [01](issues/01-the-fun-thesis.md) settled that there is no finale to render and that the sendable unit is a planted callout line, not an image — so the card is probably a treated arrival or an index still. Not sharp enough to ticket until [06](issues/06-visual-treatment.md) sets the visual system.
+- **The prologue↔body seam.** [01](issues/01-the-fun-thesis.md) established that the deep head runs on spectacle and planted callouts while the body runs on ambient contemporaries. Whether that transition is announced, disguised, or structural is [04](issues/04-scroll-mechanic.md)'s to decide, and it may spawn its own ticket once the mechanic exists.
 
 ## Out of scope
 

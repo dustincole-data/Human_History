@@ -19,3 +19,14 @@ Establish, with evidence:
 5. **Acquisition mechanics.** Programmatic access (APIs, bulk endpoints) vs. manual; rate limits; whether attribution must be rendered on-page or may live in a credits view.
 
 **Deliverable:** a written supply report linked from this ticket, plus three hard numbers — **items obtainable pre-1500**, **items obtainable post-1500**, and **the re-source failure rate on the inherited 58** — and a stated per-item acquisition procedure with its licence-verification step.
+
+---
+
+## Input from [01](01-the-fun-thesis.md) (closed 2026-08-07)
+
+**The target is 200–400 items, not 58.** The chosen mechanism (ambient contemporaries) provably fails on a sparse set — at 58 items "nearest in time" reads 1,500 years apart. This ticket's numbers are therefore the project's go/no-go, not background research: **if supply cannot reach ~200 licence-clean full-resolution items, the mechanism does not work and 01 must be reopened.** Report the number plainly either way.
+
+Two refinements to where the digging matters:
+
+- **Weight the search post-1500, against the earlier instinct.** 01 ruled the deep head is a *fast prologue* of a dozen spectacle items, so pre-1500 no longer needs mass — it needs a small number of unmissable ones. The density the mechanism actually eats sits in **1500 → now**, and that is where a shortfall kills the site.
+- **Pre-1500 supply is still worth measuring** (item 2 stands), but reframed: the question is no longer "can we fill 91% of a scroll" — it is "are there a dozen pre-1500 items strong enough to carry a prologue, plus enough beyond them to keep the honest 12,000-year claim from being a facade."
