@@ -74,6 +74,13 @@ acquisition and matting, not choosing.
    sweeps, real dates and credit lines already attached.
 3. Take a **pre-transparent PNG only if it is a genuine photograph or a period illustration.**
    **Reject modern renders and vector clip-art** — constraint breach, not a style preference.
+   **Ruled by Dustin 2026-08-08:** period engravings, prints, diagrams and illustrations are **IN** — they
+   are real artifacts of their moment, and they knock out cleanly (the 1872 press engraving and the
+   Stephenson's Rocket drawing were among the cleanest cut-outs obtained). Modern renders and vector
+   clip-art are **OUT**. Prefer a pre-transparent file whenever a qualifying one exists — Dustin, on the
+   two contact sheets: *"transparent PNGs are good. The other one's not great."* Note that **6 of the 8
+   transparent hits were photographs or period engravings**, so the quality he responded to was the
+   **clean edge**, not the medium; better sourcing reaches the same place.
 4. Otherwise **matte it** (`matte.py`). Verify by eye; the coverage check catches empty and full frames
    but happily passes a beautifully-cut wrong object.
 5. Record source, licence, credit, and the accession URL.
