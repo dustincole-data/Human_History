@@ -30,3 +30,50 @@ Two refinements to where the digging matters:
 
 - **Weight the search post-1500, against the earlier instinct.** 01 ruled the deep head is a *fast prologue* of a dozen spectacle items, so pre-1500 no longer needs mass — it needs a small number of unmissable ones. The density the mechanism actually eats sits in **1500 → now**, and that is where a shortfall kills the site.
 - **Pre-1500 supply is still worth measuring** (item 2 stands), but reframed: the question is no longer "can we fill 91% of a scroll" — it is "are there a dozen pre-1500 items strong enough to carry a prologue, plus enough beyond them to keep the honest 12,000-year claim from being a facade."
+
+---
+
+## Measured 2026-08-08 — the bottleneck is NOT cut-outs, it is subject selection
+
+Prompted by Dustin: *"some are good some suck. probably have to find transparent background pictures."*
+Both halves were tested against a 24-subject spread across the span. Scripts and outputs in
+`prototypes/anchor-preview/` (`matte.py`).
+
+**A. Pre-transparent images exist for only ~⅓ of subjects, and they skew away from photographs.**
+Naive Commons search for PNGs with real alpha (>8% fully-clear pixels): **8 hits / 24 subjects = 33%**.
+Nothing at all for Göbekli Tepe, Jōmon, terracotta army, radio. Worse, the hits **select for the wrong
+kind of image** — people make transparent PNGs for diagrams and logos, not artifact photography. Of the 8:
+the astrolabe and cuneiform tablet are genuine object photos, but the "Sputnik" is a **modern 3D render**,
+the compass card is an illustration, and the Macintosh is a whole desk-and-placard scene. **A
+transparency-first rule would quietly drift the site toward clip-art** and straight into the map's
+no-generated-imagery constraint. Useful as a *preference*, unusable as a *strategy*.
+
+**B. Matting covers the remainder.** All 16 subjects with no transparent version were sourced and matted
+(rembg + isnet). Where the source photo was right, the cut is clean — the amphora, Model T, sword,
+candlestick telephone, steam locomotive and Jōmon vessel are all publication-quality.
+
+**C. The actual defect is search relevance.** The failures in that batch were **wrong subjects, not bad
+cuts**:
+
+| Query | What it returned |
+|---|---|
+| "vintage television receiver" | **salt-and-pepper shakers shaped like televisions** |
+| "Apollo lunar module" | a Met **lunar panorama** photograph |
+| "early mobile phone" | an **SVG clip-art** handset |
+| "Great Pyramid Giza" | an unrecognisable dark strip |
+
+An automated top-hit search cannot pick the right artifact. **This is an editorial job, and it belongs to
+[05](05-arrival-set.md)** — the per-item record must name the *specific* artifact and ideally the
+specific accession, not a search term. Budget for a human-verified item list; the automation's job is
+acquisition and matting, not choosing.
+
+**Revised per-item procedure (item 5's deliverable, first draft):**
+
+1. **Name the artifact specifically** ([05](05-arrival-set.md)), ideally to a museum accession number.
+2. Prefer a **museum open-access record** (Met / Cleveland / Smithsonian / Rijksmuseum) — CC0, clean
+   sweeps, real dates and credit lines already attached.
+3. Take a **pre-transparent PNG only if it is a genuine photograph or a period illustration.**
+   **Reject modern renders and vector clip-art** — constraint breach, not a style preference.
+4. Otherwise **matte it** (`matte.py`). Verify by eye; the coverage check catches empty and full frames
+   but happily passes a beautifully-cut wrong object.
+5. Record source, licence, credit, and the accession URL.
