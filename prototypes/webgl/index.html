@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human History — four ways to make it move</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#05060a}
+  body{font-family:'Archivo',ui-sans-serif,system-ui,sans-serif;color:#eef2f7;
+       -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  canvas{display:block}
+  #gl{position:fixed;inset:0;z-index:0}
+  #spacer{position:relative;z-index:1;pointer-events:none}
+
+  /* facts stay plain, crisp and unanimated — DOM over the canvas, never drawn into it */
+  #labels{position:fixed;inset:0;z-index:3;pointer-events:none}
+  .lab{position:absolute;transform:translate(-50%,0);text-align:center;width:min(30ch,44vw);
+       will-change:transform,opacity}
+  .lab .n{font-size:clamp(12px,1.25vw,15px);font-weight:700;letter-spacing:-.01em;
+          text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  .lab .y{font-size:clamp(11px,1.05vw,13px);font-weight:600;font-variant-numeric:tabular-nums;
+          margin-top:.25em;color:var(--spot,#fff);text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  .lab .c{font-size:9.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+          opacity:.52;margin-top:.55em;line-height:1.5;text-shadow:0 2px 10px rgba(0,0,0,.9)}
+
+  #hud{position:fixed;top:0;left:0;padding:20px clamp(16px,2.4vw,28px);z-index:5;
+       pointer-events:none;mix-blend-mode:normal}
+  #hud .num{display:block;font-size:clamp(28px,3.6vw,50px);font-weight:900;line-height:.9;
+            font-variant-numeric:tabular-nums;letter-spacing:-.035em;
+            text-shadow:0 0 30px var(--spot,transparent)}
+  #hud .unit{display:block;font-size:11px;font-weight:700;letter-spacing:.2em;opacity:.5;
+             margin-top:.7em}
+  #hud .era{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;margin-top:1.5em;
+            text-transform:uppercase;color:var(--spot,#fff);max-width:16ch;line-height:1.4}
+
+  #intro{position:fixed;inset:auto auto 0 0;z-index:5;padding:0 clamp(18px,4vw,60px) 8vh;
+         max-width:min(46ch,80vw);pointer-events:none;transition:opacity .5s ease}
+  #intro h1{font-size:clamp(18px,2.4vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.08;
+            text-wrap:balance;text-shadow:0 2px 24px rgba(0,0,0,.9)}
+  #intro p{margin-top:1em;font-size:clamp(12px,1.15vw,14px);font-weight:500;opacity:.7;
+           line-height:1.5;text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  #hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5;font-size:11px;
+        font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.4;
+        pointer-events:none;transition:opacity .4s ease}
+
+  /* prototype switcher — deliberately not part of the design */
+  #bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9000;
+       display:flex;align-items:center;gap:2px;background:#111;color:#fff;border-radius:999px;
+       padding:5px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:12.5px;font-weight:600}
+  #bar button{all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;line-height:1;
+              font-family:inherit;font-size:13px;font-weight:700}
+  #bar button:hover{background:#333}
+  #bar .lab2{padding:0 14px;white-space:nowrap}
+  #bar .lab2 b{font-weight:900}
+  #bar a{color:#8ecbff;text-decoration:none;padding:0 12px 0 6px;font-size:11.5px;font-weight:600}
+  #loading{position:fixed;inset:0;z-index:8000;display:grid;place-items:center;background:#05060a;
+           font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;opacity:.55;
+           transition:opacity .6s ease}
+  #loading.gone{opacity:0;pointer-events:none}
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/jsm/" } }
+</script>
+</head>
+<body>
+<div id="loading">loading</div>
+<div id="gl"></div>
+<div id="spacer"></div>
+<div id="labels"></div>
+<div id="hud"><b class="num">7,000</b><span class="unit">BCE</span><span class="era"></span></div>
+<div id="intro">
+  <h1>Twelve thousand years of things people built, and what was standing next to each one.</h1>
+  <p id="introp"></p>
+</div>
+<div id="hint"></div>
+
+<script src="../directions/data.js"></script>
+<script>
+const V = {
+  '1':{f:'1-depth',    name:'DEPTH — fly through it'},
+  '2':{f:'2-gravity',  name:'GRAVITY — it piles up'},
+  '3':{f:'3-material', name:'MATERIAL — a living ground'},
+  '4':{f:'4-atlas',    name:'ATLAS — steer through it'}
+};
+const qs = new URLSearchParams(location.search);
+const cur = V[qs.get('v')] ? qs.get('v') : '1';
+document.documentElement.dataset.v = cur;
+const s = document.createElement('script');
+s.type = 'module'; s.src = V[cur].f + '.js';
+document.body.appendChild(s);
+
+if (qs.get('bar') !== '0') {
+  const keys = Object.keys(V);
+  const go = d => { const i = (keys.indexOf(cur) + d + keys.length) % keys.length;
+                    qs.set('v', keys[i]); location.search = qs.toString(); };
+  const bar = document.createElement('div');
+  bar.id = 'bar';
+  bar.innerHTML = `<button data-d="-1">←</button><span class="lab2"><b>${cur}</b> · ${V[cur].name}</span>
+    <button data-d="1">→</button><a href="launcher.html">all four ↗</a>`;
+  bar.querySelectorAll('button').forEach(b => b.onclick = () => go(+b.dataset.d));
+  document.body.appendChild(bar);
+  addEventListener('keydown', e => {
+    if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    if (e.key === 'ArrowLeft') go(-1);
+    if (e.key === 'ArrowRight') go(1);
+  });
+}
+</script>
+</body>
+</html>

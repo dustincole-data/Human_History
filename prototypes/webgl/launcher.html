@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human History — four ways to make it move</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Archivo',ui-sans-serif,system-ui,sans-serif;background:#07080d;color:#eef2f7;
+       -webkit-font-smoothing:antialiased;padding:clamp(20px,3.5vw,44px)}
+  header{max-width:70ch;margin-bottom:clamp(20px,3vw,36px)}
+  h1{font-size:clamp(20px,2.6vw,34px);font-weight:900;letter-spacing:-.035em;line-height:1.05}
+  header p{margin-top:.9em;font-size:clamp(12.5px,1.15vw,14.5px);font-weight:500;color:#98a1af;
+           line-height:1.55}
+  header p b{color:#eef2f7;font-weight:700}
+  .grid{display:grid;gap:clamp(14px,1.6vw,22px);
+        grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))}
+  a.card{display:block;text-decoration:none;color:inherit;background:#0d0f15;border-radius:14px;
+         overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 18px 50px rgba(0,0,0,.6)}
+  a.card img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#04050a}
+  .meta{padding:14px 16px 18px}
+  .meta h2{font-size:14px;font-weight:900;letter-spacing:.01em;display:flex;align-items:baseline;gap:9px}
+  .meta h2 em{font-style:normal;font-weight:500;font-size:12.5px;color:#8b93a1;letter-spacing:0}
+  .meta p{margin-top:.55em;font-size:12.5px;line-height:1.5;color:#a4adba;font-weight:500}
+  .meta .tag{margin-top:.7em;font-size:10.5px;font-weight:700;letter-spacing:.14em;
+             text-transform:uppercase;color:var(--c)}
+  footer{margin-top:clamp(22px,3vw,40px);font-size:12px;color:#79818f;font-weight:500;
+         line-height:1.6;max-width:76ch}
+  footer a{color:#8ecbff;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Four ways to make it move</h1>
+  <p>Same 36 real, cited cut-outs. The photographs are never touched in any of them — colour and
+     light live in the space around the objects. <b>Nothing is picked.</b> Open each one and scroll;
+     these are built to be moved through, so a still tells you almost nothing.</p>
+</header>
+
+<div class="grid">
+  <a class="card" href="index.html?v=1">
+    <img src="posters/1.jpg" alt="Objects lit in a dark volume, receding into coloured haze">
+    <div class="meta">
+      <h2>1 · DEPTH <em>fly through it</em></h2>
+      <p>The objects are in a volume, not on a page, and the scroll flies the camera through it.
+         Each era's light is a real light in real air — haze, shafts, drifting dust, bloom. The deep
+         past is one object alone in the dark; the present is a crowd you pass straight through.</p>
+      <div class="tag" style="--c:#ffb45c">native scroll · direction B made real</div>
+    </div>
+  </a>
+
+  <a class="card" href="index.html?v=2">
+    <img src="posters/2.jpg" alt="Cut-out artifacts piled in a heap at the bottom of the screen">
+    <div class="meta">
+      <h2>2 · GRAVITY <em>it piles up</em></h2>
+      <p>Everything has mass. What you scroll past falls in and stays, so twelve thousand years
+         literally accumulates in front of you. Grab anything and throw it. The only one of the four
+         you can break.</p>
+      <div class="tag" style="--c:#6cffb8">native scroll · a toy, not a document</div>
+    </div>
+  </a>
+
+  <a class="card" href="index.html?v=3">
+    <img src="posters/3.jpg" alt="Objects on a living, flowing shader ground">
+    <div class="meta">
+      <h2>3 · MATERIAL <em>a living ground</em></h2>
+      <p>The ground is not a colour, it is a running simulation — wet clay, oxidised copper, ground
+         pigment, ink in water, molten iron, plasma. It moves under the cursor and churns when you
+         scroll fast. Objects sit on top, crisp and untouched.</p>
+      <div class="tag" style="--c:#7fd0ff">native scroll · closest to the built version</div>
+    </div>
+  </a>
+
+  <a class="card" href="index.html?v=4">
+    <img src="posters/4.jpg" alt="The whole span seen from far out as a glowing thread thickening into a cloud">
+    <div class="meta">
+      <h2>4 · ATLAS <em>steer through it</em></h2>
+      <p>Not a scroll at all. The whole span is a place: drag to turn it, wheel to fly in. From far
+         out you see the actual shape — a thin thread that thickens into a cloud. Fly in and single
+         objects name themselves.</p>
+      <div class="tag" style="--c:#ff7a1a">no scrollbar · breaks the native-scroll rule on purpose</div>
+    </div>
+  </a>
+</div>
+
+<footer>
+  Built for ticket 13 after the three flat directions were rejected. Nothing here generates imagery —
+  every object is a real photograph of a real artifact, cut out with a matting model and cited on
+  screen. What is new is that the rendering is real-time: WebGL, physics, shaders.
+  <br>The earlier flat set is still at <a href="../directions/compare.html">directions/compare.html</a>.
+</footer>
+</body>
+</html>

@@ -98,3 +98,46 @@ on black are both still unsolved.
 
 Dustin picks — or takes the ground from one and the motion from another, which is the normal outcome
 and a legitimate answer. Record the pick in the README's Verdict and here, then close.
+
+---
+
+## Round 2, 2026-08-08 — all three flat directions rejected; four real-time ones built
+
+**Verdict on round 1, verbatim:** *"if I had to pick one, I would pick B, but I honestly hate all of
+them… they just look like really old sites… you are not using any design skills or 3D WebGL or
+anything to make this beautiful."*
+
+**He is right, and the miss is nameable.** I read [12](12-scrollytelling-craft.md)'s *no scrolljacking*
+as *no depth*, and built flat CSS sections. **Nothing in the map bans WebGL.** The ban is on
+*generated imagery* — on inventing a subject — not on rendering technique. A real-time lit scene made
+of real photographs breaches nothing, and [12](12-scrollytelling-craft.md)'s own finding 2 (cinematic
+camera, depth, naturally moving elements, direct manipulation) explicitly licensed it. Round 1 left
+the strongest evidenced lever on the table.
+
+**Three of [11](11-visual-anchor.md)'s §6 rulings are what produced the museum look and should be
+struck when this ticket closes:** *flat colour fields, no texture* · *one grammar everywhere* · *the
+ground is a colour*. A live shader ground is not a skeuomorphic paper grain, which is what that rule
+was actually aimed at.
+
+**Asked which of four lanes to build; answer:** *"I don't know what those mean. I would need to see
+them."* So all four were built rather than described. `prototypes/webgl/`, launcher at
+`launcher.html`, one at a time at `index.html?v=1..4`.
+
+| | 1 · DEPTH | 2 · GRAVITY | 3 · MATERIAL | 4 · ATLAS |
+|---|---|---|---|---|
+| What it is | direction B as an actual volume; the scroll flies the camera through it | everything has mass and piles up; you can throw it | the ground is a running shader, not a colour | the span as a place you steer through |
+| Tech | three.js, bloom, exponential haze, additive shafts, dust | matter.js physics, custom canvas draw, mouse constraint | GLSL domain-warped fbm, cursor drag, scroll-velocity turbulence | three.js, orbit + dolly, era glow clouds |
+| Scroll | native 1:1 | native 1:1 (releases objects) | native 1:1 | **none — breaks the rule on purpose** |
+| Density contour | 1 object alone in the dark → a crowd you pass through | the heap grows all the way down | rows widen, ground churns harder | thin thread → cloud, visible from outside |
+
+**Constraints held in all four.** Photographs are `MeshBasicMaterial` / raw `drawImage` — never lit,
+never tinted; the era's colour lives in haze, shafts, halo, ground and glow. Facts stay crisp DOM over
+the canvas, never drawn into it ([12](12-scrollytelling-craft.md) finding 4). Screen-space label
+collision test in 1 and 4, so the no-collision contract survives in 3D. Textures downscaled to 440 px
+→ **18.6 MB decoded**, against Deep Time's 75.6 MB and the 80 MB gate.
+
+**Open risks, named:** 4 breaks native scroll and NN/g says that hurts most on mobile; 1 and 4 both
+need a real texture/LOD strategy at 200–400 objects rather than 36; 2's pile has no answer yet for
+what the *index* is; none of the four has been tested on a real phone.
+
+**Still open.** Same rule: he picks, or mixes.
