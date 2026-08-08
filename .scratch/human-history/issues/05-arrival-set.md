@@ -44,3 +44,22 @@ Two more consequences:
 - **Weight the new work post-1500.** The earlier instruction to weight toward the thin pre-1500 stretch is **superseded**. 01 ruled the deep head is a fast prologue of ~a dozen spectacle items; the density the mechanism eats is in 1500 → now. Pre-1500 needs *strength*, not volume.
 - **Contemporaries are a selection criterion, not just an output.** Items are chosen partly for who they sit beside. An item with no interesting neighbour in time is weaker than a lesser item that creates a real double-take — record the intended adjacency alongside each entry so [04](04-scroll-mechanic.md) and [06](06-visual-treatment.md) can build to it.
 - **Global balance is unchanged and still binding.** The per-screen recognisability floor must not quietly become a Western-canon floor; where non-Western supply is shallow ([02](02-image-supply.md) measures it), say so in the record rather than skewing the set.
+
+---
+
+## Input from [11](11-visual-anchor.md) (closed 2026-08-08)
+
+**A second admission test, and this one is a hard filter applied before 01's:**
+
+> **If a thing cannot be cut out of its photograph and still be recognized, it does not go in the site.**
+
+The site's grammar is unframed objects floating on a ground — nothing has an edge except the thing itself. A subject that needs a container to make sense (a crowd, an aerial site view, an event) breaks that grammar, and a page that is half-contained and half-floating reads as a search-results page.
+
+**Apply it as a rewrite instruction, not just a reject.** The subject is *things people built*, so most entries have an object hiding inside an event: Apollo 11 → the lander; Trinity → the cloud; Göbekli Tepe → a single carved pillar, not the aerial shot. Record the **object** as the entry, with the event as context.
+
+**Where it genuinely can't be done, the item drops.** That is a real hit on 01's recognition substrate and it was accepted with eyes open — but it means the per-screen recognisability floor above is now harder to hit, because some of the most recognizable moments in the set are crowds. **Flag any item you drop for this reason**; if the count gets large, that is evidence to reopen the grammar, and evidence is the only thing that reopens it.
+
+Two smaller consequences:
+
+- **Cut-out difficulty is a sourcing criterion.** It pushes [02](02-image-supply.md) toward museum-sweep and isolated-object photography over in-situ scene photography, for the same artifact. Note it against each candidate.
+- **Global balance interacts with this.** Non-Western material is disproportionately documented as *sites and scenes* rather than object photography in some collections. If this filter is quietly skewing the set Western, say so in the record rather than absorbing it.

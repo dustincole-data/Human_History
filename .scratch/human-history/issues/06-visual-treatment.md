@@ -32,3 +32,39 @@ Decide:
 - **[01](01-the-fun-thesis.md)'s judgment test governs the size grammar:** favour density over hero-scale, *until the photograph stops being enjoyable* — that lower bound is this ticket's to find and state as a number. It is the brake that stops "more per screen" becoming a contact sheet, and it is the direct trade-off against item 5's legibility gate.
 - **Co-occurrence must be visible in the layout.** The engine is ambient contemporaries, so the card anatomy (item 3) has to carry not just name/date/credit but *what else was standing then and by how much it missed*. That is a real slot in the design, not a caption afterthought.
 - **The index is a second surface with the same rules.** See [10](10-the-index-surface.md) — whatever unifying device is chosen here must also hold at index density, where many more items sit on one screen at once. Prototype it there too, or the treatment will be re-decided late.
+
+---
+
+## Input from [11](11-visual-anchor.md) (closed 2026-08-08)
+
+**Read 11's resolution in full before starting.** It is the direction this ticket executes; every prototype is checked against its two references and its NOT list. Headlines:
+
+**Items 1, 2 and 4 above are now pre-decided.** Do not re-open them without evidence.
+
+- **Item 2 — cut out or leave whole: decided. Cut out, always.** Unframed objects on a ground; nothing has an edge except the thing itself. This is no longer a design question — it is a **pipeline cost at 200–400 images** for [03](03-engine-reuse-or-clean-build.md) and the build phase. Automated matting is masking, not generation, so it clears the no-generated-imagery constraint; **edge quality on hair, smoke, glass and engravings is now a live build risk** and this ticket should look at the worst of them.
+- **Item 4 — the ground: decided, and it changes.** The ground is the material of the age, blending continuously: earth `#6b5240` → stone `#8d8577` → parchment `#e6dcc4` → iron/soot `#3a3a3c` → paper `#f4f1ea` → screen `#0a0c10`. **Those values are indicative — setting them against real images is this ticket's job.** Flat colour fields only; no grain, no texture, no skeuomorphism.
+- **Item 1 — the unifying device: decided.** It is the ground plus the cut-out grammar, not a treatment applied to the images. **The photographs are untouched** — no tint, no duotone, no colour grade. Authenticity is the site's whole claim, and 11 ruled the brand's Visual Cinnamon canon inapplicable here precisely because there is no drawn layer to make colourful.
+
+**Item 5 — the legibility gate just got harder, and it is the main thing this ticket must measure.** A changing ground means there is no single worst case. A cut-out on iron `#3a3a3c` and a cut-out on paper `#f4f1ea` are two different problems on one page, and the pale-on-pale worst case now has a mirror in dark-on-dark. Measure both ends of the ramp, not one.
+
+**Item 3 — type is inherited, not re-decided.** Archivo, small, tabular figures, never a display hero. The fixed HUD is inherited from Deep Time (`#hud-num` + `#hud-era`), with one change: **Deep Time's `1 px = N years` line cannot be printed here** — distance is density-warped, so the line would be a lie. The era name carries "where am I"; the counter's own uneven rate is the honesty.
+
+**A new editorial requirement this ticket owns.** A ground that changes by era **asserts era boundaries**, and periodization is contested and regional — the Bronze Age arrives millennia apart in different places. Against the map's absolute date-honesty constraint and its global-not-Western-canon requirement, an unexamined ramp smuggles in a Eurocentric periodization as a visual fact. **Decide how boundaries are defined and how that is disclosed** — a continuous blend with no named thresholds is one legitimate answer, and probably the cheapest.
+
+**The one thing 11 could not settle:** it produced **two** anchored references, not the 3–5 asked for — Deep Sea and Deep Time, both with specific stated reasons. If prototypes here turn out unjudgeable against two, that is grounds to reopen 11 rather than to guess.
+
+**A look preview already exists — read it before starting.** `prototypes/anchor-preview/` (with its
+`README.md`) executes 11's rulings on 12 real cut-outs: the six-ground ramp, the cut-out grammar, four
+abreast, the HUD without the `1 px = N years` line. It is **not** a pass on this ticket's gate — it is
+hand-picked images on a hand-picked span, which this ticket calls a false pass. It does carry seven
+findings that cost real time, and it ships the gradient-aware `knockout.py`. Four that bear directly
+on the items above:
+
+- Museum sweeps are **gradients**; a fixed-tolerance flood halos every object (item 2's pipeline).
+- A single global knockout rule cleared only ~⅔ of candidates; the rest needed per-image parameters —
+  **the arithmetic this ticket says should disqualify a rule** (item 2).
+- Some objects **cannot** be separated at any threshold when their own value matches the sweep. That is
+  a **sourcing** criterion for [02](02-image-supply.md), not a processing one.
+- Stone `#8d8577` measures **3.24:1 against cream and 4.95:1 against ink** — a mid-value ground is the
+  worst case for *both* inks, and ink must flip **per row** or captions black out on the light grounds
+  (item 5). This is the two-ended gate, demonstrated.

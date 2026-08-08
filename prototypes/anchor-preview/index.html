@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human History — anchor preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --face:'Archivo',ui-sans-serif,system-ui,sans-serif;
+    --ink:#12161a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:auto}
+  body{font-family:var(--face);background:#6b5240;-webkit-font-smoothing:antialiased}
+
+  /* the ground: one continuous field, stops computed from real row positions */
+  #ground{position:relative;width:100%}
+
+  /* ---- HUD: the entire persistent UI ---- */
+  #hud{position:fixed;top:0;left:0;padding:22px 26px;z-index:50;pointer-events:none;
+       mix-blend-mode:normal;transition:color .45s ease}
+  #hud-num{display:block;font-size:clamp(26px,3.2vw,44px);font-weight:700;
+           font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1}
+  #hud-unit{display:block;font-size:clamp(10px,1.05vw,12px);font-weight:600;
+            letter-spacing:.18em;text-transform:uppercase;opacity:.55;margin-top:.5em}
+  #hud-era{display:block;font-size:clamp(11px,1.2vw,13px);font-weight:600;
+           letter-spacing:.22em;text-transform:uppercase;opacity:.92;margin-top:1.6em}
+
+  /* ---- rows: flow layout, so nothing can overlap by construction ---- */
+  .row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;
+       gap:var(--gap,clamp(28px,5vw,84px));padding:0 4vw;position:relative}
+  .item{width:var(--w);max-width:42vw;text-align:center;position:relative}
+  .item img{display:block;width:100%;height:auto;
+            filter:drop-shadow(0 18px 26px rgba(0,0,0,.22))}
+  .cap{margin-top:14px}
+  .name{font-size:clamp(12px,1.35vw,15px);font-weight:600;letter-spacing:.01em}
+  .yr{font-size:clamp(11px,1.15vw,13px);font-weight:600;font-variant-numeric:tabular-nums;
+      opacity:.6;margin-top:.25em}
+  .also{font-size:clamp(10px,1.05vw,11.5px);font-weight:500;opacity:.78;margin-top:.75em;
+        line-height:1.45;max-width:26ch;margin-left:auto;margin-right:auto}
+  .cred{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;
+        opacity:.55;margin-top:.85em;line-height:1.5}
+  .cred a{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;
+          padding-bottom:1px;opacity:.7}
+
+  /* legibility: ink flips PER ROW, because the ground under each row differs.
+     a global flip would black out captions on the light grounds — the exact failure
+     06's measured gate exists to catch. this is the crude version of that gate. */
+  .row.dark, #hud.dark{color:#f4f1ea}
+  .row.light,#hud.light{color:#12161a}
+  .row.dark .item img{filter:drop-shadow(0 18px 30px rgba(0,0,0,.55))}
+  #intro,#stop{color:#f4f1ea}
+
+  /* the quiet stop */
+  #stop{padding:34vh 6vw 22vh;text-align:center}
+  #stop p{font-size:clamp(12px,1.3vw,14px);font-weight:500;opacity:.6;max-width:34ch;margin:0 auto}
+
+  #intro{padding:32vh 6vw 8vh;text-align:center}
+  #intro h1{font-size:clamp(15px,1.8vw,19px);font-weight:600;letter-spacing:-.005em;
+            max-width:30ch;margin:0 auto;line-height:1.5}
+  #intro span{display:block;font-size:clamp(10px,1.05vw,11.5px);font-weight:600;
+              letter-spacing:.2em;text-transform:uppercase;opacity:.45;margin-top:1.8em}
+  /* phone: a crowded row must stay crowded. one-per-row destroys the mechanism,
+     so items shrink to hold 2 abreast rather than stacking. 06/08 own the real answer. */
+  @media (max-width:640px){
+    .item{max-width:40vw}
+    .row{gap:16px!important;padding:0 3vw}
+    .also{max-width:22ch}
+    #hud{padding:14px 16px}
+  }
+</style>
+</head>
+<body>
+
+<div id="hud" aria-hidden="true">
+  <b id="hud-num">3300</b>
+  <span id="hud-unit">BCE</span>
+  <span id="hud-era">EARTH</span>
+</div>
+
+<div id="ground">
+  <div id="intro">
+    <h1>Twelve thousand years of things people built, and what was standing next to each one.</h1>
+    <span>anchor preview · 12 real objects · not the set</span>
+  </div>
+  <div id="rows"></div>
+  <div id="stop">
+    <p>It stops here. No finale — the index would follow.</p>
+  </div>
+</div>
+
+<script>
+// ---- the six grounds: material of the age ----
+const GROUNDS = {
+  earth:    {c:'#6b5240', dark:true },
+  // stone is the awkward one: cream ink on it measures 3.24:1 (fails), dark ink 4.95:1 (passes).
+  // a mid-value ground is the worst case for BOTH inks, and 06 has to solve it properly.
+  stone:    {c:'#8d8577', dark:false},
+  parchment:{c:'#e6dcc4', dark:false},
+  iron:     {c:'#3a3a3c', dark:true },
+  paper:    {c:'#f4f1ea', dark:false},
+  screen:   {c:'#0a0c10', dark:true }
+};
+
+// ---- 12 real cut-outs. dates are the OBJECT's, as published by the source. ----
+const ITEMS = [
+ {f:'jar',     n:'Painted jar',            y:-2975, disp:'3300–2650 BCE', era:'earth',
+  cred:'Cleveland Museum of Art · CC0', url:'https://clevelandart.org/art/2004.64', w:'300px'},
+ {f:'indus',   n:'Seal with unicorn',      y:-2000, disp:'c. 2000 BCE',   era:'stone',
+  cred:'Cleveland Museum of Art · CC0', url:'https://clevelandart.org/art/1964.104', w:'250px'},
+ {f:'amphora', n:'Neck-amphora',           y:-540,  disp:'c. 540 BCE',    era:'stone',
+  cred:'The Met · CC0', url:'https://www.metmuseum.org/art/collection/search/250551', w:'230px'},
+ {f:'armor',   n:'Harquebusier’s armour', y:1683, disp:'c. 1683',    era:'parchment',
+  cred:'The Met · CC0', url:'https://www.metmuseum.org/art/collection/search/27792', w:'210px'},
+ {f:'rocket',  n:'Stephenson’s Rocket',   y:1829, disp:'1829',       era:'iron',
+  cred:'Wikimedia Commons · public domain', url:'https://commons.wikimedia.org/wiki/File:Rocket_(Smiles).jpg', w:'330px'},
+
+ {f:'phone',   n:'Bell telephone receiver',y:1876, disp:'1876',           era:'paper',
+  cred:'C. E. Scribner · public domain', url:'https://commons.wikimedia.org/wiki/File:Bell_%22iron_box%22_telephone_receiver_1876.jpg', w:'190px'},
+ {f:'bulb',    n:'Edison lamps',           y:1880, disp:'c. 1880',        era:'paper',
+  cred:'Richard Warren Lipack · CC BY-SA 3.0', url:'https://commons.wikimedia.org/wiki/File:1880EDISON1881LampsSOCKETSrwLIPACKowner.jpg', w:'260px'},
+ {f:'flyer',   n:'Wright Flyer',           y:1903, disp:'1903',           era:'paper',
+  cred:'New Student’s Reference Work · public domain', url:'https://commons.wikimedia.org/wiki/File:NSRW_Wright_Brothers_Aeroplane.png', w:'250px'},
+ {f:'camera',  n:'Kodak Beau Brownie',     y:1930, disp:'c. 1930',        era:'paper',
+  cred:'Cquoi · CC BY-SA 4.0', url:'https://commons.wikimedia.org/wiki/File:Kodak_2A_Beau_Brownie.jpg', w:'190px'},
+
+ {f:'chip',    n:'Intel 4004',             y:1971, disp:'1971',           era:'screen',
+  cred:'Al. Struk · CC BY-SA 4.0', url:'https://commons.wikimedia.org/wiki/File:4-%D0%B1%D1%96%D1%82%D0%BD%D0%B8%D0%B9_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D0%BE%D1%80_Intel_4004.jpg', w:'230px'},
+ {f:'neogeo',  n:'Neo Geo CD',             y:1994, disp:'1994',           era:'screen',
+  cred:'Evan-Amos · public domain', url:'https://commons.wikimedia.org/wiki/File:Neo-Geo-CD-TopLoader-wController-FL.jpg', w:'250px'},
+ {f:'boombox', n:'CD boombox',             y:1995, disp:'1990s',          era:'screen',
+  cred:'Andrevruas · CC BY 3.0', url:'https://commons.wikimedia.org/wiki/File:AIWA_CSD-ES100_Compact_Disc_Stereo_Radio_Cassette_Recorder_(cropped).jpg', w:'240px'}
+];
+
+const fmtY = y => y < 0 ? `${Math.abs(y)} BCE` : `${y}`;
+
+// ---- ambient contemporaries: nearest neighbour in time, and the miss ----
+function contemporary(i){
+  let best = null;
+  ITEMS.forEach((o,j)=>{
+    if(j===i) return;
+    const d = Math.abs(o.y - ITEMS[i].y);
+    if(!best || d < best.d) best = {o,d};
+  });
+  if(!best) return '';
+  const d = best.d;
+  const gap = d >= 1000 ? `${(d/1000).toFixed(1)}k years` : `${d} year${d === 1 ? '' : 's'}`;
+  return `nearest in time: ${best.o.n} — ${gap} ${best.o.y > ITEMS[i].y ? 'later' : 'earlier'}`;
+}
+
+// ---- rows: things within 60 years share a row. that IS the crowding.
+// same era + max 4 abreast, or a chain of small gaps would run 1829 -> 1995 in one row. ----
+const rows = [];
+ITEMS.forEach((it,i)=>{
+  const prev = ITEMS[i-1];
+  const last = rows[rows.length-1];
+  const joins = prev && Math.abs(it.y - prev.y) <= 60
+                && it.era === prev.era && last.items.length < 4;
+  if(joins) last.items.push(i);
+  else rows.push({items:[i], gap: prev ? it.y - prev.y : 0});
+});
+
+// vertical space is spaced by DENSITY, not by time — the whole point of ticket 01.
+// hard log compression: the sparse head is a fast prologue to get THROUGH, not to dwell in
+// (11 ruled emptiness a cost, not a feature), so 2,000 years buys ~2x the gap of 40 years.
+const spaceFor = g => Math.round(70 + 170 * Math.log10(1 + Math.abs(g)/8));
+
+const wrap = document.getElementById('rows');
+rows.forEach((r,ri)=>{
+  const el = document.createElement('div');
+  el.className = 'row';
+  el.style.marginTop = (ri===0 ? 0 : spaceFor(r.gap)) + 'px';
+  el.style.marginBottom = '0px';
+  el.dataset.era = ITEMS[r.items[0]].era;
+  el.dataset.year = ITEMS[r.items[0]].y;
+  el.classList.add(GROUNDS[ITEMS[r.items[0]].era].dark ? 'dark' : 'light');
+  // a lone item in the sparse head has the screen to itself, so it plays as spectacle;
+  // a crowded row trades size for count, down to 01's brake (still enjoyable to look at).
+  // 4 abreast must actually FIT on one screen — a wrap turns "same screen as each other"
+  // (01's whole judgment test) back into a stack.
+  const n = r.items.length;
+  const scale = n === 1 ? 1.45 : n <= 3 ? 1.18 : 0.95;
+  el.style.setProperty('--gap', n >= 4 ? '32px' : 'clamp(28px,5vw,84px)');
+  el.innerHTML = r.items.map(i=>{
+    const it = ITEMS[i];
+    return `<figure class="item" style="--w:calc(${it.w} * ${scale})">
+      <img src="img/${it.f}.webp" alt="${it.n}" decoding="async">
+      <figcaption class="cap">
+        <div class="name">${it.n}</div>
+        <div class="yr">${it.disp}</div>
+        <div class="also">${contemporary(i)}</div>
+        <div class="cred"><a href="${it.url}" target="_blank" rel="noopener">${it.cred}</a></div>
+      </figcaption>
+    </figure>`;
+  }).join('');
+  wrap.appendChild(el);
+});
+
+// ---- build the ground gradient from where the rows ACTUALLY landed ----
+const ground = document.getElementById('ground');
+function paint(){
+  const H = ground.offsetHeight;
+  const stops = [];
+  const rowEls = [...document.querySelectorAll('.row')];
+  stops.push(`${GROUNDS[rowEls[0].dataset.era].c} 0%`);
+  rowEls.forEach(el=>{
+    const mid = el.offsetTop + el.offsetHeight/2;
+    stops.push(`${GROUNDS[el.dataset.era].c} ${(mid/H*100).toFixed(2)}%`);
+  });
+  stops.push(`${GROUNDS[rowEls[rowEls.length-1].dataset.era].c} 100%`);
+  ground.style.backgroundImage = `linear-gradient(to bottom, ${stops.join(', ')})`;
+}
+
+// ---- HUD: era name + the year, whose own uneven rate IS the honesty ----
+const hudNum = document.getElementById('hud-num'),
+      hudUnit = document.getElementById('hud-unit'),
+      hudEra = document.getElementById('hud-era');
+let ticking = false;
+function update(){
+  ticking = false;
+  const mid = window.scrollY + window.innerHeight*0.5;
+  const rowEls = [...document.querySelectorAll('.row')];
+  let cur = rowEls[0];
+  for(const el of rowEls){ if(el.offsetTop <= mid) cur = el; }
+  const y = +cur.dataset.year, era = cur.dataset.era;
+  hudNum.textContent = Math.abs(y) >= 1000 && y < 0
+      ? Math.abs(y).toLocaleString('en-US') : Math.abs(y);
+  hudUnit.textContent = y < 0 ? 'BCE' : 'CE';
+  hudEra.textContent = era;
+  const isDark = GROUNDS[era].dark;
+  const hud = document.getElementById('hud');
+  hud.classList.toggle('dark', isDark);
+  hud.classList.toggle('light', !isDark);
+}
+addEventListener('scroll', ()=>{ if(!ticking){ ticking = true; requestAnimationFrame(update); } }, {passive:true});
+// canvas/layout must re-sync from its own box, not from window resize alone
+new ResizeObserver(()=>{ paint(); update(); }).observe(ground);
+addEventListener('load', ()=>{ paint(); update(); });
+paint(); update();
+</script>
+</body>
+</html>
