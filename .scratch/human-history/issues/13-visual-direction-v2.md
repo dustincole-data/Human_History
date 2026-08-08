@@ -187,6 +187,63 @@ being safe past three dozen, and the drops and renames now live in one visible p
 
 Decoded texture cost at 72 objects: **34.8 MB** against the 80 MB gate.
 
+---
+
+## Round 4, 2026-08-08 — the burial rendering rebuilt three ways (Fable on the creative pass)
+
+**Verdict on round 3's burial, verbatim:** *"It looks nothing like the earth is swallowing it. It
+looks like cheap absolute dog shit... that looks fake as hell."* GRAVITY itself stands; only the
+picture of the burial was rejected. Fable was brought in for the creative pass on this specifically.
+
+**The sin was structural, not cosmetic.** The earth was one `createLinearGradient` filled as one
+full-width `fillRect`, painted *over* the objects at 12%→97% alpha, plus a 1px white line for the
+ground. So: a dead-straight horizon across the viewport, buried objects fully legible as luminous
+ghosts (it read as layer opacity because it *was* layer opacity), zero grain, and nothing ever
+pressed into anything.
+
+**The rule that replaces it, and it is absolute:** *the earth is opaque, always, everywhere it
+exists. Visibility below the surface is earned by geometry — a hole, a protrusion, a cut face —
+never by transparency.* Every translucent pass over object pixels is gone.
+
+**References named before anything was built** (Fable, on what the eye actually reads): San Clemente
+and the fact that Rome's street level rose ~9m — a site like this *is* a tell; Terracotta Pit 1, where
+a warrior is 30% crisp and 70% simply absent behind a torn edge; Pompeii and Mount St Helens for
+ash landing on every up-facing surface and no vertical one; Kolmanskop for sand entering at the
+angle of repose; Sutton Hoo for the ground taking an impression; and soil-profile sections for
+layers that are wavy, compacted, mottled, and **deformed around whatever is buried under them**.
+
+**Shared material** (`burial.js`), used by all three: strata are four-value ramps (matrix · dust ·
+dark fleck · light fleck) with procedurally drawn grain, inclusions and horizontal micro-bedding —
+never a hex; the surface is a heightfield (landform + undulation + grit + a mound per burial that
+decays with scroll); depth darkening follows the *local* surface as stacked contour bands, not a
+global mean; and every object gets a **silhouette profile sampled at its resting angle**, which is
+what lets ash bank against a real flank, grains rest on a real up-facing edge, and the ground grip a
+real rim. The landing is a four-beat sequence — crater + berm, dust squirting *sideways* (soil does
+not splash up), a permanent dent because soil is inelastic, and the first grains of the object's own
+burial already on it.
+
+**The three, at `index.html?v=2&b=a|b|c`** (switcher in the prototype bar):
+
+| | a · ASHFALL | b · SECTION | c · SWALLOW |
+|---|---|---|---|
+| Burial is | weather | the cut face | the ground taking it |
+| Mechanism | sediment falls as real particles, lands on up-facing surfaces, banks against flanks at 33° repose | below the line the screen is a trench wall; each buried object is a ragged excavation window | matrix rides the burial front, climbs the sides, closes over from the flanks in |
+| Half-see | most things are half-buried most of the time; scroll back and it uncovers | a crisp fragment of the real photograph, held in opaque earth | protrusion — a blade, a telescope, a rim still out |
+| Occlusion by | the heightfield's opaque fill | `destination-out` mask clipped to the sprite's own alpha, rimmed with a cut shadow | the opaque fill plus a meniscus that grips the edge |
+
+**Verified, not asserted.** 1440×900, all three swept to 46% depth: **zero console errors**, no
+horizontal overflow, **60fps median (16.7ms), 33ms p95**. Photographs are still `drawImage` raw —
+never tinted, never graded; the only things ever drawn on them are grains, in front, which is
+occlusion. Native scroll 1:1 untouched. Every object keeps source · licence · credit.
+
+**Named limits.** Labels now go out when the earth genuinely takes an object, which means **credit
+for a fully-buried object has no home yet** — Fable's proposal is a core-sample ledger down the
+right edge (era bands at true thickness, a tick per object at true depth); that overlaps
+[10](10-the-index-surface.md) and was deliberately not built here. The cut-outs' own matte fringe
+still shows as a faint pale outline on a few sprites (eroded 2px inside the window in `b`, untreated
+in `a`/`c`) — a source-asset issue, not a rendering one. Strata drape is analytic rather than a
+replay of real accumulation history. Still 72 objects, still 1440×900 only, still no real phone.
+
 ### Still open on GRAVITY
 
 - **The set.** 72 is not 200–400. [05](05-arrival-set.md) still owns the real one.

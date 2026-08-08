@@ -52,6 +52,9 @@
   #bar button{all:unset;cursor:pointer;padding:7px 12px;border-radius:999px;line-height:1;
               font-family:inherit;font-size:13px;font-weight:700}
   #bar button:hover{background:#333}
+  #bar button.on{background:#fff;color:#111}
+  #bar button[data-b]{font-size:10.5px;letter-spacing:.1em;padding:7px 10px}
+  #bar .sep{width:1px;height:18px;background:#333;margin:0 4px}
   #bar .lab2{padding:0 14px;white-space:nowrap}
   #bar .lab2 b{font-weight:900}
   #bar a{color:#8ecbff;text-decoration:none;padding:0 12px 0 6px;font-size:11.5px;font-weight:600}
@@ -97,9 +100,17 @@ if (qs.get('bar') !== '0') {
                     qs.set('v', keys[i]); location.search = qs.toString(); };
   const bar = document.createElement('div');
   bar.id = 'bar';
+  const B = { a: 'ASHFALL', b: 'SECTION', c: 'SWALLOW' };
+  const curB = B[qs.get('b')] ? qs.get('b') : 'a';
+  const burial = cur !== '2' ? '' :
+    '<span class="sep"></span>' + Object.keys(B).map(k =>
+      `<button data-b="${k}"${k === curB ? ' class="on"' : ''}>${B[k]}</button>`).join('');
   bar.innerHTML = `<button data-d="-1">←</button><span class="lab2"><b>${cur}</b> · ${V[cur].name}</span>
-    <button data-d="1">→</button><a href="launcher.html">all four ↗</a>`;
-  bar.querySelectorAll('button').forEach(b => b.onclick = () => go(+b.dataset.d));
+    <button data-d="1">→</button>${burial}<a href="launcher.html">all four ↗</a>`;
+  bar.querySelectorAll('button[data-d]').forEach(b => b.onclick = () => go(+b.dataset.d));
+  bar.querySelectorAll('button[data-b]').forEach(b => b.onclick = () => {
+    qs.set('b', b.dataset.b); location.search = qs.toString();
+  });
   document.body.appendChild(bar);
   addEventListener('keydown', e => {
     if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
