@@ -1,7 +1,7 @@
 # 04 — The scroll mechanic
 
 Type: prototype
-Status: open — the fall is built and settled; the prologue seam and co-occurrence are not
+Status: settled — round 7 closed the seam, the contemporaries and the length; nothing left in 04
 Blocked by: 01, 02
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -213,7 +213,7 @@ contain no leftover.
 Frames at `prototypes/webgl/verify/` — `00-t000` … `04-t097` walk one arrival down, `05-impact`
 is the break, `06-after` is 140 px later, `08-deep` is item 41.
 
-### What this does NOT settle — 04 stays open
+### What round 6 did NOT settle — carried into round 7
 
 1. **The prologue↔body seam** (inherited from 01). Not touched. Every arrival currently costs the
    same 1,000 px, so the sparse deep head does not move faster than the crowded present.
@@ -227,3 +227,191 @@ is the break, `06-after` is 140 px later, `08-deep` is item 41.
    either way this is [03](03-engine-reuse-or-clean-build.md)/[06](06-visual-treatment.md)'s texture
    window to solve and it is now the single biggest unsolved technical risk in the project.
 5. **No real phone.** Swept at 390×844, never run on a device.
+
+---
+
+## Round 7, 2026-08-09 — one quantity settles all three. 04 closes.
+
+Same file, same set, same URL. **All three of round 6's open items are answered by one number**:
+`co`, how many things were already standing within eighty years when this one arrived. It is 0–3
+through the deep head, saturates by the Roman era, and 57 by 1996. Three things read off it:
+
+| | round 6 | round 7 |
+|---|---|---|
+| an arrival costs | `1,000 px`, flat | `FALL + beat`, **520–660 px** |
+| the fall spends | `800 px` | **`460 px`, constant everywhere** |
+| the beat after impact | `200 px`, flat | **`60 → 200 px`, with `co`** |
+| decay life | `4,200 px`, flat | **the contemporary window itself**, clamped to `1,400–4,200 px` |
+| total | **235,100 px** | **144,632 px** |
+
+`FALL < min(PER)` still holds — 460 < 520 — so **exactly one object is in the air, still by
+construction**, and every round-6 ruling stands untouched: the fall reverses, contact latches,
+decay is one-way, the scroll is the only clock.
+
+### Ruling 4 — the ground IS the co-occurrence. Nothing about it is a caption.
+
+01's engine is *"every item surfaces what else was standing at that moment, and by how much they
+miss each other."* Round 6 had four fields decaying behind the falling object and nothing saying
+they were contemporaries — because they weren't. A flat 4,200 px life means the ground holds *the
+last four arrivals*, which in the deep head is four things a thousand years apart.
+
+So an object's decay life stopped being a distance and became **the window itself**: it stays on
+the ground until the counter has moved eighty years past its own date. Everything lying on the
+ground at any scroll position is therefore, exactly, the set of things that were standing within
+eighty years of each other. Not stated — *true*, and gated:
+
+> `ground_is_the_moment` — over 1,034 stops on a page nobody has touched, **zero** fields on the
+> ground more than 80 years older than the last thing to land.
+
+**The two clamps are named, not hidden.** `LIFE_MIN = 1,400 px` (53 items) keeps a lone object
+around long enough for the break to read — below that the shatter, its two splits and the dust do
+not have room. `LIFE_MAX = 4,200 px` (141 items) caps how much can be on the ground at once, for
+the credit contract and for memory. Inside the clamps the ground is true; at them it is bounded.
+The floor is the only one that can hold a thing past its window, and the gate excludes exactly
+that case rather than pretending it doesn't exist.
+
+### Ruling 5 — the seam is not crossed, it is dissolved. Nothing is announced.
+
+01 asked for announced, disguised, or structural. It is **structural, and it is the same rule as
+ruling 4** — there is no transition to design because there is no boundary. What a visitor
+actually walks through, measured:
+
+| | fields on the ground | ties drawn | cost |
+|---|---|---|---|
+| items 0–23 (7000–1000 BC) | median **3** | 9 of 24 | 12,760 px |
+| items 24–47 (to 200 AD) | median **3** | 17 of 24 | 13,292 px |
+| items 48–130 | rising **3 → 6** | | |
+| items 130–229 (1750–2022) | median **6** | 100 of 100 | |
+
+The head is one object over near-bare ground and moves at 520–548 px an arrival. The body is six
+broken fields and five ties at 660. Nobody is told the piece changed; it just did, and it did so
+continuously — the alive-field curve has no step in it. `head_is_barer_than_body` is a gate.
+
+**The head is faster in the only way that was ever available.** 01 said the prologue should move
+fast; it costs 12,760 px for 6,000 years against 13,292 px for the next 1,200, and it earns that
+by having nothing on the ground to read. Cutting it further would mean cutting the fall, and the
+fall is the one thing that must not change with the era — an object may not become lighter because
+it is old.
+
+### Ruling 6 — the miss is a line on the soil, not a caption. **The tie.**
+
+The second half of 01's sentence — *"and by how much they miss each other"* — is one hairline laid
+along the surface contour between an arrival's fall point and the fall point of the thing it
+landed next to, with the miss written on it: `SAME YEAR` · `1 YEAR APART` · `40 YEARS APART`. It is
+the positioning line rendered instead of printed.
+
+- **The partner comes from the tables, not from what happens to be alive** — so a scrollbar drag
+  and a slow read pick the same one. Preference is for a **different region bucket** (two pots from
+  the same workshop being contemporaries is not a surprise; a Benin plaque and a Dutch flintlock
+  is), then for the smallest miss.
+- **It fires on 203 of 230 arrivals, 196 of them cross-region.** Median miss **2 years**; **71 are
+  the same year**. The 27 that never fire are the deep head — nothing was standing there, so
+  nothing is drawn, and that absence is the prologue.
+- **It dies with the FIRST of its two ends**, because a relation cannot outlive either party. That
+  is 13's credit-decays-with-the-object ruling applied to a pair.
+- **It never overrides a citation.** Credits are placed first and the tie takes what is left —
+  three positions along its own line, two rows deep — and if the ground is full the label does not
+  print, though the line stays. A credit is the contract; the tie is the engine but still
+  commentary.
+- **On a phone only the newest tie is drawn.** Five ties across 250 px of soil collide with
+  nothing and are unreadable anyway — the kind of thing a collision gate is structurally unable to
+  catch, and it took looking at the frame. Same adaptation the credit stack already makes.
+
+Weight, colour and type are **[06](06-visual-treatment.md)'s** against real images; the wording is
+**[07](07-copy-voice-and-name.md)'s**. What is settled here is that the co-occurrence is drawn on
+the ground as a mark, and never as a readout in a corner.
+
+### Ruling 7 — 144,632 px. The length is a consequence, and here is the arithmetic.
+
+Nobody had judged 235,100 px. Judged now, against the only benchmark that means anything — the
+sibling that shipped:
+
+| | Deep Time (shipped) | round 6 | round 7 |
+|---|---|---|---|
+| total scroll | 127,500 px | 235,100 px | **144,632 px** |
+| screens of 900 | 142 | 261 | **161** |
+| items | 58 | 230 | 230 |
+| px per item | 2,198 | 1,022 | **629** |
+| wheel notches (100 px) | 1,275 | 2,351 | **1,446** |
+
+235,100 px was **1.84× a piece that already tests patience, with no finale to pull anyone through**
+— 01 killed the finale, so length cannot be justified by a payoff at the end. 144,632 px is 1.13×
+Deep Time while carrying four times the content, and an arrival every 6.3 notches instead of every
+10. This is the number, and it is one constant: **change `FALL` and the whole table moves.**
+
+### Verified, not asserted — and the harness was wrong first
+
+**60 gate runs across `?b=a|b|c`, 59 green.** The one failure is a variance artifact and is named
+below rather than tuned away.
+
+| gate | result |
+|---|---|
+| the six round-6 fall gates | all green, re-derived against the new tables |
+| `one_at_a_time` | max airborne **1** over 1,043 stops incl. 9 hard jumps |
+| `ground_is_the_moment` | **0** fields older than 80 y outside the floor clamp |
+| `tie_gap_is_true` | **0** printed year-deltas that disagree with the dates |
+| `tie_ends_both_live` | **0** ties drawn with a dead end |
+| `jump_does_not_flood` | 7 fields alive after 0 → 120,000 |
+| `frozen_when_idle` | byte-identical after 2 s |
+| `no_text_collision` | **0** overlaps over 290 stops, at 1440×900 **and** 390×844 |
+| `head_is_barer_than_body` | head max 3 fields vs body median 6 |
+| `frame_budget` | median **16.4 ms**, p95 21–24 ms |
+
+**Three of these were red first, and two of the three were the harness lying.**
+
+1. **The round-6 harness never tested the deep head.** It probed item 60 before it swept, and
+   contact latches — so by the time the sweep reached items 0–60 they were already dust and every
+   gate scored them as "nothing to check." Every phase now gets a **fresh load**. The moment that
+   was fixed, `jump_does_not_flood` went from "0 fields alive" (a false green) to 7, and
+   `ground_is_the_moment` went red where it had been silently green.
+2. **Round 6's one surviving wall clock is gone.** It named the 0.28 s CSS fade on the name and
+   date as harmless. It was not: behind it sat a 300 ms timeout that re-measured every label a
+   third of a second after the scrollbar stopped, and a jump that lands ninety items at once made
+   the frame change while nobody was scrolling. Both deleted — the name and date now go out **at**
+   the impact, which is 13's ruling read literally. **There is no wall clock left in the file.**
+3. **The collision contract broke under six fields and was fixed twice.** Round 6's ladder of four
+   fixed credit rows ran out (88 overlaps at 1440); widening it to seven 30 px rungs did not work
+   either, because a two-line credit is 33.7 px tall so adjacent rungs overlapped *by
+   construction*. It is now a 6 px scan from +10 to +200. The **last five** overlaps were a
+   half-pixel each: the transform is written `toFixed(0)`, so what renders sits up to half a pixel
+   off the box the test was given — one pixel of slack in `hits` closed it.
+
+**Teeth, proved.** A wall clock injected into the tie opacity turns `frozen_when_idle` red; a flat
+`LIFE = LIFE_MAX` turns `ground_is_the_moment` red (325 violations, first at item 0, a 1,000-year
+gap); a `+3` on the printed miss turns `tie_gap_is_true` red (734 mismatches). All three reverted,
+all three green again, file verified clean. The `frozen_when_idle` warm-up shot is **not** a
+weakening — the first screenshot after a scroll forces a paint the rAF ticks had not flushed, and
+the perturbation still turns exactly the shot-2-vs-shot-3 comparison red.
+
+**The one failure.** `frame_budget_with_texture_window` on `?b=b` measured p95 27.3 ms against a
+25 ms line, in the same run where the *unmodified* sprites measured 21.4 ms. Six back-to-back runs
+put the honest spread at median 16.3–16.6 ms, p95 21.3–24.3 ms, with occasional 50–60 ms frames in
+both arms. It is sampling noise at the p95 slot, not a regression.
+
+### Handed off, with a measured lever
+
+**Decoded memory is still 301 MB and it is now also the frame spike.** Profiled by attribution,
+not by eye: the heavy frames are entirely `prep()`, and `prep()` is entirely the cost of drawing a
+~1-megapixel sprite down to 132 px. Pre-decoding the image does not help; `createImageBitmap` does
+not help. **Swapping every sprite for a 396 px-tall downscale of itself does**, and it is one
+variable changed with everything else identical:
+
+| | prep total over 400 frames | in-frame work p95 | max | decoded |
+|---|---|---|---|---|
+| full-size sprites | **302 ms** | 8.9 ms | 29.8 ms | **301 MB** |
+| 396 px sprites | **25 ms** | 6.0 ms | 10.3 ms | **163 MB** |
+
+Twelve times cheaper and 138 MB lighter from the same change. That is
+[03](03-engine-reuse-or-clean-build.md)/[06](06-visual-treatment.md)'s texture window, and the
+number it has to beat is now known rather than guessed. 396 px is still twice the 80 MB gate — the
+window is a *window*, not a resize — but the lever is measured and it is in the sweep as a
+standing gate.
+
+### What is left in 04 — nothing
+
+The prologue seam, ambient contemporaries and total length are settled above. Of round 6's
+remaining two: **decoded memory belongs to [03](03-engine-reuse-or-clean-build.md)/[06](06-visual-treatment.md)**
+with the lever above, and **the real-device phone test is the project's ship gate**, not this
+ticket's. Frames from this round at `prototypes/webgl/verify7/` — `00`–`02` are the bare head,
+`03`–`04` the ground filling in, `05`–`08` the body at six fields and five ties, `09`–`10` the
+same at 390×844.

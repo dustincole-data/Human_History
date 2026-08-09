@@ -52,6 +52,8 @@
    CLOCK IN THIS FILE. Nothing anywhere advances on wall time: not the fall, not the shard
    scatter, not the impact dust, not the era's light. Stop scrolling and the whole frame is
    frozen, exactly as he asked for, everywhere rather than only where he happened to notice it.
+   Round 7 removed the one exception round 6 left standing — the name/date CSS fade and the
+   300ms re-measure behind it. See `land()`. There is now no wall clock in this file at all.
 
    What that deleted:
 
@@ -231,10 +233,16 @@ const drops = ITEMS.map((it, i) => {
   el.style.maxWidth = 'min(30ch,44vw)';
   labelLayer.appendChild(el);
   const [nEl, yEl, cEl] = el.children;
-  nEl.style.transition = yEl.style.transition = 'opacity .28s ease';
+  /* the miss, in years. Its own node because it belongs to a pair, not to either item — it has
+     to die when the FIRST of the two goes, which is not either label's lifetime. */
+  const tEl = document.createElement('div');
+  tEl.className = 'thr';
+  tEl.style.opacity = '0';
+  labelLayer.appendChild(tEl);
   return {
     it, im, i, ar: im ? im.width / im.height : 1, light: lightFor(it.y),
     el, nEl, yEl, cEl, mw: 0, mh: 0,
+    tEl, tie: null, tw: 0, th: 0,
     /* the fall, as pure scroll geometry. prepped once; t is where the scrollbar is inside it. */
     prepped: false, t: -1, air: false,
     x: 0, w: 0, h: 0, a0: 0, spin: 0, ySpawn: 0, yLand: 0, dxLow: 0,
@@ -249,16 +257,98 @@ const queue = [];                                   // deferred cutting, so a sp
 
 /* ------------------------------------------------------------------ the scroll budget
 
-   Every number here is a distance. There is not a millisecond anywhere in the mechanic. */
+   Every number here is a distance. There is not a millisecond anywhere in the mechanic.
 
-const PER_ITEM = 1000;                              // scroll px an arrival owns, start to start (13)
-const FALL     = 800;                               // of those, the px the fall itself spends
-                                                    // the remaining 200 is the beat after impact:
-                                                    // the fresh break gets the screen to itself
-                                                    // before the next thing appears at the top
-const LIFE     = 4200;                              // px from landing to gone — ~4 fields alive (13)
+   ROUND SEVEN. 13's two spacing constants — 1,000px per arrival and a 4,200px decay life — were
+   both uniform, and 04 already flagged them as 13's numbers rather than measured ones. Uniform is
+   what produced the two things left open: a 235,100px scroll, and a deep head that costs exactly
+   as much wheel per item as the crowded present while having nothing on the ground to look at.
+
+   Both become functions of one quantity: `co`, how many things were already standing when this
+   one arrived — items within W_YEARS behind it. That number is 0–3 through the deep head and
+   saturates by the Roman era, so the head and the body differ everywhere without a boundary
+   between them. Nothing is announced. Same rule, all the way down.
+
+     the fall     constant. The era may not change how heavy a thing is.
+     the beat     grows with `co` — the pause after impact is for reading the ground, and an
+                  empty ground needs no pause.
+     the life     is the contemporary window itself: an object stays on the ground until the
+                  counter has moved W_YEARS past its own date. So what is lying on the ground at
+                  any scroll position is, within the clamps below, exactly the set of things that
+                  were standing within eighty years of each other. That is 01's ambient engine —
+                  not a caption about co-occurrence, the ground IS the co-occurrence.
+
+   The two clamps are honest compromises and are named as such: LIFE_MIN keeps a lone object
+   around long enough for the break to read (below ~1,400px the shatter, its two splits and the
+   dust do not have room), and LIFE_MAX caps how much can be on the ground at once, for the
+   credit-collision contract and for memory. Inside the clamps the ground is true; at the clamps
+   it is bounded. */
+
+const W_YEARS  = 80;                                // "standing at the same time", in years
+const FALL     = 460;                               // px the fall spends — constant everywhere
+const BEAT_MIN = 60;                                // beat after impact on an empty ground
+const BEAT_MAX = 200;                               // …and on a crowded one
+const BEAT_AT  = 5;                                 // `co` at which the beat is fully open
+const LIFE_MIN = 1400;                              // floor: the break has to be readable
+const LIFE_MAX = 4200;                              // ceiling: 13's number, now the cap not the rule
 const SPLITS = REDUCED ? [0.34] : [0.30, 0.56];
 const DUST_AT = REDUCED ? 0.62 : 0.76;
+
+/* Everything about where an arrival sits is solved here, once, from the dates alone. The whole
+   page is a lookup into these four arrays, so a scroll position resolves to the same frame no
+   matter how the visitor got there. */
+const N = ITEMS.length;
+const CO = new Int32Array(N), PER = new Float64Array(N);
+const START = new Float64Array(N), LAND = new Float64Array(N), LIFE = new Float64Array(N);
+{
+  let lo = 0;
+  for (let i = 0; i < N; i++) {
+    while (ITEMS[i].y - ITEMS[lo].y > W_YEARS) lo++;   // both sorted, so this only moves forward
+    CO[i] = i - lo;
+    PER[i] = FALL + BEAT_MIN + (BEAT_MAX - BEAT_MIN) * Math.min(1, CO[i] / BEAT_AT);
+  }
+  for (let i = 1; i < N; i++) START[i] = START[i - 1] + PER[i - 1];
+  for (let i = 0; i < N; i++) LAND[i] = START[i] + FALL;
+  for (let i = 0; i < N; i++) {
+    let end = START[N - 1] + PER[N - 1];
+    for (let j = i + 1; j < N; j++) if (ITEMS[j].y > ITEMS[i].y + W_YEARS) { end = LAND[j]; break; }
+    LIFE[i] = Math.max(LIFE_MIN, Math.min(LIFE_MAX, end - LAND[i]));
+  }
+}
+const TOTAL = START[N - 1] + PER[N - 1] + LIFE[N - 1];
+const idxAt = s => {                                 // which arrival owns this scroll position
+  let a = 0, b = N - 1;
+  while (a < b) { const m = (a + b + 1) >> 1; if (START[m] <= s) a = m; else b = m - 1; }
+  return a;
+};
+
+/* ------------------------------------------------------------------ the tie
+
+   01's engine, stated: "every item surfaces what else was standing at that moment, and by how
+   much they miss each other." The ground already carries the first half. This is the second — one
+   line laid on the soil between an arrival and the thing it landed next to, with the miss written
+   on it. It is drawn, not narrated; it is the positioning line rendered rather than printed.
+
+   The partner is chosen from the tables, not from what happens to be alive at the time, so a
+   scrollbar drag and a slow scroll pick the same one. Preference is for a DIFFERENT REGION —
+   two pots from the same workshop being contemporaries is not a surprise, a Benin plaque and a
+   Dutch flintlock is — then for the smallest miss. If nothing was standing there, nothing is
+   drawn, which is the whole of the deep head and is the point. */
+const TIE = new Int32Array(N).fill(-1);
+for (let i = 0; i < N; i++) {
+  let best = -1, bestGap = Infinity, bestCross = false;
+  for (let j = i - 1; j >= 0; j--) {
+    const gap = ITEMS[i].y - ITEMS[j].y;
+    if (gap > W_YEARS) break;
+    if (LAND[i] - LAND[j] >= LIFE[j]) continue;      // already gone from the ground by then
+    const cross = ITEMS[j].b !== ITEMS[i].b;
+    if ((cross && !bestCross) || (cross === bestCross && gap < bestGap)) {
+      best = j; bestGap = gap; bestCross = cross;
+    }
+  }
+  TIE[i] = best;
+}
+const missText = g => (g === 0 ? 'SAME YEAR' : g === 1 ? '1 YEAR APART' : `${g} YEARS APART`);
 
 /* The arc. Not a simulation of gravity — a curve shaped like one. A straight line reads as a
    lift descending; pure t² spends so long easing out of the top edge that the object is barely
@@ -285,23 +375,26 @@ let lightRGB = [255, 122, 26];
 /* read by the headless sweep only; nothing in the page touches it. `air` is the gate that says
    the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
 window.__hh = {
-  drops, queue, surfAt, PER_ITEM, FALL, LIFE,
+  drops, queue, surfAt, FALL, TOTAL, W_YEARS,
+  PER: Array.from(PER), START: Array.from(START), LAND: Array.from(LAND),
+  LIFE: Array.from(LIFE), CO: Array.from(CO), TIE: Array.from(TIE),
   snap: () => ({
     // counted off the drops themselves, not off the frame's own tally: a stale flag is exactly
     // the kind of thing this gate exists to catch, and it cannot catch it from its own counter
     scroll: scrollY, air: drops.filter(d => d.air).length, counted: live,
+    ties: drops.filter(d => d.tie && d.tie.on).length,
     items: drops.filter(d => d.air || (d.down && !d.gone)).map(d => ({
       i: d.i, k: d.it.k, air: d.air, t: +d.t.toFixed(4),
       y: d.air ? +d.py.toFixed(2) : null,
-      down: d.down, age: +d.age.toFixed(4), pieces: d.pieces.length, specks: d.specks.length
+      down: d.down, age: +d.age.toFixed(4), pieces: d.pieces.length, specks: d.specks.length,
+      tie: d.tie ? d.tie.j : null, gap: d.tie ? d.tie.gap : null
     }))
   })
 };
 
 fit();
 addEventListener('resize', fit);
-document.getElementById('spacer').style.height =
-  (ITEMS.length * PER_ITEM + LIFE + innerHeight) + 'px';
+document.getElementById('spacer').style.height = (TOTAL + innerHeight) + 'px';
 done();
 
 /* ------------------------------------------------------------------ the fall, solved once
@@ -358,7 +451,7 @@ function land(d) {
   d.down = true; d.air = false; d.t = 1;
   d.angle = d.a0 + d.spin;
   d.px = d.x; d.py = d.yLand;
-  d.landScroll = d.i * PER_ITEM + FALL;             // exact, not observed
+  d.landScroll = LAND[d.i];                         // exact, not observed
   const cx = d.x + d.dxLow, cy = surfAt(cx);
 
   if (!REDUCED) {
@@ -368,14 +461,28 @@ function land(d) {
     dust.breath(cx, cy, 12, SOIL);                  // was a 150ms setTimeout — the last wall clock
   }
 
-  // the name and the date go out, exactly as asked. the credit stays, and marks the spot.
-  d.nEl.style.opacity = '0';
-  d.yEl.style.opacity = '0';
-  setTimeout(() => {                                 // out of the layout too, so the tick is compact
-    d.nEl.style.display = d.yEl.style.display = 'none';
-    measure(d);
-  }, 300);
+  /* The name and the date go out, exactly as asked — and now they go out AT the impact rather
+     than over 0.28s of CSS after it. Round 6 kept that fade and named it as the one surviving
+     wall clock, on the grounds that a text fade cannot make an object keep falling. It could
+     still make the frame change while the visitor was not scrolling, which the gate caught the
+     moment a jump landed ninety items at once: the 300ms timeout below used to re-measure every
+     label a third of a second after the scrollbar had stopped. Killed, both halves. 13 said the
+     name dies at impact; instantly is the more faithful reading of that, and 06 owns replacing
+     the pop with a shatter. */
+  d.nEl.style.display = d.yEl.style.display = 'none';
+  measure(d);                                        // out of the layout, so the tick is compact
   d.credX = Math.max(W * 0.15, Math.min(W * 0.85, cx));
+
+  /* the tie is armed here rather than drawn from the tables directly, because it needs the
+     partner's real fall point — which only exists once that partner has actually landed. If the
+     visitor jumped past it, there is no line: nothing is asserted about a thing that never fell. */
+  const j = TIE[d.i];
+  if (j >= 0 && drops[j].down && !drops[j].gone) {
+    const gap = d.it.y - ITEMS[j].y;
+    d.tie = { j, gap, on: false };
+    d.tEl.textContent = missText(gap);
+    d.tEl.style.setProperty('--spot', d.light[1]);
+  }
 
   if (!d.im) return;
   if (MODE === 'a') shatterNow(d, cx, cy, IMPACT);
@@ -571,7 +678,14 @@ function advance(d) {
    — never per frame — and the search is over rows below the ground line. If every row is taken
    the tick is still drawn: an overlap is bad, a missing credit is not allowed at all. */
 const taken = [];
-const ROWS = [10, 40, 70, 100];
+/* A scan, not round 6's ladder of four fixed rows. The contemporary window puts six or seven
+   fields on the ground through the body where a fixed 4,200px life put four, and the ladder ran
+   out — 88 credit-on-credit overlaps at 1440. Widening it to seven rows 30px apart did not fix
+   it either, because a two-line credit is 33.7px tall, so adjacent rungs overlapped by
+   construction. A 6px scan from +10 to +200 packs against whatever is actually there instead of
+   guessing a rung height, and 200px still clears the bottom of a 900px viewport at the lowest
+   point of the contour. */
+const ROW_TOP = 10, ROW_BOT = 200, ROW_STEP = 6;
 /* On a phone there is no horizontal room to keep a credit under the thing it belongs to — four
    ticks want 700px of width and there is 250px of spread. So below 720px they stack as one
    centred column under the ground line, newest at the top. The ruling was about a credit's
@@ -582,8 +696,15 @@ function measure(d) {
   const r = d.el.getBoundingClientRect();
   if (r.width) { d.mw = r.width; d.mh = r.height; }
 }
+/* One pixel of slack, because every box is placed with `translate(…toFixed(0)px)` — the transform
+   is rounded to whole pixels for crispness, so what renders can sit up to half a pixel off the
+   box this test was given. The last five overlaps the sweep found at 1440 were all exactly that
+   half pixel: a credit ending at 646.0 by the maths and at 646.5 on the glass, under a tie the
+   maths had cleared at 646.4. Testing untouched geometry is what let it through. */
+const SLACK = 1;
 const hits = (x, y, w, h) => taken.some(t =>
-  x - w / 2 < t.x + t.w / 2 && t.x - t.w / 2 < x + w / 2 && y < t.y + t.h && t.y < y + h);
+  x - w / 2 - SLACK < t.x + t.w / 2 && t.x - t.w / 2 < x + w / 2 + SLACK &&
+  y - SLACK < t.y + t.h && t.y < y + h + SLACK);
 
 function frame() {
   const dScroll = scrollY - prevScroll; prevScroll = scrollY;
@@ -591,7 +712,7 @@ function frame() {
 
   // the intro goes with the first two objects. Against the FULL page height it would still be
   // legible 19,000px in, which is how it ended up printed across the third burial field.
-  fadeIntro(Math.min(1, scrollY / (PER_ITEM * 8)));
+  fadeIntro(Math.min(1, scrollY / START[8]));
 
   /* ---- the fall. Height is a function of the scrollbar and of nothing else. ----
 
@@ -608,11 +729,11 @@ function frame() {
   let airborne = 0;
   for (const d of drops) {
     if (d.gone) continue;
-    const rel = scrollY - d.i * PER_ITEM;
+    const rel = scrollY - START[d.i];
 
     if (!d.down) {
       if (rel >= FALL) {
-        if (rel - FALL >= LIFE) {                    // its whole life is behind us: skip it entire
+        if (rel - FALL >= LIFE[d.i]) {               // its whole life is behind us: skip it entire
           // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
           // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
           // and the sprite hangs at its spawn point, labelled, for the rest of the page.
@@ -635,12 +756,13 @@ function frame() {
 
     // decay is one-way: scrolling back shows what is already broken, it never un-breaks it
     if (d.down) {
-      const a = Math.min(1, (scrollY - d.landScroll) / LIFE);
+      const a = Math.min(1, (scrollY - d.landScroll) / LIFE[d.i]);
       if (a > d.age) { d.age = a; advance(d); }
       if (d.age >= 1) {
         d.gone = true;                               // every canvas it held is dropped here
         d.pieces.length = 0; d.specks.length = 0;
         d.core = null; d.cctx = null; d.cells = null; d.cols = null;
+        d.tEl.style.opacity = '0';
       }
     }
   }
@@ -665,10 +787,9 @@ function frame() {
   /* The era's light, read straight off the scrollbar rather than eased toward a target — an
      ease is a wall clock wearing a hat. It crosses over the back half of each arrival's budget,
      so a new lamp still arrives rather than switches. The ramp itself is 13's, untouched. */
-  const fi = Math.min(ITEMS.length - 1, Math.max(0, scrollY / PER_ITEM));
-  const i0 = Math.floor(fi);
-  const i1 = Math.min(ITEMS.length - 1, i0 + 1);
-  const k = Math.min(1, Math.max(0, (fi - i0 - 0.55) / 0.45));
+  const i0 = idxAt(Math.max(0, scrollY));
+  const i1 = Math.min(N - 1, i0 + 1);
+  const k = Math.min(1, Math.max(0, ((scrollY - START[i0]) / PER[i0] - 0.55) / 0.45));
   const cur = drops[i0];
   const rgbOf = h => [1, 3, 5].map(j => parseInt(h.substr(j, 2), 16));
   const c0 = rgbOf(cur.light[1]), c1 = rgbOf(drops[i1].light[1]);
@@ -730,10 +851,53 @@ function frame() {
 
   if (!REDUCED) dust.draw(ctx, 0);
 
+  /* ---- the ties. 01's engine, drawn: a line laid along the soil between two things that were
+         standing at the same time, with the miss written on it. It is on the ground rather than
+         over it because it is a fact about the land, not a piece of UI; the exact weight, colour
+         and type are [06]'s to set against real images, and the wording is [07]'s. A tie dies
+         with the FIRST of its two ends, because a relation cannot outlive either party. ---- */
+  taken.length = 0;
+  /* On a phone the whole spread is about 250px of soil, and five ties laid across it are five
+     hairlines and five labels in the space one belongs in — no collision, and unreadable anyway,
+     which is the kind of thing the collision gate is structurally unable to catch. So narrow
+     draws only the newest: the tie that answers "what was THIS standing next to". Same
+     adaptation the credit stack already makes, and on the same grounds — the ruling is about a
+     tie's lifetime, not its position, and where it can be drawn is a layout call. */
+  let newest = -1;
+  if (narrow()) for (const d of drops)
+    if (d.tie && d.down && !d.gone && drops[d.tie.j].down && !drops[d.tie.j].gone) newest = d.i;
+
+  for (const d of drops) {
+    const T = d.tie;
+    if (!T) continue;
+    const p = drops[T.j];
+    T.on = d.down && !d.gone && p.down && !p.gone && (newest < 0 || d.i === newest);
+    if (!T.on) { if (d.tEl.style.opacity !== '0') d.tEl.style.opacity = '0'; continue; }
+
+    const age = Math.max(d.age, p.age);
+    const o = age > 0.9 ? Math.max(0, (1 - age) / 0.1) : 1;
+    const x0 = Math.min(d.credX, p.credX), x1 = Math.max(d.credX, p.credX);
+
+    ctx.save();
+    ctx.strokeStyle = `rgba(${lightRGB.map(Math.round).join(',')},${(0.34 * o).toFixed(3)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x0, surfAt(x0) + 2.5);
+    for (let x = x0; x <= x1; x += 4) ctx.lineTo(x, surfAt(x) + 2.5);
+    ctx.lineTo(x1, surfAt(x1) + 2.5);
+    ctx.stroke();
+    ctx.beginPath();                                 // a tick at each end, so the line has owners
+    for (const x of [x0, x1]) { ctx.moveTo(x, surfAt(x) + 2.5); ctx.lineTo(x, surfAt(x) - 7); }
+    ctx.stroke();
+    ctx.restore();
+
+    if (!d.tw) { const r = d.tEl.getBoundingClientRect(); d.tw = r.width; d.th = r.height; }
+    T.o = o; T.x0 = x0; T.x1 = x1;                   // placed after the credits, which outrank it
+  }
+
   /* ---- text. The name and the date live only while the thing is whole and falling. The credit
          line outlives them and dies with the last fragment — nothing is ever on screen without
          its attribution, and nothing is attributed after it is gone. ---- */
-  taken.length = 0;
   let stacked = 0;
   for (let i = drops.length - 1; i >= 0; i--) {
     const d = drops[i];
@@ -763,11 +927,16 @@ function frame() {
         // spacing by the CURRENT tick's height puts a three-line one on top of its neighbour
         lx = W / 2;
         ly = surfAt(lx) + 10 + stacked;
+        /* the falling label is placed before this column and sits wherever the object is, so on
+           a phone it lands on top of the stack whenever the object is near centre. The column
+           gives way to it rather than the other way round — the falling name is transient, the
+           column is the citation contract and only has to stay legible. */
+        for (let g = 0; g < 6 && hits(lx, ly, d.mw, d.mh); g++) { ly += (d.mh || 26) + 5; stacked += (d.mh || 26) + 5; }
       } else {
         lx = d.credX;
         const top = surfAt(d.credX);
-        ly = top + ROWS[0];
-        for (const row of ROWS) {
+        ly = top + ROW_TOP;
+        for (let row = ROW_TOP; row <= ROW_BOT; row += ROW_STEP) {
           ly = top + row;
           if (!hits(lx, ly, d.mw, d.mh)) break;
         }
@@ -781,6 +950,37 @@ function frame() {
     }
     const s = o.toFixed(3);
     if (d.el.style.opacity !== s) d.el.style.opacity = s;
+  }
+
+  /* The miss goes down last, into whatever room the citations left. That order is the ruling:
+     a credit line is the contract and is always drawn even if it has to overlap; the tie is the
+     engine but it is still commentary, so where two of them wanted the same inch of soil the
+     sweep found 666 overlaps at 1440 and 1,439 at 390. It now walks its own line looking for
+     clear ground — three positions along the line, two rows deep — and if the ground is full it
+     does not print. The line stays either way, and it is the line that carries the fact that
+     two things were down there together. */
+  for (const d of drops) {
+    const T = d.tie;
+    if (!T || !T.on) continue;
+    const span = T.x1 - T.x0;
+    let px = 0, py = 0, fit = false;
+    for (const fx of [0.5, 0.28, 0.72]) {
+      px = T.x0 + span * fx;
+      const base = narrow() ? surfAt(px) - 15 - d.th : surfAt(px) + 5;
+      for (const row of [0, -(d.th + 5), d.th + 5]) {
+        py = base + (narrow() ? -Math.abs(row) : Math.abs(row));
+        if (!hits(px, py, d.tw, d.th)) { fit = true; break; }
+      }
+      if (fit) break;
+    }
+    const o = fit ? T.o : 0;
+    if (fit) {
+      taken.push({ x: px, y: py, w: d.tw, h: d.th });
+      d.tEl.style.transform =
+        `translate(-50%,0) translate(${px.toFixed(0)}px,${py.toFixed(0)}px)`;
+    }
+    const s = o.toFixed(3);
+    if (d.tEl.style.opacity !== s) d.tEl.style.opacity = s;
   }
 
   requestAnimationFrame(frame);
