@@ -83,7 +83,7 @@
 <script>
 const V = {
   '1':{f:'1-depth',    name:'DEPTH — fly through it'},
-  '2':{f:'2-gravity',  name:'GRAVITY — it piles up'},
+  '2':{f:'2-gravity',  name:'GRAVITY — it breaks down'},
   '3':{f:'3-material', name:'MATERIAL — a living ground'},
   '4':{f:'4-atlas',    name:'ATLAS — steer through it'}
 };
@@ -100,7 +100,7 @@ if (qs.get('bar') !== '0') {
                     qs.set('v', keys[i]); location.search = qs.toString(); };
   const bar = document.createElement('div');
   bar.id = 'bar';
-  const B = { a: 'ASHFALL', b: 'SECTION', c: 'SWALLOW' };
+  const B = { a: 'SHATTER', b: 'CRUMBLE', c: 'SIFT' };
   const curB = B[qs.get('b')] ? qs.get('b') : 'a';
   const burial = cur !== '2' ? '' :
     '<span class="sep"></span>' + Object.keys(B).map(k =>

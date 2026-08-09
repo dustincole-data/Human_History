@@ -1,8 +1,9 @@
 # 13 — Visual direction, take two
 
 Type: prototype
-Status: in progress
+Status: closed
 Assignee: dustin
+Resolved: 2026-08-08
 Blocked by: 12
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -251,3 +252,120 @@ replay of real accumulation history. Still 72 objects, still 1440×900 only, sti
   digging back down — which the burial makes literal, and which nothing else has offered.
 - **Mobile.** Untested on a real device. A physics sim plus a tall page is the riskiest of the four.
 - **Whether the strata should be the pigment ramp** from direction A rather than plain earth tones.
+
+---
+
+## Round 5, 2026-08-08 — the accumulating ground is dead; decay moved into the object
+
+**Verdict on round 4's three burial renderings, verbatim:** *"don't really love any of them."* The
+**concept** was rejected, not the execution — so no rising ground, no strata building up, no camera
+tracking a pile. **The ground stays still.** Dead with it: `Ground` / the heightfield accumulation /
+strata contacts / `noteBurial` / `weather` / `newMark` (all still present in `burial.js`, now unused).
+
+**What replaced it, verbatim:** *"objects break into pieces when they hit the ground, and the text
+goes away. As time goes on they break down into smaller and smaller pieces until they disintegrate
+into the ground. Don't have the ground change or build up over time. It can just remain still."*
+
+So decay lives in the **object**, and time reads as progressive fragmentation:
+`whole → impact → shatters → pieces break into smaller pieces → dust → gone into the ground`.
+
+### Three rulings taken from Dustin BEFORE building, not after
+
+1. **Citation, once the label dies.** *"The text goes away"* collided head-on with *credit stays on
+   screen* and had been unresolved across the whole ticket. **Ruled: the credit decays with the
+   object.** The name and the date go out at impact, exactly as asked; a small `source · licence ·
+   credit` line stays at the spot where it fell and lives for **exactly as long as one fragment of
+   that object does**, dying with the last speck. Nothing is ever on screen without its attribution,
+   and nothing is attributed after it is gone. No new UI chrome; the permanent record is still
+   [10](10-the-index-surface.md)'s. Fable's core-sample rail was the runner-up and was not built.
+2. **Shattering a photograph is a CUT, not a grade — therefore legal.** Every fragment is the source
+   image drawn through an alpha clip: each surviving pixel keeps its exact original RGB. That is the
+   same operation class as the cut-outs the set already ships — **the matte IS a destructive cut.**
+   Dust specks take their colour by *sampling the photograph's own pixels*, never the ground palette.
+   No tint, duotone or grade at any stage. Ruled legal before it became load-bearing.
+3. **The ground is still, and so is its colour.** *"Don't have the ground change"* was read
+   literally: one soil, one level, **baked once per resize and never touched again**. The era's
+   colour therefore moved entirely to the **light** — direction B, the one picked when forced in
+   round 2 — so the piece stays colourful without the ground ever moving. A fixed, non-era sky-lit
+   band on the top few inches of earth is the only lighting the ground gets.
+
+### The main technical risk, answered
+
+Fragment count was the named risk: *72 objects recursively subdividing will blow up matter.js body
+count.* **Nothing recursive is ever a body.** matter.js simulates only the object currently in the
+air; at contact its body is destroyed and everything after is non-physics debris on a trivial
+integrator, each fragment pre-cut once into its own trimmed canvas (one `drawImage`, zero maths once
+it has stopped). Because nothing accumulates, only ~4 objects' debris exists at any time.
+
+**Measured, 1440×900, swept every 500px to 18,000:** peak matter.js bodies **2**, peak live fragments
+**246**, peak specks **1,119**, fragment canvas cost **0.52 MB** on top of the unchanged 34.8 MB of
+sprites. **60fps median (16.7ms), 33ms p95.**
+
+### The three, at `index.html?v=2&b=a|b|c` (switcher in the prototype bar)
+
+| | a · SHATTER | b · CRUMBLE | c · SIFT |
+|---|---|---|---|
+| Breaking is | brittle | erosion | drainage |
+| At impact | everything separates at once on straight Voronoi edges | the core holds; the impact takes two chips | nothing separates |
+| Then | each shard breaks into shards, twice | flakes detach outermost-first, so the **core is the last thing recognisable** | each column is eaten upward from its bottom at its own rate |
+| Ends as | dust that sinks under the earth | dust, core last | a plume sifting down out of the standing shape |
+| Costs | ~250 fragment canvases | ~185 + one core | **zero fragments** — one core, punched |
+
+`decay.js` is the new shared material (Voronoi cutting, edge jitter, ragged columns, alpha-trimmed
+piece cutting, `punch`, `biteUp`, photograph-sampled colour, the debris integrator). From round 4,
+`burial.js`'s `restProfile`, `Dust`, `tileFor` and `mottle` are **reused, not rebuilt** — `restProfile`
+now supplies the ~24-point silhouette hull that decides the exact moment and place of contact, so an
+object lands on its real lowest corner rather than on a rectangle (measured: objects come to rest
+1.2–1.7px **into** the surface, never floating). `cutPiece` handles the silhouette more directly than
+a per-column profile could, by clipping through the sprite's own alpha and trimming to surviving ink.
+
+**Verified, not asserted.** Swept every 500px at **1440×900 to 18,000** and at **390×844 to 12,000**,
+all three modes: **zero console errors** (the one 404 is a missing `favicon.ico`), **zero horizontal
+overflow**, **60fps median (16.7ms)** at both widths, peak matter.js bodies 2–3. Native scroll 1:1
+untouched; photographs are `drawImage` raw throughout.
+
+**The citation gate.** Two credit lines printed on top of each other is a breach, so overlap is
+measured, not eyeballed: rendered label boxes are rect-tested every step. **Desktop 65/71/71 → 0/0/0**
+once ticks got measured boxes and a four-row search; **phone 50/45/27 → 0/0/0** once the phone
+stopped trying to keep each credit under its own object — below 720px they stack as one centred
+column under the ground line, newest first, spaced by a running cursor (spacing by each tick's *own*
+height puts a three-line credit on top of a two-line one). A tick is never *hidden* to resolve a
+collision: an overlap is bad, a missing credit is not allowed at all.
+
+**Named limits.** Decay is **one-way** — scrolling back shows what is already broken, it never
+un-breaks (round 4's ASHFALL could uncover; this cannot, and that is a deliberate honesty call, not
+an oversight). Still 72 objects, not 200–400. The cut-outs' matte fringe still shows on a few sprites
+and is now distributed across every fragment cut from them — a source-asset issue, unchanged.
+`window.__hh` is a debug hook for the headless sweep. Not yet run on a real phone.
+
+### Verdict — **a · SHATTER**, 2026-08-08. This ticket is closed.
+
+Dustin picked `a` outright, unmixed, at the first showing — the first round in five that produced a
+pick rather than a rejection. **The direction is now fixed** and is the thing [04](04-scroll-mechanic.md)
+and [06](06-visual-treatment.md) build against:
+
+**GRAVITY / SHATTER.** A ground that never moves and never changes colour. Objects arrive one at a
+time, slowly enough to read, each carrying its full label. At contact the label's name and date go
+out, the physics body ceases to exist, and the object breaks into hard-edged shards along straight
+Voronoi cuts. The shards break into shards, twice, and then into dust that sinks under the opaque
+earth and is gone. A small `source · licence · credit` line marks the spot for exactly as long as
+one fragment survives. The era's colour is entirely in the light. Native scroll 1:1 throughout.
+
+**What each downstream ticket inherits, and does not get to reopen:**
+
+- **[04](04-scroll-mechanic.md)** — the mechanic is settled: 1,000px of scroll per arrival, an 880ms
+  floor between drops so a fast scroll *queues* rather than dumps, and a 4,200px decay life per
+  object (≈4 objects' debris alive at once). The camera is fixed. Density spacing, not time.
+- **[06](06-visual-treatment.md)** — the ground is one fixed soil, baked once; the dated colour
+  system is the **light** (direction B's lamp ramp), not the earth. Its contrast gate is now
+  one-ended, not two: everything sits on the same dark ground, always.
+- **[10](10-the-index-surface.md)** — still owns the permanent credit record. The in-scroll credit is
+  transient by ruling, so the index must carry all 200–400 attributions. Item 4 is now **yes**.
+- **[08](08-accessibility-and-mobile.md)** — the phone answer built here is: credits stack as a
+  centred column under the ground line below 720px. Whether phones also get the reduced-motion
+  path by default is still 08's call.
+
+**Not done, and deliberately left:** `b · CRUMBLE` and `c · SIFT` remain switchable in the prototype
+as the record of the round — strip them only when 06 builds the real pipeline. `burial.js` now
+carries dead exports (`Ground`, `noteBurial`, `weather`, `newMark`, `windowMask`, `profileTop`) from
+the killed burial direction; flagged, not deleted.
