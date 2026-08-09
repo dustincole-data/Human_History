@@ -38,10 +38,50 @@
      c · SIFT      drainage. It stays standing and empties — eaten upward from the bottom along
                    its own grain, the material sifting down out of it into the ground.
 
-   Native scroll 1:1 throughout. matter.js simulates only the object currently in the air; every
-   fragment after impact is cheap non-physics debris. */
+   Native scroll 1:1 throughout.
 
-import { ITEMS, lightFor, shortCred, setHud, setIntro, fadeIntro, done, REDUCED } from './shell.js';
+   ------------------------------------------------------------------------------------------
+   ROUND SIX — ticket 04. THE FALL IS SCROLL-DRIVEN, NOT GRAVITY-DRIVEN.
+
+   Dustin, after seeing the 230-item set run: "if somebody lets up on the arrow when something
+   is in mid-fall, it shouldn't continue falling. Scrolling down is what should make the item
+   hit the ground, not actual gravity."
+
+   So an object's height is a pure function of scroll position. Let up, and it hangs — not
+   because anything was paused, but because there is no clock to pause. THE SCROLL IS THE ONLY
+   CLOCK IN THIS FILE. Nothing anywhere advances on wall time: not the fall, not the shard
+   scatter, not the impact dust, not the era's light. Stop scrolling and the whole frame is
+   frozen, exactly as he asked for, everywhere rather than only where he happened to notice it.
+
+   What that deleted:
+
+   - **matter.js, entirely.** Its only job was the fall. A scroll-mapped height needs no solver,
+     no world, no bodies, no walls; the shards were already a non-physics integrator in decay.js
+     and the vendor file is no longer loaded at all. "Drag to throw" went with it — you cannot
+     drag an object whose position is bound to the scrollbar without one of them lying.
+   - **The 880 ms floor, and the queue behind it.** Both existed to stop a fast scroll dumping
+     four objects at once. Spacing is now scroll distance alone: an arrival owns 1,000 px, its
+     fall spends 800 of them, so exactly one object is ever in the air and a flick simply moves
+     that one object further down its own arc. The failure mode is gone by construction, not by
+     rate-limiting.
+   - **Per-frame collision testing.** The landing offset is solved once, before the fall starts,
+     from the object's real silhouette at the exact angle it will be tumbling at when it arrives.
+     Contact therefore happens at t = 1 precisely, at scroll offset 800 of that arrival, every
+     time. The whole piece is deterministic: the same scroll position always looks the same.
+
+   THE RULING ON SCROLLING BACK UP — the fall reverses, the break does not.
+
+   Height is a function of scroll, so scrolling up mid-fall lifts the object back toward the top
+   of the screen and out of the frame. That is not a concession, it is the same sentence read
+   backwards: if letting up makes it hang, then reversing must make it rise, or "hang" was never
+   true. But contact LATCHES. The instant an object touches down it is broken, and no amount of
+   scrolling back up reassembles it, un-shatters a shard, or puts a name back on screen. Decay
+   stays one-way exactly as round 5 ruled it.
+
+   The line is between a position and an event. A position is a function of where you are and
+   is free to run either way; an event happened, and scrolling up is not a time machine. */
+
+import { ITEMS, lightFor, shortCred, setHud, setIntro, fadeIntro, done, hash, REDUCED } from './shell.js';
 import { hexA, rng, noise1, Dust, tileFor, mottle, restProfile } from './burial.js';
 import {
   sites, voronoi, jitter, strips, cutPiece, punch, biteUp, avgColor,
@@ -54,28 +94,23 @@ const MODE = ({ a: 'a', b: 'b', c: 'c' })[(qs.get('b') || 'a').toLowerCase()] ||
 const MODES = {
   a: { name: 'SHATTER',
        intro: 'Everything here hit the ground once. It broke, and then the pieces broke, and the pieces of those broke, until there was nothing left the ground could not take.',
-       hint: 'scroll to break it down · drag to throw' },
+       hint: 'scroll to drop it · stop and it hangs' },
   b: { name: 'CRUMBLE',
        intro: 'Nothing goes all at once. It loses its edges first, then its corners, then everything that was not the middle of it — and the last recognisable thing is the last thing to go.',
-       hint: 'scroll to break it down · drag to throw' },
+       hint: 'scroll to drop it · stop and it hangs' },
   c: { name: 'SIFT',
        intro: 'It stays standing the whole time and empties from the bottom up, along whatever grain it had, until the shape is the only thing left and then that goes too.',
-       hint: 'scroll to break it down · drag to throw' }
+       hint: 'scroll to drop it · stop and it hangs' }
 };
 const M = MODES[MODE];
 setIntro(M.intro, M.hint);
-
-await new Promise(res => {
-  const s = document.createElement('script');
-  s.src = './vendor/matter.min.js'; s.onload = res; document.head.appendChild(s);
-});
-const { Engine, Runner, Bodies, Body, Composite, Mouse, MouseConstraint } = Matter;
 
 /* ------------------------------------------------------------------ the world
 
    There is no camera any more. The ground sits at a fixed screen y and stays there, so world
    space and screen space are the same thing. Everything round 3 and 4 spent on tracking the top
-   of a growing pile is deleted. */
+   of a growing pile is deleted. And as of round 6 there is no physics engine either — the only
+   integrator left in the piece is decay.js's debris stepper, and even that is fed scroll. */
 
 const host = document.getElementById('gl');
 const cvs = document.createElement('canvas');
@@ -91,11 +126,7 @@ const gctx = gcvs.getContext('2d');
    something unlit to be a light against. */
 const SOIL = { m: '#2b2620', d: '#4c4438', k: '#171410', l: '#5c5344' };
 
-const engine = Engine.create();
-engine.gravity.y = REDUCED ? 0.35 : 0.52;          // slow. you should be able to read it on the way down.
-Runner.run(Runner.create(), engine);
-
-let W = 0, H = 0, dpr = 1, walls = [];
+let W = 0, H = 0, dpr = 1;
 let surf = new Float32Array(1), COLW = 4, PAD = 80, NCOL = 1;
 const groundY = () => H * 0.71;
 const idx = x => Math.max(0, Math.min(NCOL - 1, Math.round((x + PAD) / COLW)));
@@ -172,19 +203,11 @@ function fit() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bakeSurface();
   bakeGround();
-  Composite.remove(engine.world, walls);
-  walls = [
-    Bodies.rectangle(-40, H / 2, 60, H * 6, { isStatic: true }),
-    Bodies.rectangle(W + 40, H / 2, 60, H * 6, { isStatic: true })
-  ];
-  Composite.add(engine.world, walls);
-  for (const d of drops) for (const p of d.pieces) p.rest = false;   // re-settle onto the new land
+  for (const d of drops) {
+    for (const p of d.pieces) p.rest = false;     // re-settle onto the new land
+    if (!d.down) d.prepped = false;               // the landing solve is against a surface that moved
+  }
 }
-
-const mouse = Mouse.create(cvs);
-const mc = MouseConstraint.create(engine, { stiffness: 0.14, render: { visible: false } });
-Composite.add(engine.world, mc);
-mouse.element.removeEventListener('wheel', mouse.mousewheel);   // never take the wheel
 
 /* ------------------------------------------------------------------ the objects */
 
@@ -212,8 +235,10 @@ const drops = ITEMS.map((it, i) => {
   return {
     it, im, i, ar: im ? im.width / im.height : 1, light: lightFor(it.y),
     el, nEl, yEl, cEl, mw: 0, mh: 0,
-    body: null, hull: null, w: 0, h: 0,
-    down: false, px: 0, py: 0, angle: 0, landScroll: 0, age: 0,
+    /* the fall, as pure scroll geometry. prepped once; t is where the scrollbar is inside it. */
+    prepped: false, t: -1, air: false,
+    x: 0, w: 0, h: 0, a0: 0, spin: 0, ySpawn: 0, yLand: 0, dxLow: 0,
+    down: false, px: 0, py: 0, angle: 0, landScroll: 0, age: 0, prevAge: 0,
     core: null, cctx: null, cells: null, cols: null, nextCell: 0, splits: 0,
     pieces: [], specks: [], dusted: false, credX: 0, credY: 0, gone: false
   };
@@ -221,15 +246,57 @@ const drops = ITEMS.map((it, i) => {
 
 const dust = new Dust();
 const queue = [];                                   // deferred cutting, so a split never drops a frame
-window.__hh = { drops, queue, surfAt };               // read by the headless sweep; nothing reads it in the page
 
-const PER_ITEM = 1000;                              // scroll px between arrivals
-const LIFE = 4200;                                  // scroll px from landing to gone — ~4 objects live at once
+/* ------------------------------------------------------------------ the scroll budget
+
+   Every number here is a distance. There is not a millisecond anywhere in the mechanic. */
+
+const PER_ITEM = 1000;                              // scroll px an arrival owns, start to start (13)
+const FALL     = 800;                               // of those, the px the fall itself spends
+                                                    // the remaining 200 is the beat after impact:
+                                                    // the fresh break gets the screen to itself
+                                                    // before the next thing appears at the top
+const LIFE     = 4200;                              // px from landing to gone — ~4 fields alive (13)
 const SPLITS = REDUCED ? [0.34] : [0.30, 0.56];
 const DUST_AT = REDUCED ? 0.62 : 0.76;
 
-let released = 0, lastDrop = 0, prevScroll = 0, prevT = performance.now();
+/* The arc. Not a simulation of gravity — a curve shaped like one. A straight line reads as a
+   lift descending; pure t² spends so long easing out of the top edge that the object is barely
+   on screen for half its budget. This starts moving immediately and is still accelerating hard
+   when it arrives, which is the part of a fall the eye actually reads as weight. */
+const ENTER = 0.30, TAIL = 2.6;
+const arc = t => ENTER * t + (1 - ENTER) * Math.pow(t, TAIL);
+
+/* One impact speed for every object, because the fall is now geometry rather than a simulation:
+   nothing about how fast the visitor scrolled may change how hard a thing breaks, or the same
+   scroll position would not look the same twice. Roughly what the old solver delivered. */
+const IMPACT = 12;
+
+/* Debris still has to settle somewhere, and settling takes integration. It is fed SCROLL, not
+   time: this many ms of shard flight per px of downward scroll. A shard therefore comes to rest
+   over ~110px of scroll, and freezes mid-air the instant the visitor stops. */
+const MS_PER_PX = 3.0;
+const SUB = 50;                                     // integrator step ceiling, ms
+const MAX_STEP = 240;                               // ms of debris advanced in one frame, max
+
+let prevScroll = 0, live = 0;
 let lightRGB = [255, 122, 26];
+
+/* read by the headless sweep only; nothing in the page touches it. `air` is the gate that says
+   the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
+window.__hh = {
+  drops, queue, surfAt, PER_ITEM, FALL, LIFE,
+  snap: () => ({
+    // counted off the drops themselves, not off the frame's own tally: a stale flag is exactly
+    // the kind of thing this gate exists to catch, and it cannot catch it from its own counter
+    scroll: scrollY, air: drops.filter(d => d.air).length, counted: live,
+    items: drops.filter(d => d.air || (d.down && !d.gone)).map(d => ({
+      i: d.i, k: d.it.k, air: d.air, t: +d.t.toFixed(4),
+      y: d.air ? +d.py.toFixed(2) : null,
+      down: d.down, age: +d.age.toFixed(4), pieces: d.pieces.length, specks: d.specks.length
+    }))
+  })
+};
 
 fit();
 addEventListener('resize', fit);
@@ -237,45 +304,42 @@ document.getElementById('spacer').style.height =
   (ITEMS.length * PER_ITEM + LIFE + innerHeight) + 'px';
 done();
 
-function drop(d, i) {
-  const hh = 132;
-  d.w = hh * d.ar; d.h = hh;
-  const x = W * (0.18 + 0.64 * ((i * 0.618034) % 1));
-  const b = Bodies.rectangle(x, -H * 0.16, d.w * 0.84, d.h * 0.84, {
-    restitution: 0.04, friction: 0.62, frictionAir: 0.028, density: 0.0014,
-    angle: (Math.random() - 0.5) * 0.35, label: 'item'
-  });
-  b.plugin = { drop: d };
-  Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.03);
-  d.body = b;
-  Composite.add(engine.world, b);
+/* ------------------------------------------------------------------ the fall, solved once
 
-  /* restProfile sampled unrotated gives the sprite's TRUE outline, not its box. Twenty-odd of
-     those points, rotated by the live body angle each frame, is what decides the exact moment
-     and place of contact — so a thing lands on its real lowest corner, not on a rectangle. */
+   Nothing about an arrival is discovered during the fall. Its x, its tumble, the exact angle it
+   will be at when it arrives, and therefore the exact height at which its real silhouette meets
+   the real surface, are all fixed before it appears. Contact then happens at t = 1 and nowhere
+   else, which is what makes the landing scroll position exact rather than emergent. */
+
+function prep(d) {
+  const i = d.i, hh = 132;
+  d.w = hh * d.ar; d.h = hh;
+  d.x = W * (0.18 + 0.64 * ((i * 0.618034) % 1));
+  d.a0 = (hash(d.it.k, 7) - 0.5) * 0.34;            // deterministic: a reload looks identical
+  d.spin = (hash(d.it.k, 21) - 0.5) * 0.5;          // the whole tumble, over the whole fall
+  d.ySpawn = -d.h * 0.62;
+
+  /* restProfile sampled unrotated gives the sprite's TRUE outline, not its box. Rotated by the
+     angle it will land at, the lowest of those points is the corner that actually touches. */
+  let hull = [[0, d.h / 2]];
   if (d.im) {
     const p = restProfile(d.im, d.w, d.h, 0, Math.max(4, d.w / 12));
     const pts = [];
     for (let ci = 0; ci < p.n; ci++) {
-      if (Number.isNaN(p.top[ci])) continue;
-      const lx = p.ox + ci * p.colW + p.colW / 2;
-      pts.push([lx, p.oy + p.bot[ci]], [lx, p.oy + p.top[ci]]);
+      if (Number.isNaN(p.bot[ci])) continue;
+      pts.push([p.ox + ci * p.colW + p.colW / 2, p.oy + p.bot[ci]]);
     }
-    d.hull = pts.length ? pts : [[0, d.h / 2]];
-  } else {
-    d.hull = [[0, d.h / 2]];
+    if (pts.length) hull = pts;
   }
-}
-
-/* lowest point of the real silhouette, at the angle it is currently tumbling at */
-function contact(d) {
-  const b = d.body, c = Math.cos(b.angle), s = Math.sin(b.angle);
+  const a1 = d.a0 + d.spin, c = Math.cos(a1), s = Math.sin(a1);
   let bestY = -Infinity, bestX = 0;
-  for (const [lx, ly] of d.hull) {
-    const y = b.position.y + lx * s + ly * c;
-    if (y > bestY) { bestY = y; bestX = b.position.x + lx * c - ly * s; }
+  for (const [lx, ly] of hull) {
+    const y = lx * s + ly * c;
+    if (y > bestY) { bestY = y; bestX = lx * c - ly * s; }
   }
-  return [bestX, bestY];
+  d.dxLow = bestX;
+  d.yLand = surfAt(d.x + bestX) - bestY;            // centre height at the instant of contact
+  d.prepped = true;
 }
 
 const toWorld = (d, lx, ly) => {
@@ -286,24 +350,22 @@ const toWorld = (d, lx, ly) => {
 
 /* ------------------------------------------------------------------ impact
 
-   The body dies here. From this line on the object costs no physics at all — which is the whole
-   answer to "72 objects recursively subdividing will blow up matter.js body count." Nothing
-   recursive is ever a body. */
+   The one irreversible line in the file. Everything above it is a position and runs both ways;
+   everything below it happened. Once `down` is set nothing clears it — scroll back up and you
+   are looking at a broken thing, not at an unbroken one. */
 
-function impact(d, cx, cy, speed) {
-  d.down = true;
-  d.px = d.body.position.x; d.py = d.body.position.y; d.angle = d.body.angle;
-  d.landScroll = scrollY;
-
-  if (mc.body === d.body) { mc.constraint.bodyB = null; mc.body = null; }
-  Composite.remove(engine.world, d.body);
-  d.body = null;
+function land(d) {
+  d.down = true; d.air = false; d.t = 1;
+  d.angle = d.a0 + d.spin;
+  d.px = d.x; d.py = d.yLand;
+  d.landScroll = d.i * PER_ITEM + FALL;             // exact, not observed
+  const cx = d.x + d.dxLow, cy = surfAt(cx);
 
   if (!REDUCED) {
-    const n = Math.min(34, 14 + Math.round(speed * 1.6));
+    const n = Math.min(34, 14 + Math.round(IMPACT * 1.6));
     dust.impact(cx - d.w * 0.28, cy, n, SOIL);
     dust.impact(cx + d.w * 0.28, cy, n, SOIL);
-    setTimeout(() => dust.breath(cx, cy, 12, SOIL), 150);
+    dust.breath(cx, cy, 12, SOIL);                  // was a 150ms setTimeout — the last wall clock
   }
 
   // the name and the date go out, exactly as asked. the credit stays, and marks the spot.
@@ -316,7 +378,7 @@ function impact(d, cx, cy, speed) {
   d.credX = Math.max(W * 0.15, Math.min(W * 0.85, cx));
 
   if (!d.im) return;
-  if (MODE === 'a') shatterNow(d, cx, cy, speed);
+  if (MODE === 'a') shatterNow(d, cx, cy, IMPACT);
   else buildCore(d);
 }
 
@@ -523,50 +585,94 @@ function measure(d) {
 const hits = (x, y, w, h) => taken.some(t =>
   x - w / 2 < t.x + t.w / 2 && t.x - t.w / 2 < x + w / 2 && y < t.y + t.h && t.y < y + h);
 
-function frame(now) {
-  const dt = Math.min(50, now - prevT); prevT = now;
-  const max = document.documentElement.scrollHeight - innerHeight;
-  const p = Math.min(1, Math.max(0, scrollY / Math.max(1, max)));
+function frame() {
   const dScroll = scrollY - prevScroll; prevScroll = scrollY;
+  const fwd = Math.max(0, dScroll);                  // only downward scroll advances anything
 
-  const want = Math.min(ITEMS.length, Math.floor(scrollY / PER_ITEM) + 1);
-  if (released < want && now - lastDrop > 880) { drop(drops[released], released); released++; lastDrop = now; }
   // the intro goes with the first two objects. Against the FULL page height it would still be
   // legible 19,000px in, which is how it ended up printed across the third burial field.
   fadeIntro(Math.min(1, scrollY / (PER_ITEM * 8)));
 
-  // contact: the real silhouette meets the real surface, and the body ceases to exist
-  for (const d of drops) {
-    if (!d.body) continue;
-    const [cx, cy] = contact(d);
-    if (cy >= surfAt(cx)) impact(d, cx, surfAt(cx), Math.abs(d.body.velocity.y));
-  }
+  /* ---- the fall. Height is a function of the scrollbar and of nothing else. ----
 
-  // decay is one-way: scrolling back shows what is already broken, it never un-breaks it
+     Three states, and the boundary between the second and the third is the only thing in the
+     piece that cannot be undone:
+
+       t < 0      not here yet — and scrolling back past its start returns it to this
+       0 ≤ t < 1  in the air, arc(t) of the way down. Scroll up, t drops, it rises.
+       t = 1      down. Latched. Nothing ever sets `down` back to false.
+
+     The retire branch is what makes a scrollbar drag survivable: an item whose whole life is
+     already behind the visitor is dropped without ever cutting a fragment, so jumping two
+     hundred arrivals forward costs four landings, not two hundred. */
+  let airborne = 0;
   for (const d of drops) {
-    if (!d.down || d.gone) continue;
-    const a = Math.min(1, (scrollY - d.landScroll) / LIFE);
-    if (a > d.age) { d.age = a; advance(d); }
-    if (d.age >= 1) {
-      d.gone = true;                                 // every canvas it held is dropped here
-      d.pieces.length = 0; d.specks.length = 0;
-      d.core = null; d.cctx = null; d.cells = null; d.cols = null;
+    if (d.gone) continue;
+    const rel = scrollY - d.i * PER_ITEM;
+
+    if (!d.down) {
+      if (rel >= FALL) {
+        if (rel - FALL >= LIFE) {                    // its whole life is behind us: skip it entire
+          // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
+          // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
+          // and the sprite hangs at its spawn point, labelled, for the rest of the page.
+          d.gone = true; d.air = false; d.t = -1; d.el.style.opacity = '0';
+          continue;
+        }
+        if (!d.prepped) prep(d);
+        land(d);
+      } else if (rel >= 0) {
+        if (!d.prepped) prep(d);
+        d.t = rel / FALL;
+        d.air = true; airborne++;
+        d.px = d.x;
+        d.py = d.ySpawn + (d.yLand - d.ySpawn) * arc(d.t);
+        d.angle = d.a0 + d.spin * d.t;
+      } else {
+        d.t = -1; d.air = false;                     // scrolled back above its start: not here yet
+      }
+    }
+
+    // decay is one-way: scrolling back shows what is already broken, it never un-breaks it
+    if (d.down) {
+      const a = Math.min(1, (scrollY - d.landScroll) / LIFE);
+      if (a > d.age) { d.age = a; advance(d); }
+      if (d.age >= 1) {
+        d.gone = true;                               // every canvas it held is dropped here
+        d.pieces.length = 0; d.specks.length = 0;
+        d.core = null; d.cctx = null; d.cells = null; d.cols = null;
+      }
     }
   }
+  live = airborne;
 
   // Cutting is the only expensive thing in the frame, so it gets a time budget rather than a
   // count. A fixed twelve cuts hit 83ms p95 on the frames where a whole field split at once.
   const budget = performance.now() + 4;
   while (queue.length && performance.now() < budget) queue.shift()();
 
-  for (const d of drops) if (d.pieces.length) stepPieces(d.pieces, dt, surfAt);
-  dust.step(dt);
+  /* Debris settles on scroll too. A shard's flight is real integration — it has to arc and bed
+     into the surface — but what is being integrated is distance travelled by the scrollbar, so
+     a stopped scroll is a stopped frame. Substepped, because a flick worth 900px would otherwise
+     ask for 2.7 seconds in one go and throw shards straight through the ground. */
+  const ms = Math.min(MAX_STEP, fwd * MS_PER_PX);
+  for (let left = ms; left > 0; left -= SUB) {
+    const step = Math.min(SUB, left);
+    for (const d of drops) if (d.pieces.length) stepPieces(d.pieces, step, surfAt);
+    dust.step(step);
+  }
 
-  // the era's light, lerped so a new lamp arrives rather than switches
-  const cur = drops[Math.max(0, released - 1)];
-  const tgt = [1, 3, 5].map(i => parseInt(cur.light[1].substr(i, 2), 16));
-  for (let i = 0; i < 3; i++) lightRGB[i] += (tgt[i] - lightRGB[i]) * 0.06;
-  const lit = `rgb(${lightRGB.map(Math.round).join(',')})`;
+  /* The era's light, read straight off the scrollbar rather than eased toward a target — an
+     ease is a wall clock wearing a hat. It crosses over the back half of each arrival's budget,
+     so a new lamp still arrives rather than switches. The ramp itself is 13's, untouched. */
+  const fi = Math.min(ITEMS.length - 1, Math.max(0, scrollY / PER_ITEM));
+  const i0 = Math.floor(fi);
+  const i1 = Math.min(ITEMS.length - 1, i0 + 1);
+  const k = Math.min(1, Math.max(0, (fi - i0 - 0.55) / 0.45));
+  const cur = drops[i0];
+  const rgbOf = h => [1, 3, 5].map(j => parseInt(h.substr(j, 2), 16));
+  const c0 = rgbOf(cur.light[1]), c1 = rgbOf(drops[i1].light[1]);
+  for (let j = 0; j < 3; j++) lightRGB[j] = c0[j] + (c1[j] - c0[j]) * k;
   setHud(cur.it.y, cur.light[2], cur.light[1]);
 
   /* ---- sky and the era's light. This is where every bit of colour on the page lives. ---- */
@@ -589,11 +695,10 @@ function frame(now) {
 
   /* ---- the photographs and their fragments, raw. Never lit, never tinted, never graded. ---- */
   for (const d of drops) {
-    if (d.body && d.im) {
-      const b = d.body;
+    if (d.air && d.im) {
       ctx.save();
-      ctx.translate(b.position.x, b.position.y);
-      ctx.rotate(b.angle);
+      ctx.translate(d.px, d.py);
+      ctx.rotate(d.angle);
       ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 10;
       ctx.drawImage(d.im, -d.w / 2, -d.h / 2, d.w, d.h);
       ctx.restore();
@@ -634,13 +739,18 @@ function frame(now) {
     const d = drops[i];
     let o = 0, lx = 0, ly = 0;
 
-    if (d.body) {                                    // falling: the whole label, under the object
+    if (d.air) {                                     // falling: the whole label, under the object
       if (!d.mw) measure(d);
-      lx = Math.max(W * 0.15, Math.min(W * 0.85, d.body.position.x));
-      // two things can be in the air at once, and on a phone their labels are wider than the gap
-      // between them. If below the object is taken, the label goes above it — still attached.
-      const below = Math.min(d.body.position.y + d.h / 2 + 12, surfAt(d.body.position.x) - 84);
-      const above = d.body.position.y - d.h / 2 - d.mh - 12;
+      lx = Math.max(W * 0.15, Math.min(W * 0.85, d.px));
+      /* The label rides under the object the whole way down and is NOT held off the ground line.
+         Round 5 clamped it to 84px above the surface, which was invisible while a solver threw
+         things through that band in a few frames; a scroll-mapped fall spends its last 200px of
+         budget there, so the clamp printed the name across the photograph on every single
+         arrival. Unclamped it simply follows, and ends the fall sitting on the soil at exactly
+         the spot the credit tick is about to take over. If a tick is already there, `hits` puts
+         it above the object instead — which is the only case the flip was ever needed for. */
+      const below = d.py + d.h / 2 + 12;
+      const above = d.py - d.h / 2 - d.mh - 12;
       for (const cand of [below, above, below + d.mh + 6, above - d.mh - 6]) {
         ly = cand;
         if (!hits(lx, ly, d.mw, d.mh)) break;
@@ -665,7 +775,7 @@ function frame(now) {
     }
 
     if (o > 0.02) {
-      if (!d.body && narrow()) stacked += (d.mh || 26) + 5;
+      if (!d.air && narrow()) stacked += (d.mh || 26) + 5;
       taken.push({ x: lx, y: ly, w: d.mw, h: d.mh });
       d.el.style.transform = `translate(-50%,0) translate(${lx.toFixed(0)}px,${ly.toFixed(0)}px)`;
     }
