@@ -60,52 +60,6 @@ export function voronoi(w, h, pts, pad = 2) {
   }).filter(c => c.poly.length > 2);
 }
 
-/* Break every edge into segments and push each new vertex off the line. A crumbling edge is not
-   a straight one — but the SAME jittered polygon is used to cut the piece and to punch the hole
-   it left, so the two still match exactly and no gap ever opens in the middle of an object. */
-export function jitter(poly, amp, seed, per = 3) {
-  const r = rng(seed);
-  const out = [];
-  for (let i = 0; i < poly.length; i++) {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    const nx = len ? -(b[1] - a[1]) / len : 0, ny = len ? (b[0] - a[0]) / len : 0;
-    out.push(a);
-    const k = Math.max(1, Math.min(per, Math.round(len / 9)));
-    for (let s = 1; s < k; s++) {
-      const t = s / k, o = (r() - 0.5) * 2 * amp;
-      out.push([a[0] + (b[0] - a[0]) * t + nx * o, a[1] + (b[1] - a[1]) * t + ny * o]);
-    }
-  }
-  return out;
-}
-
-/* vertical columns with ragged sides — the grain a thing comes apart along when it sifts.
-   Each boundary wanders, so no two columns share a straight seam; the outer two are pushed past
-   the sprite's edge so the set always covers the whole silhouette. */
-export function strips(w, h, n, seed) {
-  const r = rng(seed);
-  const edges = [];
-  for (let k = 0; k <= n; k++) {
-    const base = k === 0 ? -3 : k === n ? w + 3 : (k / n) * w;
-    const wob = (k === 0 || k === n) ? 0 : (w / n) * 0.5;
-    const pts = [];
-    for (let s = 0; s <= 6; s++) pts.push([base + (r() - 0.5) * wob, -3 + (s / 6) * (h + 6)]);
-    edges.push(pts);
-  }
-  const out = [];
-  for (let k = 0; k < n; k++) {
-    const L = edges[k], R = edges[k + 1];
-    const xs = [...L, ...R].map(p => p[0]);
-    out.push({
-      poly: [...L, ...R.slice().reverse()],
-      site: [((k + 0.5) / n) * w, h / 2],
-      x0: Math.min(...xs), x1: Math.max(...xs)
-    });
-  }
-  return out;
-}
-
 /* ---------------------------------------------------------------- cutting
 
    Draw the source through the polygon, then trim to the pixels that actually survived. Trimming
@@ -165,35 +119,6 @@ export function cutPiece(src, w, h, poly) {
     cy: y0 + t.dy + t.cv.height / 2 - h / 2,
     w: t.cv.width, h: t.cv.height
   };
-}
-
-/* take the same polygon back out of whatever is left — geometry, never opacity */
-export function punch(g, poly) {
-  g.save();
-  g.globalCompositeOperation = 'destination-out';
-  g.beginPath();
-  g.moveTo(poly[0][0], poly[0][1]);
-  for (let i = 1; i < poly.length; i++) g.lineTo(poly[i][0], poly[i][1]);
-  g.closePath();
-  g.fill();
-  g.restore();
-}
-
-/* a ragged bite out of the bottom of a column, up to `up` px — how a thing drains away */
-export function biteUp(g, x0, x1, yBot, up, seed) {
-  const r = rng(seed);
-  g.save();
-  g.globalCompositeOperation = 'destination-out';
-  g.beginPath();
-  g.moveTo(x0 - 1, yBot + 2);
-  const n = Math.max(3, Math.round((x1 - x0) / 5));
-  for (let i = 0; i <= n; i++) {
-    g.lineTo(x0 + (x1 - x0) * (i / n), yBot - up + (r() - 0.5) * 7);
-  }
-  g.lineTo(x1 + 1, yBot + 2);
-  g.closePath();
-  g.fill();
-  g.restore();
 }
 
 /* ---------------------------------------------------------------- the photograph's own colour
@@ -264,5 +189,5 @@ export function drawPieces(ctx, list) {
 }
 
 /* Specks are the end state and they are driven straight off the scroll clock, not integrated —
-   see the speck block in 2-gravity.js. They sink until the opaque earth is over them, which is
+   see the speck block in gravity.js. They sink until the opaque earth is over them, which is
    how a thing disappears here: geometry, never a fade to nothing. */

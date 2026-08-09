@@ -1,6 +1,7 @@
-/* Shared bits for the four motion demos. Data, era light colours, the HUD, and the
-   DOM label layer — because the facts must stay crisp text over the canvas, never
-   drawn into it (ticket 12, finding 4). */
+/* Shared bits: the data, the era light colours, the HUD and the intro. The facts stay crisp
+   text over the canvas and are never drawn into it (ticket 12, finding 4); gravity.js owns how
+   they are placed, because as of ticket 06 a fact is a field of individually positioned words
+   rather than a block of text. */
 
 export const ITEMS = window.ITEMS;
 export const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -29,24 +30,11 @@ export const shortCred = c => {
   return (t.length > 46 ? t.slice(0, 44) + '…' : t) || String(c || '');
 };
 
-export const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16) / 255);
-
 /* deterministic per-item scatter, so a reload looks identical */
 export function hash(str, salt = 0) {
   let h = 2166136261 ^ salt;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
   return ((h >>> 0) % 100000) / 100000;
-}
-
-/* soft radial sprite, generated rather than shipped */
-export function radialCanvas(inner = 'rgba(255,255,255,1)', mid = 'rgba(255,255,255,.22)', size = 256) {
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d');
-  const grd = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grd.addColorStop(0, inner); grd.addColorStop(0.35, mid); grd.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = grd; g.fillRect(0, 0, size, size);
-  return c;
 }
 
 const hudNum = document.querySelector('#hud .num');
@@ -71,17 +59,3 @@ export function fadeIntro(t) {                 // t 0..1 of how far in the visit
   document.getElementById('hint').style.opacity = 0.4 * o;
 }
 export const done = () => document.getElementById('loading').classList.add('gone');
-
-/* One reusable DOM label per item. Positioned from 3D/2D each frame by the demo. */
-export function makeLabels(items) {
-  const layer = document.getElementById('labels');
-  return items.map(it => {
-    const el = document.createElement('div');
-    el.className = 'lab';
-    el.style.opacity = 0;
-    el.innerHTML = `<div class="n">${it.n}</div><div class="y">${it.disp}</div>
-      <div class="c">${it.src} · ${it.lic} · ${shortCred(it.cred)}</div>`;
-    layer.appendChild(el);
-    return el;
-  });
-}

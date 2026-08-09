@@ -1,6 +1,8 @@
-/* burial.js — the material the three burial renderings are made of.
+/* burial.js — what the earth is made of. Named for the accumulating ground of round 4, which
+   was rejected as a concept; what survived it is the MATERIAL, and the material was the one
+   thing that round got right.
 
-   Built after the first burial was rejected: "It looks nothing like the earth is swallowing it.
+   Built after the first earth was rejected: "It looks nothing like the earth is swallowing it.
    It looks like cheap absolute dog shit... that looks fake as hell."
 
    The diagnosis: the earth was one linear gradient filled as one full-width rect, painted OVER
@@ -9,32 +11,13 @@
 
      · THE EARTH IS OPAQUE, always, everywhere it exists. Visibility below the surface is earned
        by geometry — a hole, a protrusion, a cut face — never by transparency.
-     · A stratum is never a hex. It is a four-value ramp with grain, inclusions and micro-bedding.
-     · The surface is a heightfield — landform, undulation, grit, mounds — never a straight line.
-     · Objects get a real silhouette profile sampled at their RESTING ANGLE, so ground can bank
-       against them, grains can rest on them, and the burial line can follow their true edge.
+     · Soil is never a hex. It is a four-value ramp with grain, inclusions and micro-bedding.
+     · The surface is a heightfield — landform, undulation, grit — never a straight line.
+     · Objects get a real silhouette profile sampled at their RESTING ANGLE, so the landing point
+       is solved against the true edge of the photograph rather than against a bounding box.
 
    Nothing here touches a photograph's pixels. Marks are drawn in FRONT of the photo (occlusion)
    or the earth is drawn OVER it (also occlusion). No tint, no duotone, no grade, ever. */
-
-/* ---------------------------------------------------------------- strata
-
-   The same seven dated layers as before — they are the spine of the piece — but each is now a
-   ramp: matrix, dust (dry dust is lighter than the matrix it came from), dark fleck, light fleck.
-   Values run darker with time, and underground always runs darker than the sky above it. */
-
-export const STRATA = [
-  [-99999, 'EARTH',    { m: '#5a3f28', d: '#8a6b47', k: '#3a2817', l: '#9c8259' }],
-  [-3000,  'SILT',     { m: '#6d5a3c', d: '#9c8560', k: '#46351f', l: '#ab9670' }],
-  [-500,   'STONE',    { m: '#786d5a', d: '#a2977f', k: '#4e4636', l: '#b0a690' }],
-  [1500,   'CLAY',     { m: '#52493c', d: '#7d7159', k: '#332c22', l: '#8a7f66' }],
-  [1800,   'SOOT',     { m: '#38312a', d: '#5e5347', k: '#201b16', l: '#6b6053' }],
-  [1900,   'ASH',      { m: '#2e2b28', d: '#55504a', k: '#1a1816', l: '#625d56' }],
-  [1970,   'CONCRETE', { m: '#26272b', d: '#4c4e54', k: '#151619', l: '#585b62' }]
-];
-
-export const stratumIndex = y => { let i = 0; STRATA.forEach((s, j) => { if (y >= s[0]) i = j; }); return i; };
-export const stratumFor = y => STRATA[stratumIndex(y)];
 
 export const hexA = (h, a) => {
   const [r, g, b] = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
@@ -169,14 +152,6 @@ export function restProfile(img, w, h, angle, colW = 4) {
   return { top, bot, n, colW, bw, bh, ox: -bw / 2, oy: -bh / 2 };
 }
 
-/* topmost opaque world-y of this object at world x, or null if the silhouette misses x */
-export function profileTop(d, x) {
-  const p = d.prof; if (!p) return null;
-  const ci = Math.round((x - (d.body.position.x + p.ox)) / p.colW);
-  if (ci < 0 || ci >= p.n || Number.isNaN(p.top[ci])) return null;
-  return d.body.position.y + p.oy + p.top[ci];
-}
-
 /* ---------------------------------------------------------------- landing dust
 
    Soil does not splash upward, it squirts out sideways. Cone is measured from HORIZONTAL. */
@@ -227,157 +202,4 @@ export class Dust {
       ctx.fillRect(q.x, q.y - camY, q.r, q.r);
     }
   }
-}
-
-/* ---------------------------------------------------------------- the ground
-
-   One heightfield, shared by all three renderings, sampled every 4px across the viewport and
-   padded past both edges. Composed of: a landform that slowly becomes a different landform,
-   an undulation, grit, and a mound for every object ever buried — because a fresh burial is a
-   visible heap and a thousand-year-old one is a flat memory. That decay is what a tell IS. */
-
-export class Ground {
-  constructor() { this.colW = 4; this.pad = 80; this.resize(innerWidth); }
-
-  resize(W) {
-    this.W = W;
-    this.n = Math.ceil((W + this.pad * 2) / this.colW) + 1;
-    this.noise = new Float32Array(this.n);
-    this.mound = new Float32Array(this.n);
-    this.ash = new Float32Array(this.n);
-    this.buried = [];                                  // everything the ground has taken
-    this.marks = 0;                                    // stratum contacts laid down so far
-    this.drift = 0;
-    this.bake();
-  }
-
-  xAt(i) { return i * this.colW - this.pad; }
-  idx(x) { return Math.max(0, Math.min(this.n - 1, Math.round((x + this.pad) / this.colW))); }
-
-  /* landform · undulation · grit — three octaves, so the horizon is never traceable as one edge */
-  bake() {
-    for (let i = 0; i < this.n; i++) {
-      const x = this.xAt(i);
-      this.noise[i] =
-        (noise1(x * 0.0011 + this.drift) - 0.5) * 90 +
-        (noise1(x * 0.006 + this.drift * 2.1) - 0.5) * 26 +
-        (noise1(x * 0.045 + this.drift * 4.7) - 0.5) * 5;
-    }
-  }
-
-  /* the land itself has a history: each era is a different profile, crossfaded in */
-  setDrift(d) { if (Math.abs(d - this.drift) > 0.001) { this.drift = d; this.bake(); } }
-
-  gauss(arr, x, sigma, amp) {
-    const i0 = this.idx(x - sigma * 3), i1 = this.idx(x + sigma * 3);
-    for (let i = i0; i <= i1; i++) {
-      const dx = this.xAt(i) - x;
-      arr[i] += amp * Math.exp(-(dx * dx) / (2 * sigma * sigma));
-    }
-  }
-
-  /* the swallow takes the deepest bite, it does not add them up — summing overlapping objects
-     builds a mountain instead of a ground */
-  gaussMax(arr, x, sigma, amp) {
-    const i0 = this.idx(x - sigma * 3), i1 = this.idx(x + sigma * 3);
-    for (let i = i0; i <= i1; i++) {
-      const dx = this.xAt(i) - x;
-      const v = amp * Math.exp(-(dx * dx) / (2 * sigma * sigma));
-      if (v > arr[i]) arr[i] = v;
-    }
-  }
-
-  /* every burial leaves a mound on the surface. It is a SURFACE feature, so it is capped and it
-     decays — otherwise overlapping burials stack into a spike and the ground climbs off-screen. */
-  noteBurial(x, w, h) {
-    this.buried.push({ x, w, h, at: this.marks });
-    this.gauss(this.mound, x, Math.max(18, 0.75 * w), 0.22 * h);
-    for (let i = 0; i < this.n; i++) this.mound[i] = Math.min(this.mound[i], 120);
-  }
-
-  /* a fresh burial is a heap; a thousand-year-old one is a flat memory. That decay is what a
-     barrow flattening into a tell actually is, so it runs continuously, against scroll. */
-  weather(dScroll) {
-    if (dScroll <= 0) return;
-    const k = Math.max(0, 1 - dScroll * 0.0009);
-    for (let i = 0; i < this.n; i++) this.mound[i] *= k;
-  }
-
-  /* a new stratum contact, draped over everything already buried under it — archaeologists
-     find things by seeing strata bend, and each layer above flattens the bump a little more */
-  newMark() {
-    const d = new Float32Array(this.n);
-    for (const b of this.buried) {
-      this.gauss(d, b.x, Math.max(18, 0.75 * b.w), 0.35 * b.h * Math.pow(0.6, this.marks - b.at));
-    }
-    this.marks++;
-    return d;
-  }
-
-  /* mounds flatten era by era — barrows becoming tells */
-  decayMounds(k) { for (let i = 0; i < this.n; i++) this.mound[i] *= k; }
-
-  /* ash deposits and then finds its angle of repose. This is the whole realism engine in A:
-     deposits self-organise into drifts, cones and banks against obstacles, for free. */
-  deposit(i, amt, obstacle) {
-    this.ash[i] += amt;
-    this.relax(i, obstacle);
-  }
-
-  relax(i0, obstacle) {
-    const REPOSE = Math.tan(33 * Math.PI / 180) * this.colW;      // ~2.6px per column
-    const stack = [i0];
-    let guard = 0;
-    while (stack.length && guard++ < 4000) {
-      const i = stack.pop();
-      for (const j of [i - 1, i + 1]) {
-        if (j < 0 || j >= this.n) continue;
-        // material will not flow uphill into a wall — an obstacle blocks the transfer,
-        // which is what makes ash BANK against a flank instead of sliding past it
-        if (obstacle && obstacle(j) > obstacle(i) + 6) continue;
-        const d = this.ash[i] - this.ash[j];
-        if (d > REPOSE) {
-          const m = (d - REPOSE) * 0.5;
-          this.ash[i] -= m; this.ash[j] += m;
-          stack.push(i, j);
-        }
-      }
-    }
-  }
-}
-
-/* ---------------------------------------------------------------- the section's windows
-
-   A ragged patch of cloud-blobs, then destination-in with the sprite's own alpha, so the hole
-   can never leak outside the true silhouette. That coincidence of hole-edge and object-edge
-   along part of its run is the Terracotta Pit 1 look: you see 35% of a thing crisply, not
-   100% of it dimly. */
-
-export function windowMask(img, w, h, frac, seed) {
-  const c = document.createElement('canvas');
-  c.width = Math.max(2, Math.round(w));
-  c.height = Math.max(2, Math.round(h));
-  const g = c.getContext('2d');
-  const r = rng(seed);
-
-  const ax = c.width * (0.2 + r() * 0.6), ay = c.height * (0.15 + r() * 0.6);
-  const reach = Math.max(c.width, c.height) * (0.30 + frac * 0.55);
-  const n = 22 + Math.floor(r() * 14);          // more, smaller lobes — a torn edge, not a lens
-  g.fillStyle = '#fff';
-  for (let i = 0; i < n; i++) {
-    const a = r() * 6.283, d = Math.pow(r(), 0.65) * reach;
-    const rad = Math.max(5, reach * (0.09 + r() * 0.20));
-    g.beginPath();
-    g.ellipse(ax + Math.cos(a) * d, ay + Math.sin(a) * d, rad, rad * (0.65 + r() * 0.6), r() * 6.283, 0, 6.283);
-    g.fill();
-  }
-  /* Clip to the sprite's own alpha — so the hole can never leak outside the true silhouette —
-     and erode it by ~2px while doing it. Intersecting four shifted copies eats exactly the
-     matte fringe the cut-out pipeline leaves behind, so the earth keeps that fringe covered
-     instead of the window framing every fragment in a pale outline. */
-  g.globalCompositeOperation = 'destination-in';
-  for (const [dx, dy] of [[0, 0], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
-    g.drawImage(img, dx, dy, c.width, c.height);
-  }
-  return c;
 }

@@ -31,7 +31,7 @@ MET  = "https://collectionapi.metmuseum.org/public/collection/v1"
 CMA  = "https://openaccess-api.clevelandart.org/api/artworks/"
 ART  = "https://api.artic.edu/api/v1/artworks/search"
 strip = lambda h: re.sub(r"<[^>]+>", "", h or "").strip()
-RENDER_MAX = 440          # the size 2-gravity.js actually draws a sprite at
+RENDER_MAX = 440          # the size gravity.js actually draws a sprite at
 
 
 # Applied to every Commons hit, on top of each row's own reject words. These are the shapes that
