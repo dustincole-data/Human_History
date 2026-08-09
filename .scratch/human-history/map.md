@@ -35,6 +35,34 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 - **The ground never moves and never changes — settled by [13](issues/13-visual-direction-v2.md), which reverses [11](issues/11-visual-anchor.md) here.** One fixed soil, baked once, with real grain and texture. **The dated colour system is the LIGHT**, not the earth — firelight → oil lamp → candle → argand → gaslight → carbon filament → tungsten → fluorescent → phosphor → LED. Three of [11](issues/11-visual-anchor.md)'s §6 rulings are struck with this ticket's close, as round 2 flagged: *flat colour fields, no texture* · *one grammar everywhere* · *the ground is a colour*. Also struck: the earth → stone → parchment → iron → paper → screen ramp, and the accumulating/burial ground from rounds 3–4 (rejected as a concept, not an execution). Photographs themselves stay **untouched** — no tint, no duotone, no grade; **cutting one into fragments is a cut, not a grade, and is legal** on the same basis as the cut-outs. Exact values are [06](issues/06-visual-treatment.md)'s against real images.
 - **Copy is never corny, never sales-pitchy.** Flat declarative. No parallel triads, no feel-something clauses.
 
+### New from Dustin, 2026-08-08 — after seeing the 230-item set run
+
+Five asks, filed where they belong rather than as a loose list. **One of them changes something
+[13](issues/13-visual-direction-v2.md) shipped.**
+
+- **The fall is scroll-driven, not gravity-driven** -> [04](issues/04-scroll-mechanic.md). Verbatim:
+  *"if somebody lets up on the arrow when something is in mid-fall, it shouldn't continue falling.
+  Scrolling down is what should make the item hit the ground, not actual gravity."* This deletes
+  13's 880 ms floor and its queue, and may delete most of matter.js with them. Nothing else in 13
+  is reopened.
+- **The name shatters with the object** -> [06](issues/06-visual-treatment.md). A refinement of 13's
+  ruling, not a reversal - 13 said the name goes out at impact, this decides how. The live
+  complaint underneath it: names currently sit above the ground line and read as UI.
+- **A background that changes with the era** -> [06](issues/06-visual-treatment.md). **Sits right
+  next to a closed ruling.** 13 froze the ground and put the dated colour system in the *light*. A
+  changing backdrop is legal if it IS the light; a changing earth is a reopen of 13, and only
+  Dustin does that.
+- **The set must reach 2026** -> [05](issues/05-arrival-set.md), reopened *scoped to that tail
+  only*. Newest entry today is 2022.
+- **The name of the project** -> [07](issues/07-copy-voice-and-name.md). 05's R1 made this a real
+  problem: the piece is objects only, so *Human History* oversells it. His candidates, verbatim:
+  *Time · Humans in Time · Human Objects in Time · Human Objects and Decay* - and *"I don't know
+  what would be best."*
+- **The ending, the Deep Time kick-over, and the signature logo** -> new ticket
+  [14](issues/14-the-ending-and-the-frame.md). The ending **reopens 01's no-finale line**; the
+  cross-link is genuinely good (Deep Time's last sliver *is* this whole site) but its Deep-Time
+  half is **out of scope by the rule below** and is Dustin's call, not a ticket's.
+
 ### The premise, and what may still challenge it
 
 The span (**~12,000 years, agriculture to now, global**) was settled with Dustin this session, against three alternatives:

@@ -22,3 +22,30 @@ Decide:
 7. **Attribution copy.** Credit and licence lines at set volume — the exact rendered string per licence type, agreed with [06](06-visual-treatment.md)'s placement ruling.
 
 **Deliverable:** the full copy deck — every arrival line, the intro, the ending, the HUD, and the credit string templates — plus the locked name and subdomain.
+---
+
+## Input from Dustin, 2026-08-08 — the name, now that the set exists
+
+Given after seeing the 230-item set. Verbatim:
+
+> *"it looks like we only did objects, so we probably we need to make sure we name the project
+> something like 'Time,' something about time taking everything, or something like that, or
+> 'Humans in Time' and/or 'Human Objects in Time' or 'Human Objects and Decay,' etc. I don't know
+> what would be best."*
+
+**The observation is correct and it is a ruling, not an accident.** [05](05-arrival-set.md)'s R1
+settled that an arrival is *always a made object with a body* — events, ideas and institutions are
+in only through the object they left. So the site is not "human history"; it is **the things people
+made, and time taking them.** The name has to be honest about that, and "Human History" now
+oversells what is on screen.
+
+His four candidates, recorded as given: **Time · Humans in Time · Human Objects in Time · Human
+Objects and Decay.** He explicitly does not know which — *"I don't know what would be best"* — so
+this resolves by putting real options in front of him, not by picking.
+
+Two things the name must survive, both now settled: the piece is **objects only**, and its subject
+is **decay** — the object arrives, breaks, and goes into the ground. A name about *history* fights
+both. A name about *time* or *what time does to things* fits both.
+
+Note the working repo name is `Human_History` and the map's title is *Human History*; renaming the
+repo is not implied and is not this ticket's call.

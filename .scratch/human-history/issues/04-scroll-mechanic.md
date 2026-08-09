@@ -51,3 +51,33 @@ New requirements this ticket inherits:
 2. **Slot count is 200–400**, not ~58. Feed that number to [02](02-image-supply.md) and [05](05-arrival-set.md) as the target, and check it against the decoded-memory ceiling in [03](03-engine-reuse-or-clean-build.md) **before** prototyping — a mechanic that satisfies the judgment test by putting many recognizable items on one screen is exactly the mechanic most likely to be forbidden by arithmetic.
 3. **The mechanic must make co-occurrence legible.** Ambient contemporaries are the engine, so "what else was standing at this moment" has to be readable at a glance without leaving the item — that is a mechanic constraint, not a visual one.
 4. **Judge by [01](01-the-fun-thesis.md)'s test**, which for this ticket resolves to: the deep-head prologue should move *fast*, because nothing there passes clause one.
+---
+
+## Input from Dustin, 2026-08-08 — **the fall is scroll-driven, not gravity-driven**
+
+Given after seeing the 230-item set run. Verbatim:
+
+> *"if somebody lets up on the arrow when something is in mid-fall, it shouldn't continue falling.
+> Scrolling down is what should make the item hit the ground, not actual gravity."*
+
+**This is this ticket's to build, and it is a real change to what [13](13-visual-direction-v2.md)
+shipped.** 13 settled 1,000 px per arrival with an 880 ms floor between drops — a *time* floor, on
+a matter.js body under real gravity. The consequence he is objecting to is exactly that: stop
+scrolling mid-fall and the object keeps falling, because wall-clock time keeps running.
+
+What replaces it: **the object's height is a function of scroll position, 1:1.** Stop, and it hangs.
+Scroll back up, and it rises (or it does not — decide, and say which, because decay is one-way and
+this is the first thing that would move backwards). Scroll down, and it lands. The landing is
+*caused* by the scroll reaching the arrival's contact offset, not by a simulation resolving.
+
+Consequences to work through here, not to discover later:
+
+- **matter.js may have nothing left to do.** 13's whole physics justification was the fall; if the
+  fall is a scroll-mapped position, the only remaining physics is the impact and the initial shard
+  velocities. That may be a simplification worth taking — it also removes the 880 ms floor, the
+  queue, and the "a fast scroll dumps four at once" failure entirely, because a fast scroll now
+  simply moves each object further down its own arc.
+- **The 880 ms floor was solving a problem that this deletes.** Re-derive the spacing from scroll
+  distance alone.
+- **Nothing else in 13 is reopened** — one at a time, slowly enough to read, shatter on contact,
+  fixed camera, native scroll, still ground.

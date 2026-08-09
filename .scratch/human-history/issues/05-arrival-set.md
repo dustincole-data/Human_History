@@ -1,9 +1,9 @@
 # 05 — The arrival set & verified dates
 
 Type: research
-Status: closed
+Status: open (reopened, scoped to the 2020-2026 tail)
 Assignee: dustin
-Resolved: 2026-08-08
+Resolved: 2026-08-08 for the 230-item set
 Blocked by: 02, 04
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -312,3 +312,30 @@ whole sprite, not across the actual Voronoi cuts `decay.js` makes. Verified live
 the real 230 loaded — 230/230 sprites present, 235,089 px of scroll, zero horizontal overflow, no
 console errors beyond the pre-existing favicon 404 and matter-js's own warnings. Not yet run on a
 phone; that stays [08](08-accessibility-and-mobile.md)'s.
+
+---
+
+## Reopened 2026-08-08 — **scoped to the 2020–2026 tail only**
+
+Dustin, on seeing the 230-item set: *"we're going to need stuff all the way up to 2026."*
+
+He is right and the number says so: the set's newest entry is **2022** (`byd`), and the four years
+since are empty. On a piece whose density target sits in *1960 → now*, ending four years short of
+now is the one gap a visitor will notice without being told.
+
+**This reopen is narrow and nothing else about the set is in question.** The 230 stand, the
+rulings stand, the coverage tables stand. What is owed:
+
+- **2022 → 2026**, at the density the rest of E8 runs at — roughly six to ten items.
+- The same gates apply, unchanged: R1 (a made object with a body), R2 (`frag`, and tier A if it
+  scores under 0.25), R4's regional balance, `src · lic · cred · url` on every entry.
+- **Licence is the hard part here, not supply.** Very recent consumer objects are photographed by
+  their manufacturers, and manufacturer press images are not CC0. Expect Commons user photography
+  and expect a lower hit rate than the rest of the set — measure it and say so rather than
+  reaching for a press shot.
+- Re-run `measure.py --live` afterwards; the region and era tables in this ticket are generated,
+  not typed, so they must be regenerated rather than edited.
+
+Also still open from the first pass, and cheap: the **seven never-found** rows (`braille`,
+`maosuit`, `borobudur`, `batik`, `goldweight`, `prayerwheel`, `kimono`) are still in `catalog.py`
+and most would come back with a second query.

@@ -68,3 +68,38 @@ on the items above:
 - Stone `#8d8577` measures **3.24:1 against cream and 4.95:1 against ink** — a mid-value ground is the
   worst case for *both* inks, and ink must flip **per row** or captions black out on the light grounds
   (item 5). This is the two-ended gate, demonstrated.
+---
+
+## Input from Dustin, 2026-08-08 — the label, and a background that moves with the era
+
+Both given after seeing the 230-item set run.
+
+**1. The name shatters with the object.** He worked through it out loud and landed on the last
+version, verbatim:
+
+> *"I think we want the names to go beneath the ground when the object hits the ground. We don't
+> want the names to pop up on top of the ground like they are. And we probably actually never mind.
+> I think we want the names to disappear right when they shatter. Or better yet, the name Shatter
+> with them"*
+
+**Take the last one: the name shatters with the object.** It does not fade, it does not sink, it
+breaks the way the object breaks. This *refines* [13](13-visual-direction-v2.md)'s ruling rather
+than reversing it — 13 said the name and date go out at impact and the `source · licence · credit`
+line lives as long as one fragment; that stands, and this decides *how* the name goes out.
+
+The complaint underneath it is live behaviour worth fixing regardless: **right now names sit above
+the ground line and read as UI**, not as part of the object.
+
+**2. A background that changes with the era.** Verbatim:
+
+> *"we're probably also going to have to come up with a realistic background that changes based on
+> the time."*
+
+**Careful here — this sits right next to a closed ruling and must not quietly reverse it.**
+[13](13-visual-direction-v2.md) settled that **the ground never moves and never changes colour**,
+and that the dated colour system is **the light**, not the earth. A changing *backdrop* — the
+air/sky behind the falling object — is a different surface from the earth, and reading it as *the
+light* is consistent with 13. Reading it as *a new dated ground* is not.
+
+State which one is being built before building it. If it turns out the honest version needs the
+earth to change too, that is a reopen of 13 and only Dustin does that.
