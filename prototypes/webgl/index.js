@@ -420,6 +420,37 @@ export function build(top) {
     ol.appendChild(li);
   }
   roll.appendChild(ol);
+
+  /* ---- the colophon (14): the mark again, and the one link off this site ----
+
+     The fixed pill rides the piece and goes out with the seam, so past the shelf the mark would be
+     gone entirely without this. The Deep Time link lives here rather than at the seam because a
+     link in the middle of a scroll is an exit offered before the thing is finished — this is the
+     one place the visitor has already reached the end.
+
+     The half of the cross-link that is NOT here is the one pointing back: the map rules Deep Time
+     out of scope, so a link in that site is Dustin's separate call. This half works alone and
+     works better once the other ships.
+
+     The sentence is placeholder-grade and 07 owns it — the voice does not exist yet. It is flat
+     declarative and says only what is true. */
+  const colo = document.createElement('div');
+  colo.className = 'icolo';
+  const mk = document.getElementById('mark').cloneNode(true);
+  mk.removeAttribute('id');                       // one id, one element — the pill keeps it
+  colo.appendChild(mk);
+  const note = document.createElement('p');
+  note.append('Deep Time runs from the formation of the Earth to now. ');
+  const out = document.createElement('a');
+  out.className = 'out';
+  out.href = 'https://deeptime.dustincoledata.com';
+  out.rel = 'noopener';
+  out.target = '_blank';
+  out.textContent = 'Its last sliver is this whole site.';
+  note.appendChild(out);
+  colo.appendChild(note);
+  roll.appendChild(colo);
+
   el.appendChild(roll);
 
   HEIGHT = rollTop + roll.offsetHeight + 120;

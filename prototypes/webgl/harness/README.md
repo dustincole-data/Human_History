@@ -40,3 +40,21 @@ round 12 found a fourth that never exercised the delay it was named for.
   been counted green in a table of 24 — a gate that cannot go red is a decoration.
 - **Run the teeth one case at a time and check `git status` between.** A killed suite leaves its
   perturbation in a source file; the files are only restored in the `finally`.
+
+## Never hand-patch a source file to test a gate
+
+Use the teeth harness. It snapshots every file it touches in memory and restores it byte-identical
+in a `finally`, and it is the only thing here that does.
+
+Round 14 hand-patched `gravity.js` to watch one perturbation, then undid it with
+`git checkout prototypes/webgl/gravity.js` — which does not undo *that patch*, it restores the file
+from HEAD and **discards every uncommitted change in it.** An afternoon of ticket-14 work went with
+it. Reconstructing it was possible only because each edit was still in the session.
+
+Two rules fall out, and they are cheap:
+
+- **Commit as soon as a round is green.** Tracked-and-committed is the only state that survives a
+  careless command; tracked-and-modified is not a backup of anything.
+- **To undo a deliberate patch, restore the exact bytes you replaced** — or let the harness do it.
+  `git checkout <path>` and `git restore <path>` are not undo, they are "discard my work on this
+  file", and they do not ask.

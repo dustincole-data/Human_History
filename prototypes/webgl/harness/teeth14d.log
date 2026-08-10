@@ -1,0 +1,45 @@
+
+=== the_last_one_breaks_too  (sweep10: expect only_the_last_one_survives red) ===
+  RED as designed: only_the_last_one_survives
+    FAIL  only_the_last_one_survives  walk: {"y":143080,"frags":13,"specks":0,"splits":0,"vis":4,"of":4,"nameVis":3}
+
+=== the_ending_breaks_late  (sweep10: expect only_the_last_one_survives red) ===
+  RED as designed: only_the_last_one_survives
+    FAIL  only_the_last_one_survives  walk: {"y":143780,"frags":3,"specks":0,"splits":1,"vis":4,"of":4,"nameVis":3}
+
+=== two_of_them_survive  (sweep10: expect name_dies_at_impact red) ===
+  RED as designed: name_dies_at_impact
+    FAIL  name_dies_at_impact  names alive past 0.07 of a life: {228, 229} — want exactly {229}
+
+=== the_ending_never_lands  (sweep10: expect only_the_last_one_survives red) ===
+  RED as designed: only_the_last_one_survives
+    FAIL  only_the_last_one_survives  jumped straight to TOTAL and the ending is {"down":false,"gone":false,"pieces":0,"specks":0,"splits":0,"hasWords":false,"nameVis":0,"credVis":0,"credTotal":0}
+
+=== signature_follows_you_in  (sweep11i: expect signature_goes_out_with_the_piece red) ===
+  RED as designed: signature_goes_out_with_the_piece
+    FAIL  signature_goes_out_with_the_piece  opacity 0.7 on the piece → 0.700 mid-seam → 0.7 (visible) on the shelf
+
+=== signature_on_a_clock  (sweep11i: expect signature_goes_out_with_the_piece red) ===
+  RED as designed: signature_goes_out_with_the_piece
+    FAIL  signature_goes_out_with_the_piece  opacity 0.7 on the piece → 0.489 mid-seam → 0.260838 (hidden) on the shelf
+
+=== colophon_drops_the_link  (sweep11i: expect colophon_links_to_deep_time red) ===
+  RED as designed: colophon_links_to_deep_time
+    FAIL  colophon_links_to_deep_time  # — "Its last sliver is this whole site."
+
+=== signature_ignores_the_words  (sweep10: expect signature_keeps_its_corner_clear red) ===
+  RED as designed: no_text_collision_390, signature_keeps_its_corner_clear
+    FAIL  no_text_collision_390  1 overlaps over 290 stops, max 34 words on screen
+    FAIL  signature_keeps_its_corner_clear  6 words intersect the signature over 251 phone stops
+
+files restored byte-identical: true
+OK   the_last_one_breaks_too -> only_the_last_one_survives
+OK   the_ending_breaks_late -> only_the_last_one_survives
+OK   two_of_them_survive -> name_dies_at_impact
+OK   the_ending_never_lands -> only_the_last_one_survives
+OK   signature_follows_you_in -> signature_goes_out_with_the_piece
+OK   signature_on_a_clock -> signature_goes_out_with_the_piece
+OK   colophon_drops_the_link -> colophon_links_to_deep_time
+OK   signature_ignores_the_words -> no_text_collision_390, signature_keeps_its_corner_clear
+
+8/8 perturbations went red

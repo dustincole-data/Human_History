@@ -330,7 +330,12 @@ function texture(y) {
     if (d.down || d.gone) release(d);              // shattered, or passed: its pixels are spent
     else {
       const rel = y - START[d.i];
-      if (rel > -AHEAD && rel - FALL < LIFE[d.i]) want(d); else release(d);
+      /* 14 — the last object has no life to run out, so the upper bound does not apply to it.
+         This was found by the ending simply never happening: the window released its photograph
+         at `rel - FALL >= LIFE`, "no pixels, no fall" then held it in the air, and the piece ended
+         on an object that was still falling. It costs nothing — the release on `d.down` above
+         fires the instant it lands, exactly as it does for the other 229. */
+      if (rel > -AHEAD && (d.i === LAST || rel - FALL < LIFE[d.i])) want(d); else release(d);
     }
     /* counted over EVERY drop still holding a reference, not only the ones this frame meant to
        keep. The first version tallied inside the branch above and skipped anything already down,
@@ -402,6 +407,24 @@ const START = new Float64Array(N), LAND = new Float64Array(N), LIFE = new Float6
   }
 }
 const TOTAL = START[N - 1] + PER[N - 1] + LIFE[N - 1];
+
+/* ---- TICKET 14, THE ENDING. The last object never breaks. ----
+
+   Every one of the 229 before it falls, shatters, breaks twice more and goes under the earth. This
+   one falls and then does nothing: no cut, no splits, no dust, and its name and its citation stay
+   whole for as long as it is on the screen.
+
+   It is not a reversal of 13's one-way decay — nothing here is un-broken, and scrolling back still
+   shows a broken thing broken. It is the ABSENCE of decay, which is the only true thing to say
+   about an object made four years ago: the piece's subject is time taking things, and this is the
+   one it has not taken. That is also why it is not a finale (01) — no crescendo, no reveal, no new
+   grammar. It is the existing grammar declining to fire once, which is the one shape change a
+   treatment repeated 230 times can still make (12).
+
+   Seven places in this file know about it, and they are all guarded on this one index. Nothing else
+   in the piece is special-cased, and `only_the_last_one_survives` gates that the exempt set is
+   exactly {LAST} — "the last one is different" is otherwise a hole any later defect walks through. */
+const LAST = N - 1;
 const idxAt = s => {                                 // which arrival owns this scroll position
   let a = 0, b = N - 1;
   while (a < b) { const m = (a + b + 1) >> 1; if (START[m] <= s) a = m; else b = m - 1; }
@@ -482,6 +505,8 @@ setSpacer();
 INDEX.build(indexTop());
 indexBuilt = true;
 const glEl = document.getElementById('gl'), hudEl = document.getElementById('hud');
+const markEl = document.getElementById('mark');    // 14 — the signature, on the piece
+const MARK_REST = 0.7;                             // its resting opacity, from the stylesheet
 let faded = -1;
 
 /* The overlay used to wait on all 230 photographs, because all 230 were fetched before the first
@@ -559,7 +584,8 @@ function land(d) {
     dust.breath(cx, cy, 12, SOIL);
   }
 
-  d.blown = true;                                    // the name and date break; see `place()`
+  d.blown = d.i !== LAST;                            // the name and date break; see `place()`
+                                                     // — except the last one's, which never does
   d.credX = Math.max(W * 0.15, Math.min(W * 0.85, cx));
 
   /* the tie is armed here rather than drawn from the tables directly, because it needs the
@@ -568,7 +594,34 @@ function land(d) {
   const j = TIE[d.i];
   if (j >= 0 && drops[j].down && !drops[j].gone) d.tie = { j, gap: d.it.y - ITEMS[j].y, on: false };
 
-  if (d.im) shatterNow(d, cx, cy, IMPACT);
+  if (d.im) { if (d.i === LAST) keepWhole(d); else shatterNow(d, cx, cy, IMPACT); }
+}
+
+/* THE ENDING (14). Cut as ONE piece and left standing exactly where it landed.
+
+   Not "skip the cut". Both the draw path and 03's memory rule key off `d.pieces`: `release(d)`
+   drops the photograph the instant the object is down, so an object that keeps no fragment keeps
+   nothing to draw and would vanish at the moment it arrived. One fragment is the same pipeline,
+   the same bound, and pixel-coincident with the sprite it replaces — the piece is placed from the
+   sprite's own centre, exactly as `shatterNow` places its thirteen.
+
+   `rest` is set here rather than earned by falling: there is no velocity to settle and no bounce
+   to spend. */
+function keepWhole(d) {
+  const p = cutPiece(d.im, d.w, d.h, [[0, 0], [d.w, 0], [d.w, d.h], [0, d.h]]);
+  if (!p) return;
+  const [wx, wy] = toWorld(d, p.cx + d.w / 2, p.cy + d.h / 2);
+  const pc = makePiece(p, wx, wy, 0, 0, 0, d.angle);
+  pc.rest = true;
+  /* Bedded into the surface, not perched on it — `shatterNow` states that rule for every shard and
+     it applies here for the first time to a whole object. The landing solve is exact: it puts the
+     lowest point of the silhouette ON the contour at the contact point, which is right for a thing
+     that is about to break and wrong for a thing that is going to stand there. Exact contact at a
+     single point, with no shard and no shadow under it, reads as hovering — the frames showed a
+     car apparently floating over the soil. Three pixels is the shards' own floor. */
+  pc.sink = 3;
+  pc.y += pc.sink;
+  d.pieces.push(pc);
 }
 
 /* everything separates at once, on straight brittle edges */
@@ -632,6 +685,8 @@ function toSpecks(d, p, seed) {
 }
 
 function advance(d) {
+  if (d.i === LAST) return;             // 14: it never breaks, so it never splits and never dusts
+
   /* The shards shatter again, twice. Each piece is replaced IN PLACE by its children — clearing
      the array first and refilling it from the queue blanks the object for a frame, which reads
      as a flicker. */
@@ -923,6 +978,34 @@ function place(d) {
   }
   if (!d.down || d.gone) return;
 
+  /* ---- TICKET 14, the ending. It never broke, so its words never came apart. ----
+
+     Name, date and citation stay the one cluster they rode down as, standing on the soil beside
+     the object. This is 06's rule rather than an exception to it — "a credit is one line until its
+     object's FIRST SPLIT" — and this object has no first split. The ink stays fresh for the same
+     reason: 13 ruled the credit decays with the object, and nothing here is decaying.
+
+     Clamped as a CLUSTER, not word by word. `credX` is only held to 15–85% of the width, which on
+     a 390px phone hangs an eighty-pixel half-cluster off the right edge — the frame showed a credit
+     reading "ALEXANDER MIG". Clamping each word instead would keep them all on screen and pile
+     them against the margin; the thing that has to stay whole here is the shape.
+
+     It goes in the soil band like every other citation, so the contrast problem stays solved
+     against the one surface whose value never changes. */
+  if (d.i === LAST) {
+    const half = d.boxAir.w / 2;
+    const cx = Math.max(14 + half, Math.min(W - 14 - half, d.credX));
+    let row = ROW_TOP;
+    const BOT = rowBot();
+    for (; row <= BOT; row += ROW_STEP)
+      if (!hits(cx, surfAt(cx) + row, d.boxAir.w, d.boxAir.h)) break;
+    const top = surfAt(cx) + Math.min(row, BOT);
+    for (const a of d.atoms)
+      put(a, cx + a.ax, top + a.ay, 1, 0, 1, a.cls === 'c' ? INK_HI : null,
+          [surfAt(cx + a.ax) + 8, H - 5]);
+    return;
+  }
+
   /* ---- the name, breaking. Up and out with the shards, and gone. ---- */
   const nu = Math.min(1, d.age / NAME_OUT);
   if (d.blown && nu < 1) {
@@ -1029,6 +1112,27 @@ function frame() {
     faded = fade;
     glEl.style.opacity = hudEl.style.opacity = (1 - fade).toFixed(3);
     glEl.style.visibility = hudEl.style.visibility = fade >= 1 ? 'hidden' : 'visible';
+    /* 14 — the signature is the piece's furniture, so it goes out with the piece. Without this it
+       would still be sitting over the shelf when the credits roll brought up the colophon's copy
+       of the same mark, twice on one screen. */
+    markEl.style.opacity = (MARK_REST * (1 - fade)).toFixed(3);
+    markEl.style.visibility = fade >= 1 ? 'hidden' : 'visible';
+  }
+
+  /* ---- TICKET 14. The ending is taken off the page by the SEAM, not by a life. ----
+
+     The last object never decays, so nothing in the update loop below ever reaches its `unbuild()`
+     — and a citation with no death of its own is exactly the stranded-credit defect round 10 found,
+     arriving through the one door that defect's fix left open. The fade is what ends it, which is
+     also the honest reading: the object is not destroyed, the light goes off it.
+
+     It runs both ways, because the seam is a position like everything else in this file. Scroll
+     back up and the words are rebuilt; `place()` at the foot of the frame puts them back on the
+     soil they were on. */
+  const end = drops[LAST];
+  if (end && end.down && !end.gone) {
+    if (fade >= 1) { if (end.atoms) unbuild(end); }
+    else if (!end.atoms) build(end);
   }
 
   // the intro goes with the first two objects. Against the FULL page height it would still be
@@ -1068,7 +1172,9 @@ function frame() {
     const rel = scrollY - START[d.i];
 
     if (!d.down) {
-      if (rel >= FALL && rel - FALL >= LIFE[d.i]) {   // its whole life is behind us: skip it entire
+      // 14: the last object has no life behind it to skip — retiring it here is exactly the jump
+      // that makes the ending reachable arriving and finding nothing there.
+      if (d.i !== LAST && rel >= FALL && rel - FALL >= LIFE[d.i]) {   // whole life behind us: skip it
         // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
         // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
         // and the sprite hangs at its spawn point, labelled, for the rest of the page.
@@ -1103,7 +1209,10 @@ function frame() {
     if (d.down) {
       const a = Math.min(1, (scrollY - d.landScroll) / LIFE[d.i]);
       if (a > d.age) { d.age = a; advance(d); }
-      if (d.age >= 1) {
+      // 14: the last object's age still runs — nothing is special-cased about the clock — but the
+      // age of a thing that never breaks does not kill it. What takes it off the page is the seam,
+      // above, because an object with no decay has no death of its own to die.
+      if (d.age >= 1 && d.i !== LAST) {
         d.gone = true;                               // every canvas it held is dropped here
         d.pieces.length = 0; d.specks.length = 0;
         unbuild(d);                                  // and the citation goes with the last speck
@@ -1153,9 +1262,11 @@ function frame() {
 
   /* TICKET 10 — the drawing stops here on the index, and NOT ONE LINE EARLIER.
 
-     Past the seam the last object died long ago, so there is nothing left to paint and a canvas
-     that is invisible but still taking four full-frame fills is a cost the shelf pays for
-     nothing. But the return sits BELOW the update loop rather than at the top of the frame,
+     Past the seam the canvas is hidden, so there is nothing to see and a canvas that is invisible
+     but still taking four full-frame fills is a cost the shelf pays for nothing. (Ticket 14 made
+     the old reason for this — "the last object died long ago" — false: the last object is still
+     standing at the seam. The return is still right, but it is now the hidden canvas that makes it
+     right, not an empty one.) The return sits BELOW the update loop rather than at the top of the frame,
      and that placement is the whole of the fix: with it at the top, any drop still holding words
      when the fade completed never reached its own `unbuild()`, and its citation stayed printed in
      the fixed label layer — over the shelf, for the rest of the page. Three of them were on the
@@ -1358,6 +1469,15 @@ function frame() {
   /* ---- the words. Newest first, so the thing that just landed gets the ground it fell on and
          everything older packs around it. ---- */
   taken.length = 0;
+  /* 14 — the signature is reserved BEFORE any word is placed, in the same list every citation is
+     placed against. 11's no-collision contract has no furniture exemption in it, and a fixed pill
+     in the bottom-right corner sits exactly in the soil band the newest credits are written in.
+     Read off the element rather than computed from the stylesheet, so a padding change cannot
+     quietly stop reserving the right box. */
+  if (markEl.style.visibility !== 'hidden') {
+    const b = markEl.getBoundingClientRect();
+    if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
+  }
   for (let i = drops.length - 1; i >= 0; i--) place(drops[i]);
 
   requestAnimationFrame(frame);

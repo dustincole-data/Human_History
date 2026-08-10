@@ -254,6 +254,49 @@ const roll = await page.evaluate(() => {
 ok('every_item_carries_its_attribution', roll.n === roll.want && roll.bad === 0 && roll.labels === 0,
    roll.bad ? roll.first : `${roll.n} credits in the roll, each with name, date, source and licence; ${roll.labels} cells without a name`);
 
+/* =============================================================== TICKET 14 — the signature
+
+   Both halves of ruling B, each checked where it actually lives. The pill rides the piece and goes
+   out with the seam; the colophon carries the mark again plus the one link off this site. The
+   failure this is aimed at is the obvious one — two copies of the same mark on screen together
+   once the roll comes up — and the less obvious one, a colophon that quietly loses the link. */
+const sig = await page.evaluate(() => {
+  const pill = document.getElementById('mark');
+  const colo = document.querySelector('.icolo');
+  const mk = colo && colo.querySelector('.dcd-mark');
+  const out = colo && colo.querySelector('a.out');
+  return {
+    pill: !!pill, pillHref: pill && pill.getAttribute('href'),
+    pillLabel: pill && pill.getAttribute('aria-label'),
+    dot: !!(pill && pill.querySelector('.dcd-mark-dot')),
+    dotFill: pill && getComputedStyle(pill.querySelector('.dcd-mark-dot')).fill,
+    coloMark: !!mk, coloIds: document.querySelectorAll('#mark').length,
+    outHref: out && out.getAttribute('href'), outText: out && out.textContent
+  };
+});
+ok('signature_is_the_shared_mark', sig.pill && sig.coloMark && sig.coloIds === 1 &&
+   sig.pillHref === 'https://dustincoledata.com' && sig.dot && sig.dotFill === 'rgb(138, 160, 255)',
+   sig.coloIds !== 1 ? `${sig.coloIds} elements carry id="mark"`
+     : `pill + colophon, one id, ${sig.pillHref}, brand-blue period ${sig.dotFill}`);
+ok('colophon_links_to_deep_time', sig.outHref === 'https://deeptime.dustincoledata.com' && !!sig.outText,
+   sig.outHref ? `${sig.outHref} — "${sig.outText}"` : 'no outbound link in the colophon');
+
+/* on the piece, and gone by the shelf — measured at three positions, not asserted */
+{
+  const opacityAt = async y => { await to(y, 4);
+    return page.evaluate(() => { const c = getComputedStyle(document.getElementById('mark'));
+      return { o: +c.opacity, v: c.visibility }; }); };
+  const I2 = await page.evaluate(() => window.__hh.index());
+  const onPiece = await opacityAt(Math.round(await page.evaluate(() => window.__hh.TOTAL) * 0.5));
+  const midSeam = await opacityAt(I2.top - 1400);
+  const onShelf = await opacityAt(I2.top + 1400);
+  ok('signature_goes_out_with_the_piece',
+     onPiece.o > 0.5 && onPiece.v === 'visible' &&
+     midSeam.o < onPiece.o && midSeam.o > 0 &&
+     onShelf.o === 0 && onShelf.v === 'hidden',
+     `opacity ${onPiece.o} on the piece → ${midSeam.o.toFixed(3)} mid-seam → ${onShelf.o} (${onShelf.v}) on the shelf`);
+}
+
 /* =============================================================== phase 6 — the seam */
 await fresh();
 const seam = await page.evaluate(() => {

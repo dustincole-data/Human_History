@@ -72,10 +72,10 @@ Five asks, filed where they belong rather than as a loose list. **One of them ch
   problem: the piece is objects only, so *Human History* oversells it. His candidates, verbatim:
   *Time · Humans in Time · Human Objects in Time · Human Objects and Decay* - and *"I don't know
   what would be best."*
-- **The ending, the Deep Time kick-over, and the signature logo** -> new ticket
-  [14](issues/14-the-ending-and-the-frame.md). The ending **reopens 01's no-finale line**; the
-  cross-link is genuinely good (Deep Time's last sliver *is* this whole site) but its Deep-Time
-  half is **out of scope by the rule below** and is Dustin's call, not a ticket's.
+- ~~**The ending, the Deep Time kick-over, and the signature logo**~~ **-> done,
+  [14](issues/14-the-ending-and-the-frame.md) round 1.** The ending is *the last object never
+  breaks*; the signature is in both places; the outbound link is in the colophon. The Deep-Time half
+  of the cross-link remains **out of scope** and is Dustin's call, not a ticket's.
 
 ### The premise, and what may still challenge it
 
@@ -187,6 +187,28 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   testing the gate. `masters_on_the_shelf` finally moves the memory gate: **301.2 MB**, the case
   round 11 added after `css_scaling_instead_of_a_bake` left it green. **A gate that cannot go red
   is not a weak gate, it is a decoration, and only a perturbation aimed at it finds one.**
+- [14 — The ending, the cross-link and the signature](issues/14-the-ending-and-the-frame.md) —
+  **built, on two rulings taken from Dustin before anything was made.** *The ending is that the last
+  object never breaks*: the newest thing anyone made falls like the other 229 and then nothing
+  happens to it — no cut, no splits, no dust — and its name and citation stand beside it until the
+  seam takes the piece out. Nothing is un-broken, so 13's one-way decay holds; there is no new
+  grammar, so [01](issues/01-the-fun-thesis.md)'s no-finale survives an ending; and *stopping* is
+  the one shape change a treatment repeated 230 times can still make. **The plan named five touch
+  points and there were six** — after all five, the ending still did not exist, because
+  [03](issues/03-engine-reuse-or-clean-build.md)'s texture window releases a photograph at
+  `rel - FALL >= LIFE`, the one object with no life to run out fell through that bound, and *no
+  pixels, no fall* then held it in the air forever. **The two rules that hold the memory ceiling up
+  had deleted the ending.** *The signature goes in both places*, Deep Time's treatment verbatim
+  (brand-blue period included), riding the piece and going out with the seam so it and the
+  colophon's copy are never on screen together; its box is reserved in the collision list, because
+  11's contract has no furniture exemption. **Gates re-aimed, not narrowed**: `name_dies_at_impact`
+  now claims *the set of names that outlive impact is exactly {229}*, which a skip-the-last-index
+  gate could not. 40/40 and 26/26. **And the teeth found the blind spot that mattered** —
+  `the_ending_never_lands` reddened nothing, because a continuous walk lands the object inside the
+  window and only a *jump* to the end reproduces it, which is how a scrollbar drag arrives there.
+  **Still open and not this ticket's:** the ending's words and the colophon's placeholder sentence
+  ([07](issues/07-copy-voice-and-name.md)), and the inbound link from Deep Time (Dustin's, on a
+  shipped site).
 - **Matting solved, and it relaxes a filter** — `prototypes/anchor-preview/matte.py` (rembg + isnet, local, free) cut **9 of the 10** subjects that defeated the hand-rolled flood fill, including **Aldrin out of the visor photo** and **Sputnik's antennas**. [05](issues/05-arrival-set.md)'s cut-out admission test is therefore far weaker than [11](issues/11-visual-anchor.md) assumed: famous *moments* can become objects.
 
 ### New from Dustin, 2026-08-09 — after seeing round 7 run

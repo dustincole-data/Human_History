@@ -104,6 +104,12 @@ const probe = 60;
 const mid = T.START[probe] + T.FALL * 0.5;
 
 await to(mid, 6);
+/* WAIT FOR THE PHOTOGRAPH BEFORE STARTING THE CLOCK. "No pixels, no fall" (03) means this item is
+   not airborne until its sprite is here, and under load that can land after `fresh()`'s 600ms — the
+   probe then found nothing in the air and reported `y undefined -> 94.34`, which reads like the
+   mechanic broke when what actually happened is that the machine was busy. The gate is about the
+   scroll being the only clock; it is not about how fast localhost decodes. */
+for (let i = 0; i < 60 && !(await snap()).items.some(x => x.air); i++) await tick(3);
 let a = await snap();
 let air0 = a.items.find(x => x.air);
 await page.waitForTimeout(2000); await tick(4);
@@ -136,9 +142,10 @@ ok('decay_one_way', ageA != null && ageA === ageB, `age ${ageA} -> ${ageB}`);
 await fresh();
 let maxAir = 0;
 const groundViol = [], tieCutViol = [], captions = [], lifeViol = [], ghosts = [],
-      wholeViol = [], spreadViol = [], nameViol = [];
+      wholeViol = [], spreadViol = [], lastViol = [];
+const survivors = new Set();                 // 14: whose name outlives impact. Must be exactly {N-1}
 const aliveCurve = [], tieCurve = [];
-let shatterSeen = 0, wholeSeen = 0, nameSeen = 0;
+let shatterSeen = 0, wholeSeen = 0, nameSeen = 0, lastSeen = 0;
 const STEP = 140;
 const stops = [];
 for (let y = 0; y < T.TOTAL; y += STEP) stops.push(y);
@@ -181,6 +188,7 @@ for (const y of stops) {
       const xs = [...d.pieces.map(p => p.x), ...d.specks.map(q => q.x)];
       out.push({
         i: d.i, age: d.age, down: d.down, gone: d.gone, air: d.air, frags, vis,
+        specks: d.specks.length, splits: d.splits,          // 14
         total: d.cred.length,
         wordSpan: txs.length ? Math.max(...txs) - Math.min(...txs) : 0,
         fieldSpan: xs.length ? Math.max(...xs) - Math.min(...xs) : 0,
@@ -199,8 +207,15 @@ for (const y of stops) {
     if (it.frags > 0 && it.vis < it.total) lifeViol.push({ y, i: it.i, vis: it.vis, of: it.total });
     // still whole before the object's first split
     if (it.age < T.SPLITS[0]) { wholeSeen++; if (it.wordSpan > it.lineW + 4) wholeViol.push({ y, i: it.i, span: it.wordSpan, line: it.lineW }); }
+    /* TICKET 14 — the last object never breaks, so it has no wreckage for its words to be as wide
+       as. The exemption is exactly one index and is gated by `only_the_last_one_survives` below;
+       written as `it.i !== N - 1` rather than as a tolerance, because a tolerance is a hole. */
+    if (it.i === N - 1) { lastSeen++; if (it.frags !== 1 || it.specks || it.splits ||
+                                          it.vis !== it.total || it.nameVis !== it.nameTotal)
+                            lastViol.push({ y, frags: it.frags, specks: it.specks, splits: it.splits,
+                                            vis: it.vis, of: it.total, nameVis: it.nameVis }); }
     // as wide as its own wreckage once the object is fully apart (70px is the stated floor)
-    if (it.age > T.SPLITS[T.SPLITS.length - 1] + 0.06 && it.frags > 0) {
+    if (it.i !== N - 1 && it.age > T.SPLITS[T.SPLITS.length - 1] + 0.06 && it.frags > 0) {
       shatterSeen++;
       const half = Math.max(it.fieldSpan / 2, 70);
       const target = Math.min(VW - 14, it.fieldC + half) - Math.max(14, it.fieldC - half);
@@ -209,8 +224,11 @@ for (const y of stops) {
       if (r < 0.78 || r > 1.12)
         spreadViol.push({ y, i: it.i, span: Math.round(it.wordSpan), target: Math.round(target), r: +r.toFixed(2) });
     }
-    // the name is taken within NAME_OUT and never comes back
-    if (it.age > T.NAME_OUT && it.nameVis > 0) nameViol.push({ y, i: it.i, age: it.age, vis: it.nameVis });
+    /* the name is taken within NAME_OUT and never comes back — TICKET 14 RE-AIMED THIS RATHER THAN
+       NARROWING IT. The claim is no longer "no name outlives impact"; it is "the SET of names that
+       outlive impact is exactly {the last object}". A gate that simply skipped index N-1 would go
+       on passing if a second object stopped breaking; this one cannot. */
+    if (it.age > T.NAME_OUT && it.nameVis > 0) survivors.add(it.i);
     if (it.age > 0 && it.age < T.NAME_OUT * 0.7 && it.nameVis > 0) nameSeen++;
   }
   const txt = await page.evaluate(() =>
@@ -233,8 +251,14 @@ ok('credit_is_one_line_until_it_breaks', wholeViol.length === 0,
    `${wholeViol.length} of ${wholeSeen} un-split citations wider than their own line`);
 ok('credit_spreads_with_its_wreckage', spreadViol.length === 0,
    `${spreadViol.length} of ${shatterSeen} shattered citations not as wide as their debris`);
-ok('name_dies_at_impact', nameViol.length === 0 && nameSeen > 0,
-   `${nameViol.length} names alive past ${T.NAME_OUT} of a life; ${nameSeen} caught mid-break`);
+ok('name_dies_at_impact', survivors.size === 1 && survivors.has(N - 1) && nameSeen > 0,
+   survivors.size !== 1 || !survivors.has(N - 1)
+     ? `names alive past ${T.NAME_OUT} of a life: {${[...survivors].join(', ')}} — want exactly {${N - 1}}`
+     : `exactly one name outlives impact and it is item ${N - 1}, the ending; ` +
+       `the other ${N - 1} all die within ${T.NAME_OUT} of a life; ${nameSeen} caught mid-break`);
+
+/* TICKET 14's evidence from the walk is gathered above; the gate itself is reported after the
+   jump phase below, because a walk alone cannot see the defect that matters most here. */
 
 /* ROUND 10 — this page has just walked the entire scroll and taken nine hard jumps. What it is
    still holding is the leak reading, and it has to be taken here, before the next fresh(). */
@@ -328,6 +352,18 @@ const boxes = () => page.evaluate(() => {
     const b = el.getBoundingClientRect();
     if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: el.textContent });
   }
+  /* TICKET 14 — the signature goes IN this set rather than beside it. It is a fixed pill in the
+     bottom-right corner, which is inside the soil band the newest citations are written in, and
+     11's contract has no furniture exemption. Putting it in `boxes()` means the existing
+     ship gate covers it at both viewports across the whole scroll, for nothing. */
+  const m = document.getElementById('mark');
+  if (m) {
+    const cs = getComputedStyle(m);
+    if (cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.05) {
+      const b = m.getBoundingClientRect();
+      if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«the signature»' });
+    }
+  }
   return r;
 });
 let worst = null;
@@ -351,6 +387,55 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
   ok(`no_text_collision_${w}`, coll === 0, `${coll} overlaps over ${samples} stops, max ${maxBoxes} words on screen`);
   ok(`no_h_overflow_${w}`, ovf === 0, `${ovf} stops with horizontal overflow`);
 }
+
+/* ---------------- TICKET 14 — the signature's corner, on purpose rather than by luck ----------
+
+   `no_text_collision_390` DID catch the reservation being deleted — once. On a re-run of the same
+   perturbation it caught nothing, because one overlap over 290 stops taken a single rAF apart is a
+   knife-edge: how far a citation has spread at a given stop depends on how much of the cutting
+   queue has drained, and that is machine timing. **A detector that finds the defect on one run in
+   two is not a gate**, which is round 12's whole lesson arriving inside the round that learned it.
+
+   So the corner gets its own reading: the phone, through the crowded tail where the citations are
+   most numerous and the pill has the most competition, settled properly at each stop. It asserts
+   the thing that matters — no word ever intersects the mark — and it also reports HOW CLOSE the
+   nearest word got, because a zero-overlap result over a corner nothing ever reaches would prove
+   nothing at all. If that clearance is large, the reservation is not what is keeping the corner
+   clear and this gate is the decoration, not the guard. */
+await page.setViewportSize({ width: 390, height: 844 });
+await fresh();
+let sigHit = 0, nearest = 1e9, contested = 0, sigStops = 0;
+for (let y = Math.round(T.TOTAL * 0.55); y < T.TOTAL; y += 260) {
+  await to(y, 3);
+  sigStops++;
+  const r = await page.evaluate(() => {
+    const m = document.getElementById('mark');
+    const cs = getComputedStyle(m);
+    if (cs.visibility === 'hidden' || parseFloat(cs.opacity) < 0.05) return null;
+    const b = m.getBoundingClientRect();
+    let hit = 0, near = 1e9;
+    for (const el of document.querySelectorAll('#labels span:not(.sr)')) {
+      if (parseFloat(el.style.opacity || '0') < 0.05) continue;
+      const a = el.getBoundingClientRect();
+      if (!a.width) continue;
+      if (a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height) hit++;
+      const dx = Math.max(b.x - (a.x + a.width), a.x - (b.x + b.width), 0);
+      const dy = Math.max(b.y - (a.y + a.height), a.y - (b.y + b.height), 0);
+      near = Math.min(near, Math.hypot(dx, dy));
+    }
+    return { hit, near };
+  });
+  if (!r) continue;
+  sigHit += r.hit;
+  if (r.near < nearest) nearest = r.near;
+  if (r.near < 24) contested++;
+}
+ok('signature_keeps_its_corner_clear', sigHit === 0 && contested > 0,
+   sigHit ? `${sigHit} words intersect the signature over ${sigStops} phone stops`
+     : contested === 0 ? `0 overlaps, but no word came within 24px over ${sigStops} stops — ` +
+                         `this corner is never contested and the gate proves nothing`
+     : `0 words intersect the mark over ${sigStops} phone stops through the crowded tail; ` +
+       `nearest approach ${nearest.toFixed(1)}px, and ${contested} stops had a word inside 24px`);
 if (worst) console.log('  first overlap:', JSON.stringify(worst));
 
 /* ---------------- frame budget ---------------- */
@@ -473,6 +558,43 @@ const cost = await page.evaluate(() => ({
 ok('jump_costs_what_it_shows', cost.fetched < 40,
    `${cost.fetched} photographs fetched for a 0 -> 120,000 jump that passed ${cost.passed} arrivals ` +
    `and put ${cost.shown} on the ground`);
+
+/* ---------------- TICKET 14 — THE ENDING, and the gate that stops it becoming a licence -------
+
+   Two readings, and the SECOND ONE IS THE ONE THAT MATTERS. The walk above sees the last object at
+   every stop past its landing and asserts it is whole; that half was green from the first run.
+
+   But `the_ending_never_lands` — the perturbation that restores 03's texture-window bound for the
+   last object, which is the defect this round actually shipped — DID NOT GO RED against the walk,
+   and the reason is the walk itself. A continuous sweep passes through `LAND[229]` while the
+   sprite is still inside the window, so the object lands normally and is whole at every stop the
+   walk takes. The defect only exists for a visitor who ARRIVES at the end rather than scrolls to
+   it: jump straight past the release point and the photograph was never held, "no pixels, no fall"
+   refuses the landing, and the piece ends on an object still in the air. **That is how a scrollbar
+   drag reaches the ending**, which makes it the common case rather than the corner one.
+
+   So the ending is also read after a hard jump to TOTAL on a page that has been nowhere else. */
+await fresh();
+await to(T.TOTAL, 8);
+for (let i = 0; i < 60 && (await page.evaluate(() => window.__hh.pending())) > 0; i++) await tick(3);
+await tick(6);
+const ending = await page.evaluate(() => {
+  const d = window.__hh.drops[window.__hh.drops.length - 1];
+  return { down: d.down, gone: d.gone, pieces: d.pieces.length, specks: d.specks.length,
+           splits: d.splits, hasWords: !!d.atoms,
+           nameVis: d.atoms ? d.atoms.filter(a => a.cls !== 'c' && +a.el.style.opacity > 0.02).length : 0,
+           credVis: d.cred ? d.cred.filter(a => +a.el.style.opacity > 0.02).length : 0,
+           credTotal: d.cred ? d.cred.length : 0 };
+});
+const jumpOK = ending.down && !ending.gone && ending.pieces === 1 && ending.specks === 0 &&
+               ending.splits === 0 && ending.nameVis > 0 && ending.credVis === ending.credTotal &&
+               ending.credTotal > 0;
+ok('only_the_last_one_survives', lastViol.length === 0 && lastSeen > 0 && jumpOK,
+   lastViol.length ? `walk: ${JSON.stringify(lastViol[0])}`
+     : !jumpOK ? `jumped straight to TOTAL and the ending is ${JSON.stringify(ending)}`
+     : `item ${N - 1} whole at all ${lastSeen} stops of the walk AND after a hard jump to TOTAL — ` +
+       `1 piece, 0 specks, 0 splits, ${ending.nameVis} name words and ${ending.credVis}/${ending.credTotal} ` +
+       `citation words standing`);
 
 /* 6. The window is not a clock. Two independent first visits jump to the same position, wait for
       the same quiescence, and must agree about what is on the ground — if which frame a sprite
