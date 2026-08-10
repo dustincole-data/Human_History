@@ -53,8 +53,11 @@ export function setIntro(text, hint) {
   document.getElementById('introp').textContent = text;
   document.getElementById('hint').textContent = hint;
 }
-export function fadeIntro(t) {                 // t 0..1 of how far in the visitor is
-  const o = Math.max(0, 1 - t * 4);
+/* t is 0..1 of the intro's OWN life, and the caller decides what that life is. It was `1 - t * 4`
+   against a t measured out to the eighth arrival, which is two numbers doing one job and neither of
+   them attached to anything on screen. Linear, and the caller names the event it ends on. */
+export function fadeIntro(t) {
+  const o = Math.max(0, 1 - t);
   document.getElementById('intro').style.opacity = o;
   document.getElementById('hint').style.opacity = 0.4 * o;
 }

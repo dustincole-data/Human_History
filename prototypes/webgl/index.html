@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Human History</title>
+<title>Everything Breaks — twelve thousand years of things people built</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -41,15 +41,32 @@
   #hud .era{display:block;font-size:12px;font-weight:800;letter-spacing:.14em;margin-top:1.5em;
             text-transform:uppercase;color:var(--spot,#fff);max-width:16ch;line-height:1.4}
 
+  /* NO TRANSITION ON THE OPACITY, for the reason 14 struck one off the signature: the value is
+     driven by the scrollbar every frame, so an ease on top of it is a wall clock, and 12 and 04
+     rule those out everywhere else on this page. It was .5s here and it cost real evidence — a
+     probe reading one rAF after a jump saw the intro still painted at 0.06 more than 700px past
+     the scroll position that had already taken it to zero, and reported 21 collisions that do not
+     exist. A scrollbar drag reproduces exactly that for half a second. */
   #intro{position:fixed;inset:auto auto 0 0;z-index:5;padding:0 clamp(18px,4vw,60px) 8vh;
-         max-width:min(46ch,80vw);pointer-events:none;transition:opacity .5s ease}
+         max-width:min(46ch,80vw);pointer-events:none}
   #intro h1{font-size:clamp(18px,2.4vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.08;
             text-wrap:balance;text-shadow:0 2px 24px rgba(0,0,0,.9)}
   #intro p{margin-top:1em;font-size:clamp(12px,1.15vw,14px);font-weight:500;opacity:.7;
            line-height:1.5;text-shadow:0 2px 14px rgba(0,0,0,.9)}
   #hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5;font-size:11px;
         font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.4;
-        pointer-events:none;transition:opacity .4s ease}
+        pointer-events:none}
+  /* On a phone the hint is 195px of tracked capitals across the middle and the signature is 169px
+     hard against the right, both on the 22px line: 92px of them are the same pixels. It has been
+     that way since 14 put the pill on the page and nothing could see it, because furniture was
+     never in a collision gate — 07 put it in one and this was the first thing it said. The words
+     move rather than shrink; the pill's corner is the reserved one.
+
+     Moving it up then put it through the paragraph, which is the honest shape of the problem: at
+     390 the bottom edge carries three pieces of furniture and 8vh of the intro's padding, and only
+     21px of it was ever free. The intro takes the phone's bottom inset instead of 8vh, and the
+     three sit in a column with real gaps: intro ink to 732, hint 756–780, pill 797–826. */
+  @media (max-width:640px){ #intro{padding-bottom:112px} #hint{bottom:64px} }
 
   #loading{position:fixed;inset:0;z-index:8000;display:grid;place-items:center;background:#05060a;
            font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;opacity:.55;

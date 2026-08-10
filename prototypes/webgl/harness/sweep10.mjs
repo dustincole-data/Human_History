@@ -364,14 +364,41 @@ const boxes = () => page.evaluate(() => {
       if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«the signature»' });
     }
   }
+  /* TICKET 07 — and the intro, on the identical argument, which nobody had made for it. The
+     headline and its paragraph are words on the same screen as the first citations and they were
+     outside every collision gate on this site; a probe found them printed through each other at
+     both viewports on copy that had been in the page for two rounds. The INK is measured, never
+     `#intro` — that box is mostly padding, and holding it would report overlaps a reader cannot
+     see. `#intro`'s opacity is the one that fades; the children do not carry their own. */
+  const intro = document.getElementById('intro');
+  const introO = intro ? parseFloat(getComputedStyle(intro).opacity) : 0;
+  if (introO > 0.05) for (const el of [intro.querySelector('h1'), document.getElementById('introp')]) {
+    const b = el.getBoundingClientRect();
+    if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«the intro»' });
+  }
+  const hint = document.getElementById('hint');
+  if (hint && parseFloat(getComputedStyle(hint).opacity) > 0.05) {
+    const b = hint.getBoundingClientRect();
+    if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«the hint»' });
+  }
   return r;
 });
 let worst = null;
+/* TICKET 07 — the prologue is walked at 20px and the rest at 500.
+   The intro is only on screen for the first 460px, and a 500px stride puts exactly ONE sample in
+   that window, at y=0, where nothing has fallen far enough to reach the words. With the intro's
+   reservation deleted the label riding the first object prints straight through the headline at
+   y=400, and this gate said 41/41 green. A stride chosen for a 144,632px scroll cannot also be the
+   stride for the 460px where all of the furniture lives. */
+const introEnd = await page.evaluate(() => window.__hh.START[0] + window.__hh.FALL);
+const STOPS = [];
+for (let y = 0; y <= introEnd; y += 20) STOPS.push(y);
+for (let y = 500; y < T.TOTAL; y += 500) STOPS.push(y);
 for (const [w, h] of [[1440, 900], [390, 844]]) {
   await page.setViewportSize({ width: w, height: h });
   await fresh();
   let coll = 0, ovf = 0, samples = 0, maxBoxes = 0;
-  for (let y = 0; y < T.TOTAL; y += 500) {
+  for (const y of STOPS) {
     await to(y, 1);
     samples++;
     const bs = await boxes();

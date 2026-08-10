@@ -407,7 +407,7 @@ export function build(top) {
   roll.style.cssText = `top:${rollTop}px;background-image:url("${deepURL}");background-size:300px 300px`;
   const h = document.createElement('p');
   h.className = 'irollh';
-  h.textContent = 'Every image, and where it came from';
+  h.textContent = 'Everything that fell, and where the picture came from';   // 07: the voice
   roll.appendChild(h);
   const ol = document.createElement('ol');
   for (const it of ITEMS) {
@@ -432,8 +432,9 @@ export function build(top) {
      out of scope, so a link in that site is Dustin's separate call. This half works alone and
      works better once the other ships.
 
-     The sentence is placeholder-grade and 07 owns it — the voice does not exist yet. It is flat
-     declarative and says only what is true. */
+     The sentence is 07's, in the voice 07 picked: the second half is what the link is FOR, so it is
+     the link, and the first half is the one fact a visitor needs to know before clicking it. It
+     states a size and does not describe the feeling of one. */
   const colo = document.createElement('div');
   colo.className = 'icolo';
   const mk = document.getElementById('mark').cloneNode(true);
@@ -446,7 +447,7 @@ export function build(top) {
   out.href = 'https://deeptime.dustincoledata.com';
   out.rel = 'noopener';
   out.target = '_blank';
-  out.textContent = 'Its last sliver is this whole site.';
+  out.textContent = 'All of this fits in its last sliver.';
   note.appendChild(out);
   colo.appendChild(note);
   roll.appendChild(colo);

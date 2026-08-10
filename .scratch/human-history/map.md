@@ -4,7 +4,7 @@ Labels: `wayfinder:map`
 
 ## Destination
 
-A scroll-driven data toy telling **~12,000 years of everything humans built**, from Göbekli Tepe to now — built entirely from real, cited, public-domain artifacts and photographs — **live on its own subdomain** with a card on dustincoledata.com/projects.
+**EVERYTHING BREAKS** ([07](issues/07-copy-voice-and-name.md)) — a scroll-driven data toy telling **~12,000 years of everything humans built**, from Göbekli Tepe to now — built entirely from real, cited, public-domain artifacts and photographs — **live at `everythingbreaks.dustincoledata.com`** with a card on dustincoledata.com/projects.
 
 Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 
@@ -68,10 +68,10 @@ Five asks, filed where they belong rather than as a loose list. **One of them ch
   as a smooth function of the year rather than a step per lamp, so no era boundary is asserted.
 - **The set must reach 2026** -> [05](issues/05-arrival-set.md), reopened *scoped to that tail
   only*. Newest entry today is 2022.
-- **The name of the project** -> [07](issues/07-copy-voice-and-name.md). 05's R1 made this a real
-  problem: the piece is objects only, so *Human History* oversells it. His candidates, verbatim:
-  *Time · Humans in Time · Human Objects in Time · Human Objects and Decay* - and *"I don't know
-  what would be best."*
+- ~~**The name of the project**~~ **-> done, [07](issues/07-copy-voice-and-name.md) round 1.** It is
+  **EVERYTHING BREAKS**, at `everythingbreaks.dustincoledata.com` (free; all ten shipped subdomains
+  checked). Seven names in three families were put in front of Dustin and he picked. The repo keeps
+  its `Human_History` folder name and this map keeps its title; renaming either was never implied.
 - ~~**The ending, the Deep Time kick-over, and the signature logo**~~ **-> done,
   [14](issues/14-the-ending-and-the-frame.md) round 1.** The ending is *the last object never
   breaks*; the signature is in both places; the outbound link is in the colophon. The Deep-Time half
@@ -209,6 +209,31 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   **Still open and not this ticket's:** the ending's words and the colophon's placeholder sentence
   ([07](issues/07-copy-voice-and-name.md)), and the inbound link from Deep Time (Dustin's, on a
   shipped site).
+- [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
+  the furniture was outside every collision gate.** Resolved by building the options rather than
+  picking: seven names in three families, all DNS-checked, and three voices written on the real
+  strings at their real size over a real frame. **The four candidates were hiding a fork** — a name
+  can carry the site's SUBJECT (decay, what Dustin noticed) or its PAYOFF (simultaneity,
+  [01](issues/01-the-fun-thesis.md)'s fun mechanism) and not both, because a name that carries both
+  is a sentence. **EVERYTHING BREAKS**, because it is the mechanic said flatly and because
+  [14](issues/14-the-ending-and-the-frame.md)'s ending breaks the title in the last thousand pixels.
+  *Time* died on the sibling-not-sequel rule (it reads as Deep Time's parent); *Humans in Time* on
+  05's R1 (there are no humans in the piece). The voice is **the rules of the world** — present
+  tense, "you" only in an instruction — picked because **the page was already in two voices** and
+  the odd one out, `scroll to drop it · stop and it hangs`, was the best line on it. Both
+  placeholders closed; **the arrival keeps no description line and the ending stays wordless**, both
+  toward less copy. **A one-line-taller paragraph then found three defects, two older than this
+  ticket**: a date printed through the headline, a `.5s` opacity ease that is a wall clock (14 struck
+  the same one off the signature, and here it manufactured 21 collisions that do not exist), and the
+  hint printed on top of the signature on every phone since 14. The frame's life is now a rule and
+  not a number — **it is up until the first thing lands**. 41/41 and 41/41 `--slow`, 26/26 and 27/27,
+  `teeth07` 4/4.
+- **The stride is part of the gate — [07](issues/07-copy-voice-and-name.md).** `no_text_collision`
+  sampled every 500px across a 144,632px scroll, so the **460px prologue, where every piece of
+  furniture on the site lives, got exactly one sample** — at y=0, before anything has fallen far
+  enough to reach the words. A real defect sat at y=400 and the gate read 41/41 green. Walked at
+  20px now. **Third ticket running where the instrument was wrong and the page was not**, and the
+  first where it was the sampling rather than the measurement.
 - **Matting solved, and it relaxes a filter** — `prototypes/anchor-preview/matte.py` (rembg + isnet, local, free) cut **9 of the 10** subjects that defeated the hand-rolled flood fill, including **Aldrin out of the visor photo** and **Sputnik's antennas**. [05](issues/05-arrival-set.md)'s cut-out admission test is therefore far weaker than [11](issues/11-visual-anchor.md) assumed: famous *moments* can become objects.
 
 ### New from Dustin, 2026-08-09 — after seeing round 7 run

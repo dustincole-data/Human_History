@@ -55,9 +55,19 @@ import { hexA, rng, noise1, Dust, tileFor, mottle, restProfile } from './burial.
 import { sites, voronoi, cutPiece, avgColor, makePiece, stepPieces, drawPieces } from './decay.js';
 import * as INDEX from './index.js';
 
+/* THE VOICE (07): the world states its own rules, in the present tense, and the only time the page
+   says "you" is an instruction. Three sentences, three rules — the scroll, the decay, the
+   co-occurrence — and none of them says what any of it means. The register was picked over Deep
+   Time's captioner because the site now has a name that sits beside Deep Time, and it is the one
+   place the sibling would otherwise read as a sequel; the hint below was already written in it and
+   is the line the rest of the copy was brought into line with.
+
+   It does not print the site's own name. `Everything that lands breaks` was the draft, and with the
+   title reading EVERYTHING BREAKS it was the same phrase twice on one screen. */
 setIntro(
-  'Everything here hit the ground once. It broke, and then the pieces broke, and the pieces of ' +
-  'those broke, until there was nothing left the ground could not take.',
+  'Things drop when you scroll and hang when you stop. What lands comes apart, and the pieces ' +
+  'come apart, until the ground has taken all of it. Whatever is still lying there was standing ' +
+  'at the same time.',
   'scroll to drop it · stop and it hangs');
 
 /* ------------------------------------------------------------------ the world
@@ -506,6 +516,17 @@ INDEX.build(indexTop());
 indexBuilt = true;
 const glEl = document.getElementById('gl'), hudEl = document.getElementById('hud');
 const markEl = document.getElementById('mark');    // 14 — the signature, on the piece
+/* 07 — the intro's own words, and the hint. Furniture, like the signature, and the only furniture
+   on this page that is BIG. The INK is held rather than `#intro`, which carries 8vh of bottom
+   padding and up to 60px at its sides; reserving that box would push citations out of soil they
+   never touched. */
+const introEl = document.getElementById('intro');
+const introInk = [introEl.querySelector('h1'), document.getElementById('introp')];
+const hintEl = document.getElementById('hint');
+/* fadeIntro writes the opacity as an inline style; before its first frame there is none, and the
+   stylesheet's value is what is on screen. `|| default` cannot be used — a faded-out "0" is falsy
+   and would restore the reservation exactly when the words are gone. */
+const styleO = (el, dflt) => (el.style.opacity === '' ? dflt : parseFloat(el.style.opacity));
 const MARK_REST = 0.7;                             // its resting opacity, from the stylesheet
 let faded = -1;
 
@@ -1135,9 +1156,17 @@ function frame() {
     else if (!end.atoms) build(end);
   }
 
-  // the intro goes with the first two objects. Against the FULL page height it would still be
-  // legible 19,000px in, which is how it ended up printed across the third burial field.
-  fadeIntro(Math.min(1, scrollY / START[8]));
+  /* THE FRAME IS UP UNTIL THE FIRST THING LANDS, and then it is not. Against the FULL page height
+     the intro would still be legible 19,000px in, which is how it once ended up printed across the
+     third burial field; against the eighth arrival it outlived the first landing by 580px, and the
+     first date printed across the headline at 1440 (07, measured — one overlap, at y=500).
+
+     Ending it on `START[0] + FALL` is a scroll position tied to something that happens on screen
+     rather than a chosen number, and it makes the conflict structural rather than something the
+     collision search has to win: after contact there is no intro, and before contact the only words
+     in the air are riding the object, where `place()` has four candidate boxes to find a clear
+     one. */
+  fadeIntro(Math.min(1, scrollY / (START[0] + FALL)));
 
   /* ---- the fall. Height is a function of the scrollbar and of nothing else. ----
 
@@ -1476,6 +1505,27 @@ function frame() {
      quietly stop reserving the right box. */
   if (markEl.style.visibility !== 'hidden') {
     const b = markEl.getBoundingClientRect();
+    if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
+  }
+  /* 07 — and the intro, for the same reason, found while measuring a longer paragraph rather than
+     reasoned about. It was NEVER reserved, and the headline sits in the lower left, which is the
+     soil band the first credits are written in.
+
+     THIS IS THE ONLY THING HOLDING THE PRE-CONTACT WINDOW. After the first landing the intro is
+     gone and the conflict cannot happen; before it, the label rides the falling object straight
+     down past the headline. Deleted, that prints through it at 2 of 24 stops at 1440 over a 20px
+     walk of the window, first at y=400 — measured, and not visible to the collision gate until the
+     gate's stride was fixed in the same round.
+
+     If a word finds nothing clear it prints where it was (`put`), so this can cost a bad frame and
+     can never cost a citation. */
+  const introO = styleO(introEl, 1);
+  if (introO > 0.05) for (const el of introInk) {
+    const b = el.getBoundingClientRect();
+    if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
+  }
+  if (styleO(hintEl, 0.4) > 0.05) {
+    const b = hintEl.getBoundingClientRect();
     if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
   }
   for (let i = drops.length - 1; i >= 0; i--) place(drops[i]);
