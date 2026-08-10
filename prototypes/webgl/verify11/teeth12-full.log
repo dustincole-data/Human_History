@@ -1,0 +1,95 @@
+
+=== css_scaling_instead_of_a_bake  (expect index_is_a_second_bake + thumb_never_exceeds_its_draw red) ===
+  RED as designed: index_is_a_second_bake, thumb_never_exceeds_its_draw
+    FAIL  index_is_a_second_bake  230 cells point at the sprite bake
+    FAIL  thumb_never_exceeds_its_draw  tallest file 264px against the 160px cap; 0 drawn taller than 80
+
+=== masters_on_the_shelf  (expect index_decoded_under_the_gate red) ===
+  RED as designed: index_is_a_second_bake, thumb_never_exceeds_its_draw, index_decoded_under_the_gate
+    FAIL  index_is_a_second_bake  230 cells point at the sprite bake
+    FAIL  thumb_never_exceeds_its_draw  tallest file 1157px against the 160px cap; 0 drawn taller than 80
+    FAIL  index_decoded_under_the_gate  301.2MB with all 230 resident, against an 80MB gate (523.8MB at 01's 400-item ceiling; 65.8MB if it had pointed at the sprites)
+
+=== master_thumb_slips_in  (expect thumb_never_exceeds_its_draw red) ===
+  RED as designed: thumb_never_exceeds_its_draw
+    FAIL  thumb_never_exceeds_its_draw  tallest file 515px against the 160px cap; 0 drawn taller than 80
+
+=== sprites_follow_you_in  (expect index_never_holds_a_sprite red) ===
+  RED as designed: index_never_holds_a_sprite
+    FAIL  index_never_holds_a_sprite  8 of the piece's photographs resident on the shelf
+
+=== cells_overlap  (expect no_cell_collision_1440 + no_cell_collision_390 red) ===
+  RED as designed: no_cell_collision_1440, no_cell_collision_390
+    FAIL  no_cell_collision_1440  cell:0 × cell:1 | cell:1 × cell:2 | cell:2 × cell:3
+    FAIL  no_cell_collision_390  cell:0 × cell:1 | cell:1 × cell:2 | cell:2 × cell:3
+
+=== wrong_window  (expect open_lights_the_contemporary_window red) ===
+  RED as designed: open_lights_the_contemporary_window
+    FAIL  open_lights_the_contemporary_window  item 60: 0 missing, 2 extra, self=60 | item 120: 0 missing, 25 extra, self=120
+
+=== words_climb_off_the_earth  (expect open_words_lie_in_their_own_earth red) ===
+  RED as designed: open_words_lie_in_their_own_earth, index_contrast
+    FAIL  open_words_lie_in_their_own_earth  item 8: above its soil | item 60: above its soil
+    FAIL  index_contrast  worst 1.02:1 over 1810 composited-pixel samples (468 on the row readouts with nothing open, 1342 on the opened citation) — {"r":1.0210202986111139,"t":"Wikimedia Commons · CC","bg":[195,190,200],"fg":[188,190,194]}
+
+=== roll_drops_the_licence  (expect every_item_carries_its_attribution red) ===
+  RED as designed: every_item_carries_its_attribution
+    FAIL  every_item_carries_its_attribution  ainghazal: "'Ain Ghazal statuec. 7000 BCEWikimedia Commons · MLWatts"
+
+=== no_runway_for_the_seam  (expect piece_is_gone_before_the_shelf red) ===
+  RED as designed: piece_is_gone_before_the_shelf
+    FAIL  piece_is_gone_before_the_shelf  fade 0 at TOTAL-1, 1.00 by the time the first row enters the viewport (900px of runway, 1 screens)
+
+=== return_before_the_teardown  (expect the_piece_leaves_nothing_on_the_shelf red) ===
+  RED as designed: index_never_holds_a_sprite, the_piece_leaves_nothing_on_the_shelf, index_contrast
+    FAIL  index_never_holds_a_sprite  8 of the piece's photographs resident on the shelf
+    FAIL  the_piece_leaves_nothing_on_the_shelf  canvas visible, hud visible, 0 of the piece's words still printed (7 nodes)
+    FAIL  index_contrast  worst 1.06:1 over 1810 composited-pixel samples (468 on the row readouts with nothing open, 1342 on the opened citation) — {"r":1.0565074804755763,"t":"Wikimedia Commons · CC","bg":[183,185,188],"fg":[188,190,194]}
+
+=== seam_on_a_clock  (expect seam_is_scroll_only + index_frozen_when_idle red) ===
+  RED as designed: the_piece_leaves_nothing_on_the_shelf, seam_is_scroll_only, index_frozen_when_idle
+    FAIL  the_piece_leaves_nothing_on_the_shelf  canvas visible, hud visible, 0 of the piece's words still printed (0 nodes)
+    FAIL  seam_is_scroll_only  opacity 0.632 → 0.561 → 0.478 mid-fade, two paths plus 2s of wall clock
+    FAIL  index_frozen_when_idle  byte-identical across 2s of wall clock, both frames taken after the scroll stopped
+
+=== light_is_frozen  (expect index_light_is_dated red) ===
+  RED as designed: index_light_is_dated
+    FAIL  index_light_is_dated  upper-sky value 10 → 10 (×1.0) across all 20 rows, never backwards, and every pair at equal reach identical — 20 deep-head rows share one sky, which is the honest half (the piece reads ×10.8 over 640px of sky; this band is 110px)
+
+=== earth_takes_the_light  (expect index_ground_never_dates red) ===
+  RED as designed: index_ground_never_dates, index_contrast
+    FAIL  index_ground_never_dates  strip col 1: 60/59/53 vs 61/60/54 vs 69/65/56 | strip col 2: 64/63/54 vs 65/64/55 vs 73/69/57 | strip col 3: 65/62/54 vs 66/63/55 vs 71/66/56
+    FAIL  index_contrast  worst 4.16:1 over 1810 composited-pixel samples (468 on the row readouts with nothing open, 1342 on the opened citation) — {"r":4.161557464725631,"t":"1977–1991 CE","bg":[77,85,73],"fg":[188,190,194]}
+
+=== ink_below_the_floor  (expect index_contrast red) ===
+  RED as designed: index_contrast
+    FAIL  index_contrast  worst 1.70:1 over 1810 composited-pixel samples (468 on the row readouts with nothing open, 1342 on the opened citation) — {"r":1.7033752927684964,"t":"1928–1938 CE","bg":[65,62,54],"fg":[96,96,99]}
+
+=== amp_asserted  (expect amp_is_measured_not_asserted red) ===
+  RED as designed: amp_is_measured_not_asserted, index_light_is_dated
+    FAIL  amp_is_measured_not_asserted  contour reaches ±15.54px, geometry built on ±34
+    FAIL  index_light_is_dated  rows at reach 0 disagree: 10 vs 9
+
+=== layout_waits_for_pixels  (expect shelf_layout_does_not_wait_for_pixels red) ===
+  RED as designed: shelf_layout_does_not_wait_for_pixels
+    FAIL  shelf_layout_does_not_wait_for_pixels  the shelf moved when its pixels arrived
+
+files restored byte-identical: true
+OK   css_scaling_instead_of_a_bake -> index_is_a_second_bake, thumb_never_exceeds_its_draw
+OK   masters_on_the_shelf -> index_is_a_second_bake, thumb_never_exceeds_its_draw, index_decoded_under_the_gate
+OK   master_thumb_slips_in -> thumb_never_exceeds_its_draw
+OK   sprites_follow_you_in -> index_never_holds_a_sprite
+OK   cells_overlap -> no_cell_collision_1440, no_cell_collision_390
+OK   wrong_window -> open_lights_the_contemporary_window
+OK   words_climb_off_the_earth -> open_words_lie_in_their_own_earth, index_contrast
+OK   roll_drops_the_licence -> every_item_carries_its_attribution
+OK   no_runway_for_the_seam -> piece_is_gone_before_the_shelf
+OK   return_before_the_teardown -> index_never_holds_a_sprite, the_piece_leaves_nothing_on_the_shelf, index_contrast
+OK   seam_on_a_clock -> the_piece_leaves_nothing_on_the_shelf, seam_is_scroll_only, index_frozen_when_idle
+OK   light_is_frozen -> index_light_is_dated
+OK   earth_takes_the_light -> index_ground_never_dates, index_contrast
+OK   ink_below_the_floor -> index_contrast
+OK   amp_asserted -> amp_is_measured_not_asserted, index_light_is_dated
+OK   layout_waits_for_pixels -> shelf_layout_does_not_wait_for_pixels
+
+16/16 perturbations went red

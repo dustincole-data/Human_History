@@ -1,7 +1,7 @@
 # 10 — The index surface
 
 Type: prototype
-Status: CLOSED — all four decisions ruled and built, 2026-08-09
+Status: CLOSED — all four decisions ruled and built, 2026-08-09; teeth finished 16/16, 2026-08-10
 Blocked by: 05, 06
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -278,3 +278,108 @@ one is started.
 - **[07](07-copy-voice-and-name.md) — the roll's heading is the only new copy on the site**
   ("Every image, and where it came from") and it is placeholder-grade. The bare-URL credits 06
   round 9 flagged now have a second place they read badly.
+
+---
+
+## Round 12, 2026-08-10 — the teeth, finished. 16/16, and every fault this round was in the instrument.
+
+The eight cases round 11 left unrun are run. **All sixteen perturbations now turn their own gate
+red, the files restore byte-identical, and the page needed no change to make that true.** But three
+gates and two perturbations had to be rewritten first, and that is the whole of this round: **five
+faults, all five in the harness, zero in the page.**
+
+Run singly rather than as a suite, with `git status` verified clean between every case — round 11
+was killed mid-run and left its perturbation in an untracked `index.js`, and the fix for that was
+tracking the file, not running more carefully.
+
+### What the eight measured
+
+| case | the gate it moved | what it read |
+|---|---|---|
+| `masters_on_the_shelf` | `index_decoded_under_the_gate` | **301.2 MB** resident against the 80 MB gate (523.8 MB at 400); tallest file 1,157px against the 160px cap |
+| `return_before_the_teardown` | `the_piece_leaves_nothing_on_the_shelf` | canvas and HUD still visible, 7 label nodes stranded, 8 sprites still resident, contrast collapsed to 1.06:1 |
+| `seam_on_a_clock` | `seam_is_scroll_only` · `index_frozen_when_idle` | opacity **0.631 → 0.561 → 0.478** on two paths and 2s of wall clock — a clock, printed |
+| `light_is_frozen` | `index_light_is_dated` | upper sky **10 → 10 (×1.0)** across all 20 rows |
+| `earth_takes_the_light` | `index_ground_never_dates` | strip col 1 `60/59/53` vs `61/60/54` vs `69/65/56` — the soil taking the era |
+| `ink_below_the_floor` | `index_contrast` | worst **1.70:1**, and the sample is `1928–1938 CE` — **a row readout** |
+| `amp_asserted` | `amp_is_measured_not_asserted` | contour reaches ±15.54px against an asserted ±34 |
+| `layout_waits_for_pixels` | `shelf_layout_does_not_wait_for_pixels` | the shelf moved when its pixels arrived |
+
+**`masters_on_the_shelf` is the case round 11 added and could not run**, and it does the job it was
+added for: `css_scaling_instead_of_a_bake` left the memory gate green because the sprite bake is
+already capped at 264px, so the memory gate had no case that moved it. It has one now, and the
+number is 301.2 MB.
+
+### Five faults, and none of them in the page
+
+1. **`seam_on_a_clock` eased a variable that never reaches a pixel.** The perturbation drove
+   `faded` toward its target at 8% a frame — but `faded` is a *change-detector cache*, the one
+   value in that block that is never painted; both style writes read `fade`. So it put a clock on
+   nothing, both gates stayed green, and round 11's log recorded a gate with no teeth when what it
+   had was **a tooth biting air.** The clock now drives the opacity that is actually written, and
+   the gate catches it in three readings.
+2. **`index_frozen_when_idle` shot its first frame after the previous gate's settle.** It inherited
+   `seam_is_scroll_only`'s `waitForTimeout(2000)` plus four ticks, so the page had already been
+   given two full seconds to come to rest **before shot A** — and any clock converging inside two
+   seconds was finished before the gate started looking. It compared two identical stills of a page
+   that had been moving the whole time. It now does its own scroll and shoots immediately, so the
+   wall clock falls *between* the frames rather than before them.
+3. **`index_contrast` had never read a row readout.** The gate opened a cell and then sampled
+   `.ispan` and `#iopen` together — but `#index.isopen .ispan{opacity:0}` takes every readout to
+   zero the instant a cell opens, and the sampling loop skips anything under 0.05. The readout was
+   in the selector and never once in the sample: 1,342 pixels, all of them the opened citation.
+   **The row's span is the only text on this surface when nothing is open, it is printed in all
+   twenty gutters, and no gate had ever read it.** Now measured in the state it is actually seen
+   in: **+468 samples, and the worst is unchanged at 5.29:1** — the page was right, the gate was
+   blind. `ink_below_the_floor` is the proof: it darkens exactly that rule, and its worst sample is
+   now a row readout at 1.70:1.
+4. **`layout_waits_for_pixels` crashed the page instead of testing it.** It called `measure()` from
+   an image's load handler and re-applied styles — but `measure()` rebuilds `rows` and `cells` from
+   scratch with `el: null`, and nothing rebound them to the DOM, so the first thumbnail to decode
+   took `probe()` down with it and the sweep threw. **A perturbation that crashes the page has not
+   tested the gate; it has only proved the page can be crashed.** It now sources cell dimensions
+   from the decoded image instead of the baked manifest and rebuilds through `build()`, the one
+   path that keeps `rows[].el` and `cells[].el` true.
+5. **`shelf_layout_does_not_wait_for_pixels` compared two cold readings.** It measured the boxes
+   twice on two loads — at a moment when **0 of 230 thumbnails had been requested.** The shelf is
+   lazy and 146,000px down, so neither reading had a pixel behind it, an implementation that lays
+   itself out from what has decoded returns the same string twice exactly like one that does not,
+   and **the `--slow` route the gate is named for was never exercised by it.** It now reads the
+   boxes cold, before a single pixel has arrived, and again warm, after all 230 have, on each of
+   two loads: four readings that must be one string.
+
+### The round-11 record, corrected
+
+Round 11 wrote *"9 of 16 run, 9 red"*. The log it cites shows **eleven cases ran — nine red and two
+not.** The second miss was `seam_on_a_clock`, which is listed above under *still to run* but had in
+fact already run and already missed. It was not a gate that had not been tested; it was a gate that
+had been tested and had failed to bite, and the run being killed is what buried the distinction.
+
+### The ratio, one more time
+
+Rounds 8, 9, 10 and 11 each ended with more harness faults than page faults, and this round is the
+limit case: **sixteen perturbations, five instrument faults, zero page defects.** The page answered
+every one of them correctly the first time. Two of the five gates were not merely imprecise —
+`index_contrast` and `shelf_layout_does_not_wait_for_pixels` were each *structurally incapable* of
+failing for the reason they were written, and both had been reported green in round 11's table of
+24. A gate that cannot go red is not a weak gate, it is a decoration, and the only thing that finds
+one is a perturbation aimed at it.
+
+### The harness is in the repo now, and round 11 learned the wrong half of that lesson
+
+Round 11 wrote: *"a perturbation harness that mutates an untracked file has no git to fall back on
+— worth knowing before the next one is started"*, and tracked `index.js`. That is the cheap half.
+The run that was killed **was** recoverable; **the harness that ran it was not**, because
+`sweep10.mjs`, `sweep11i.mjs` and `teeth11.mjs` lived in a session scratchpad and the session was
+over. This round only got them back because a previous session's temp directory happened not to
+have been swept yet — which is not a recovery strategy, it is luck with a good outcome.
+
+They live at `prototypes/webgl/harness/` from here, with a README stating what a run has to do
+before it is believed. `verify11/teeth12-full.log` is the 16/16 run.
+
+### Verified after the rewrite
+
+`sweep11i.mjs` **23/23** on a normal network and **24/24** under `--slow` (the wrap gate is
+`--slow`-only, which is why the two counts differ); `sweep10.mjs`'s **39/39** both ways; and the
+full `teeth11.mjs` suite re-run end to end at **16/16 red**, files restored byte-identical, working
+tree clean.

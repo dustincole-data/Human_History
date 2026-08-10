@@ -172,6 +172,21 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   faults** — one gate reported `4 → 4 → 4 → 4 → 4` as a pass because every row it sampled was the
   same era, and a probe read gold artifacts as sky, which is round 9's finding arriving again by
   another door.
+- [10 — The index surface](issues/10-the-index-surface.md) **round 12 — the teeth finished, 16/16,
+  and every fault was in the instrument.** The eight cases round 11 left unrun all turn their own
+  gate red, and **the page needed no change to make that true: five faults, five in the harness,
+  zero in the page.** Two gates were not imprecise but *structurally incapable of failing for the
+  reason they were written*, and both had been counted green in round 11's table of 24 —
+  `index_contrast` sampled `.ispan` only after opening a cell, which sets every readout to
+  `opacity:0`, so **the shelf's only persistent text, printed in all twenty gutters, had never been
+  read** (fixed: +468 samples, worst unchanged at 5.29:1); and
+  `shelf_layout_does_not_wait_for_pixels` compared two loads at a moment when **0 of 230 thumbnails
+  had been requested**, so it compared two cold readings and never exercised the `--slow` route it
+  is named for (fixed: cold-vs-warm on each of two loads). Two perturbations were also wrong —
+  one eased a change-detector cache that is never painted, the other crashed `probe()` instead of
+  testing the gate. `masters_on_the_shelf` finally moves the memory gate: **301.2 MB**, the case
+  round 11 added after `css_scaling_instead_of_a_bake` left it green. **A gate that cannot go red
+  is not a weak gate, it is a decoration, and only a perturbation aimed at it finds one.**
 - **Matting solved, and it relaxes a filter** — `prototypes/anchor-preview/matte.py` (rembg + isnet, local, free) cut **9 of the 10** subjects that defeated the hand-rolled flood fill, including **Aldrin out of the visor photo** and **Sputnik's antennas**. [05](issues/05-arrival-set.md)'s cut-out admission test is therefore far weaker than [11](issues/11-visual-anchor.md) assumed: famous *moments* can become objects.
 
 ### New from Dustin, 2026-08-09 — after seeing round 7 run

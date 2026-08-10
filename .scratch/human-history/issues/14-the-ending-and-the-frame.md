@@ -64,3 +64,62 @@ Namesake and Cascade already answer this and the answer should be identical, not
 **Deliverable:** the ending built and running against the real 230-item set, with the outbound Deep
 Time link and the signature in place; plus a one-line statement of what the ending *is*, precise
 enough that [09](09-spec-assembly.md) can write it down.
+
+---
+
+## Two rulings from Dustin, 2026-08-10 — asked before anything was built
+
+Both were put to him as concrete options with the mechanism drawn, not as a description of a
+direction. Recorded verbatim as choices, before the build, so the build is not the argument.
+
+### Ruling A — the ending is THE LAST OBJECT NEVER BREAKS
+
+Of three mechanisms offered (the last object stays whole · the counter arrives at *now* and goes
+out · one screen of empty ground), he took the first.
+
+**The newest thing anyone made arrives, lands, and does not shatter.** Every one of the 229 before
+it fell, broke, broke twice more and went under the earth; this one stays whole while the visitor
+scrolls past it, keeps its name, and keeps its citation. Then the piece fades and the shelf carries
+all 230 standing.
+
+Why it survives the constraints it inherits, each checked rather than asserted:
+
+- **No scrolljack** — nothing is pinned, nothing is timed, the object simply does not advance.
+- **Decay is one-way** ([13](13-visual-direction-v2.md)) — nothing is un-broken. An object that
+  never breaks is not a reversal of decay, it is the absence of it.
+- **No generated imagery** — no new art at all; the ending is made of a photograph already in the
+  set and the choice not to cut it.
+- **[01](01-the-fun-thesis.md)'s no-finale survives** — there is no crescendo, no reveal and no
+  new grammar. It is the existing grammar declining to fire once.
+- **[12](12-scrollytelling-craft.md)'s flatness rule is paid** — the one thing a treatment repeated
+  230 times cannot do is stop, and stopping is the shape change.
+
+And it is *true*, which is the reason to prefer it over the other two: the last object is the one
+time has not got to yet. The piece's subject is time taking things; the honest ending is the thing
+it has not taken.
+
+**This is a build with a known cost, and the cost is named up front:** it puts the piece's own word
+gates in conflict, because they check every live object and two of them assert the opposite of
+this. `name_dies_at_impact` fails the moment a name outlives `NAME_OUT`, and
+`credit_spreads_with_its_wreckage` measures a citation against debris that will not exist. **They
+must be re-aimed, not narrowed** — the exemption is exactly one object and has to be gated as such,
+or "the last one is special" becomes a hole any future defect can walk through.
+
+### Ruling B — the signature goes in BOTH places, Deep Time's treatment exactly
+
+Offered as colophon-only versus both; he took both. The fixed bottom-right pill on the piece for
+the whole scroll, **identical to Deep Time / Namesake / Cascade rather than similar** (14's own
+instruction), and the mark again at the foot of the credits roll alongside the outbound Deep Time
+link — which is where his earlier steer put the link and the mark.
+
+The treatment to copy verbatim is `Projects/Deep_Time/src/pages/index.astro`: the `.dcd-mark`
+anchor, its inline SVG (letters take the page's ink, **the period stays brand blue on every site**),
+and the `right`/`bottom` clearances. The one thing that does not transfer is *which* corner is free
+— Deep Time reserves bottom-right because its true-scale bar owns the right edge, and this piece
+has no such bar, so the corner has to be re-chosen against this page's HUD and hint rather than
+inherited.
+
+**Note the tension this creates and does not resolve:** [11](11-visual-anchor.md) ruled that
+nothing on the page has an edge except the thing itself, and a bordered, backdrop-blurred pill is
+an edge. It is a byline rather than content, every sibling wears it, and Dustin asked for it — but
+the conflict is real and belongs in this ticket's round, not buried in a stylesheet.
