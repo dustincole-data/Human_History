@@ -32,6 +32,11 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
   the instant they have been shattered**, so at most ten are resident: **3.1 MB measured peak
   against the 80 MB gate**, and it does not move when the set grows to 400. The two rules that hold
   it up bind anything built later: **no pixels, no fall** and **no overtaking**.
+  **Amended by [04](issues/04-scroll-mechanic.md) round 8**, not reopened: the rewind makes a
+  sprite live to `LAND + LIFE + BACK` instead of dying at impact, so the bound goes from ten
+  resident to **twenty — 7.7 MB measured, still 10× under the gate and still independent of N.**
+  What must not change is that it stays a *window*: unbounded residency is 65.8 MB at 230 and
+  **114.4 MB at 400, over the gate.** Both invariants above survive untouched.
 - **Nothing overlaps, anywhere, ever** — and as of [10](issues/10-the-index-surface.md) that is
   held on **both** surfaces: zero rectangle intersections over every cell and every row readout on
   the index, at 1440×900 and 390×844, as well as over the piece's words. Deep Time's no-collision
@@ -109,6 +114,18 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 - [13 — Visual direction, take two](issues/13-visual-direction-v2.md) — **GRAVITY / SHATTER**, picked outright after five rounds. A ground that never moves or changes colour; objects fall in one at a time, break into shards on impact, the shards break twice more, and the dust sinks under the earth. Time reads as fragmentation *in the object*, not accumulation in the earth (round 3–4's burial is dead — concept, not execution). Three rulings bind everything downstream: **the credit decays with the object** (name/date die at impact, `source · licence · credit` lives exactly as long as one fragment); **shattering a photograph is a cut, not a grade**, so it is legal on the same basis as the cut-outs; and **the ground's colour is frozen — the dated colour system is the light**, not the earth. Also settled: 1,000px/arrival, 880ms drop floor, 4,200px decay life, fixed camera. Measured 60fps at 1440×900 and 390×844, peak 2–3 physics bodies, +0.44MB fragments.
 - [05 — The arrival set](issues/05-arrival-set.md) — **230 items, live and measured.** Six rulings written before selection (R1 *an arrival is always a made object with a body* — no events, no sites, no human remains, no identifiable person as the falling object; R2 13's fragment test **made measurable** as `frag`; R3 recognisability as a *number*; R4/R5 region and era targets fixed in advance). Pipeline: `catalog.py` (288 named artifacts) → `source5.py` → `build_data.py` → `data.js`, with `measure.py --live` regenerating every table. **The targets did their job twice**: the first catalog draft measured 50% Western against a 34% cap, so 35 Western rows were cut and 80 non-Western authored; the finished set overshot by 0.6 pp and four more Western entries went. Final Western 33.8%, and **every era band clears its non-Western floor**. 131 dropped, all named with a reason — a Scythian *reproduction*, a *counterfeit* N95, a snare drum sold as a Đông Sơn drum, Stonehenge as a 40 px strip. Dates checked against the holding institution: 22 disagreed, 16 redated (the institution wins), 5 dropped when the identity went with the date. **Three findings for other tickets: [01](issues/01-the-fun-thesis.md)'s per-screen recognition floor is unreachable at the strict reading (70/228 fail; at "A or B" only 5 fail) and only Dustin closes that; 230 sprites decode to 111.4 MB against the 80 MB gate, so [03](issues/03-engine-reuse-or-clean-build.md)/[06](issues/06-visual-treatment.md) need a texture window, not a smaller set; and [07](issues/07-copy-voice-and-name.md) owns the one-line descriptions, deliberately unwritten because the voice does not exist yet.**
 - [04 — The scroll mechanic](issues/04-scroll-mechanic.md) — **SETTLED, in two rounds.** *Round 6:* the fall is a pure function of scroll — height is `arc(t)` of the way down and contact happens at t=1 exactly because the landing offset is solved from the real silhouette before the fall starts. Three rulings: *matter.js deleted entirely* (the 880ms floor, the queue and "drag to throw" went with it; one-at-a-time is true by construction); *the fall reverses, the break does not* (a position runs both ways, an event does not); *the scroll is the only clock*. *Round 7:* **one quantity — how many things were already standing within 80 years — settles all three remaining items at once.** Four more rulings. (a) *The ground IS the co-occurrence*: decay life stopped being a distance and became the contemporary window, so what lies on the ground at any scroll position is exactly what was standing within 80 years of it — gated at zero violations, with both clamps named. (b) *The seam is dissolved, not crossed*: the head runs 3 fields and near-bare ground, the body 6 fields and 5 ties, continuously and with nothing announced. (c) *The tie* — 01's engine, drawn: a hairline on the soil between an arrival and the thing it landed next to, with the miss on it (`SAME YEAR` · `40 YEARS APART`); fires on **203 of 230**, 196 cross-region, median miss 2 years, dies with the first of its two ends, never outranks a citation, newest-only on a phone. (d) *Length*: **235,100px → 144,632px**, 1.13× Deep Time carrying 4× the items. **59 of 60 gates green across all three modes, and the harness was wrong before the page was** — round 6's sweep probed item 60 before sweeping, and contact latches, so the deep head had already turned to dust and was never tested; one false green fell out when that was fixed. Round 6's "one surviving wall clock" is also gone. **Handed off with a measured lever:** the 301 MB decode is also the frame spike, and a 396px sprite downscale makes `prep` 12× cheaper (302ms → 25ms) at 163 MB — that is [03](issues/03-engine-reuse-or-clean-build.md)/[06](issues/06-visual-treatment.md)'s texture window, now a number instead of a guess.
+- [04 — The scroll mechanic](issues/04-scroll-mechanic.md) **round 8 — REOPENED and re-ruled by
+  Dustin: the break reverses too.** The round asked which half of *"the items should reverse"* he
+  meant before building anything, and **found that neither half is what the page does**: on a
+  scroll-up the ground freezes and rides home, ending at **7,000 BCE with a 1934 car on the soil**,
+  green across 41 gates because `ground_is_the_moment` can only fail a field that is too *old*.
+  **The memory objection the ruling was expected to die on was withdrawn on measurement** — the
+  rewind is **7.7 MB against an 80 MB gate** (shipped peak 3.1 MB; fragments are only 0.92 MB), on
+  an instrument first validated against 03's own 65.8 / 26.2 / 3.1 MB. What actually blocks it is
+  that the post-impact half is **not a function of scroll**: `Math.random` in the dust, a 4 ms cut
+  budget that decides which generation is drawn, and a one-way integrator under a monotonic `age`.
+  Mechanism specified (8b), **nothing built**, and the one number that could still veto it —
+  worst-case replay ms on the frame the visitor reverses — is named and unmeasured.
 - [06 — Visual treatment](issues/06-visual-treatment.md) — **the citation half closed in round 8; only the dated backdrop is left open.** **THE WORD IS THE UNIT**: a name, a date and a citation are built as individually positioned words, so text can do what 13 asked the objects to do — come apart. A credit is one line until its object's first split, three groups after it, single words after the second, and it is exactly as wide as its own wreckage at every moment because its spread is read off the live fragment positions. Type scales 1.00 -> 0.82 and ink runs 238 -> 188 with the object's age, which is what stops six of them reading as a list. **13's lifetime ruling is untouched** — it dies with the last speck. The name shatters at impact too. **The miss caption is deleted and the line is cut once per year of miss** — same year is one unbroken hairline, forty years is forty breaks, and ties rank by recency into the soil so five of them do not merge into one stroke. **Legibility is now structural, not a battle**: the credit only ever lies on the baked earth, the one surface whose value never changes, so the worst case is single-ended — measured **5.16:1** off composited pixels. **All four motion demos, both other burial renderings, the switcher, the launcher, the compare page and the flat directions pages are deleted**, which is where the map's new standing rule comes from. 29 gates green, ten perturbations red-then-reverted, two of the gates rewritten after they turned out to be tautologies.
 - [06 — Visual treatment](issues/06-visual-treatment.md) **round 9 — CLOSED.** The dated backdrop
   is **the LIGHT**. The other two readings were not close: a *depicted* scene is out on the
@@ -244,6 +261,30 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 - **The miss-in-years caption is rejected.** `SAME YEAR` / `50 YEARS APART` — his word: *sucks*.
   The tie and what it means survive; the printed phrase does not. ->
   [06](issues/06-visual-treatment.md) round 8, **done**: the line is cut once per year of miss.
+
+### New from Dustin, 2026-08-10 — **the break reverses too**
+
+- **"When I scroll up the items should reverse."** Three readings were priced against each other and
+  he picked **the full rewind** — dust re-condenses, shards reassemble, dead objects resurrect at
+  the age their scroll position implies, and scrolling above an arrival's start puts it back in the
+  air whole. -> [04](issues/04-scroll-mechanic.md) round 8, **ruled and specified, NOT built.**
+  - **Round 6's ruling 2 is half struck** (*a position runs both ways, an event does not*); its
+    rulings 1 and 3 stand, and 8b is ruling 3 finally reaching the post-impact half.
+  - **13's one-way decay is struck for the scroll direction only.** The forward grammar is unchanged.
+  - **[10](issues/10-the-index-surface.md)'s jump-back was ruled out *because* decay is one-way.
+    That reason is now gone** — the shelf could re-enter the piece at an item. 10's call, not 04's.
+  - **The memory objection was withdrawn on measurement, not on argument:** 7.7 MB against an 80 MB
+    gate. The real risk is **milliseconds** — replaying up to 115 pieces across six objects on the
+    frame the visitor reverses — and it is unmeasured. Measure it before writing the frame loop.
+- **A live defect found on the way to the ruling, and 41 green gates did not see it.** Scroll up
+  today and the ground neither reverses nor clears — it **freezes and rides home with you**. At the
+  top of the page the counter reads **7,000 BCE** with a **1934 car and a Bakelite radio lying on
+  the soil**, under the site's own line *"Whatever is still lying there was standing at the same
+  time."* Frame: `prototypes/webgl/verify04r8/04-top-still-1934.png`.
+  - **`ground_is_the_moment` is one-ended** — it can only fail a field *older* than the counter, so
+    one 8,934 years *newer* passes at any threshold — and it sweeps forward only. **A gate has a
+    direction, and a gate that only ever walks forward has only ever tested forward.** Fourth round
+    running where the instrument was wrong and the page was not; first where it was the *direction*.
 
 ## Not yet specified
 

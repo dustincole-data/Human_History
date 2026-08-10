@@ -14,9 +14,20 @@ perturbing protects the cheap half.
 Serve `prototypes/` on 8812; the only URL is `/webgl/index.html`.
 
 ```
-node sweep10.mjs  [out.json] [--slow]     # the piece — 39 gates
-node sweep11i.mjs [out.json] [--slow]     # the index surface — 23 gates, 24 under --slow
+node sweep10.mjs  [out.json] [--slow]     # the piece — 41 gates
+node sweep11i.mjs [out.json] [--slow]     # the index surface — 26 gates, 27 under --slow
 node teeth11.mjs  [case]                  # 16 perturbations against sweep11i
+```
+
+Ticket 04 round 8's instruments. All four are **read-only** — they measure the page, they do not
+perturb it, and none of them touches a source file:
+
+```
+python cost04r8.py                        # residency arithmetic, no browser. Validates itself
+                                          # against 03's own 65.8 / 26.2 MB before it reports.
+node   probe04r8-up.mjs                   # what a scroll-UP shows. Found the 7,000 BCE defect.
+node   probe04r8-frag.mjs                 # fragment canvases resident across a full walk
+node   shots04r8.mjs                      # the four frames in ../verify04r8/
 ```
 
 Playwright is resolved from `Projects/Deep_Time/package.json`; there is no install here.

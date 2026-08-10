@@ -1,7 +1,8 @@
 # 04 — The scroll mechanic
 
 Type: prototype
-Status: settled — round 7 closed the seam, the contemporaries and the length; nothing left in 04
+Status: **REOPENED at round 8** by Dustin's ruling that the break reverses too. Round 6's ruling 2
+is half struck; the mechanism is stated below and is **not built**. Rounds 6 and 7 otherwise stand.
 Blocked by: 01, 02
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -415,3 +416,149 @@ with the lever above, and **the real-device phone test is the project's ship gat
 ticket's. Frames from this round at `prototypes/webgl/verify7/` — `00`–`02` are the bare head,
 `03`–`04` the ground filling in, `05`–`08` the body at six fields and five ties, `09`–`10` the
 same at 390×844.
+
+---
+
+## Round 8, 2026-08-10 — the break reverses. Ruled by Dustin. Nothing built yet.
+
+Dustin: *"when I scroll up the items should reverse."* Round 6 ruling 2 had already split that
+sentence in half — the fall reverses, the break does not, *a position runs both ways and an event
+does not* — so the round opened by establishing which half he meant rather than by building. He
+was shown three readings priced against each other and picked **the full rewind**.
+
+**But the round found something before it asked, and that finding is why the question was worth
+putting to him at all: neither half is what the page actually does on a scroll-up.**
+
+### The scroll-up is a live defect, and 41 green gates say it is fine
+
+The fall does reverse — confirmed live, not merely inherited: at `y=55,020` the Engraved shell
+gorget sits mid-fall at `py=84`; 150 px back up it is at `py=-45`; 300 px back up it is above its
+own start and not here yet. Round 6 ruling 1 holds exactly as written.
+
+**The ground does neither.** It does not reverse and it does not clear. It **freezes at the age it
+reached and rides all the way home with the visitor**, while the counter keeps running backwards:
+
+| walked to 100,000, then scrolled up | the counter reads | newest thing still lying on the soil |
+|---|---|---|
+| 0 | 1934 CE · TUNGSTEN | Coupé utility, 1934 |
+| 6,000 | 1903 CE · CARBON FILAMENT | Coupé utility, 1934 |
+| 25,000 | 1800 CE · ARGAND LAMP | Coupé utility, 1934 |
+| 50,000 | 1500 CE · CANDLE | Coupé utility, 1934 |
+| **100,000 — the top of the page** | **7,000 BCE · FIRELIGHT** | **Coupé utility, 1934** |
+
+The five ages are byte-identical at every stop (`0.754 · 0.597 · 0.44 · 0.283 · 0.126`) because
+`d.age` is clamped monotonic on purpose. So the ground stops answering the scrollbar while the
+counter does not, and the piece ends up printing a Neolithic year over a heap of twentieth-century
+wreckage — a red car, a Bakelite radio, and their `SCIENCE MUSEUM / LONDON` credits — **directly
+underneath its own opening sentence, *"Whatever is still lying there was standing at the same
+time."*** Frame: `prototypes/webgl/verify04r8/04-top-still-1934.png`.
+
+**Round 7 ruling 4 is therefore false in one direction.** *"What lies on the ground at any scroll
+position is exactly what was standing within eighty years of it"* is true walking down and false
+walking up, by 8,934 years at the worst stop measured.
+
+**No gate could have caught it, and that is the finding worth keeping.**
+`ground_is_the_moment` is **one-ended**: it asks only whether a field is more than 80 years
+*older* than the last thing to land. A field 8,934 years *newer* than the counter cannot fail it,
+at any threshold. It also sweeps forward, *"on a page nobody has touched"* — which is round 7's
+own words for the one visitor it was built to model. **`sweep10` was run against this defect
+unmodified and returned 41/41 green.** This is the **fourth** round in this project where the
+instrument was aimed one way and the page was wrong in the other, and the first where the gate was
+wrong about a *direction* rather than about a stride, a sample or a measurement.
+
+### The cost in MB, as instructed — and the premise being tested was wrong
+
+The instruction was to price the rewind before designing it, because *"a sprite is released the
+instant it shatters"* is what holds 03's texture window under the 80 MB gate. Priced two ways: an
+exact residency sweep over the real 230-item tables (`START`/`LAND`/`LIFE` recomputed from
+`data.js`, decoded cost `w × h × 4` off the real baked sprite dimensions), and a live in-page probe
+walking all 144,632 px. **The method reproduces 03 round 10's published figures exactly** — 65.8 MB
+all-resident, 26.2 MB of thumbnails, and a 3.08 MB measured peak against its 3.1 MB — so the new
+rows are read on a validated instrument.
+
+| what has to be resident | peak decoded, real 230 set | 80 MB gate |
+|---|---|---|
+| shipped today — released the instant it shatters | **3.1 MB** | ✓ |
+| the ground merely stops lying (release, don't retain) | ≤ 3.1 MB — it goes **down** | ✓ |
+| the break rewinds inside each object's own life | ~5 MB (fragments peak **0.92 MB**, 297 pieces) | ✓ |
+| **+ dead objects resurrect, 4,000 px symmetric window** | **7.7 MB**, 20 photographs | ✓ **10× under** |
+| unbounded — a pure function of scroll over the whole page | 65.8 MB, all 230 | ✓ barely |
+| unbounded, at 01's 400-item upper bound | **114.4 MB** | ✗ **over** |
+
+**Ruling 8a — memory does not forbid the rewind, and the objection it was expected to raise is
+withdrawn.** 7.7 MB is 2.5× the shipped peak and an order of magnitude under the gate; 03 round 10's
+*"at most ten resident"* simply becomes *at most twenty*, and it still does not move when the set
+grows to 400, because it is bounded by a scroll window and not by a count. **Only the unbounded
+reading is expensive, and only at 400 items** — so the window stays a window and `BACK` is a named
+constant beside `AHEAD`, not an absence of one.
+
+### What it does cost — three wall clocks, all of them in the post-impact half
+
+The reason the break does not reverse is not memory and never was. It is that **the state after
+impact is not a function of scroll at all**, in three places, each already named in an earlier
+ticket and each now load-bearing:
+
+1. **The dust is seeded by `Math.random`** — seven call sites, all in `burial.js`. 03 round 10 hit
+   this and had to abandon a screenshot comparison over it: *"a screenshot comparison of two first
+   visits cannot be green on this page."*
+2. **The deferred cut decides which state is drawn.** Cutting gets a 4 ms/frame budget, so whether
+   the newest arrival's shards split before or after they fly depends on what else the frame was
+   doing. The same age can draw two different generations.
+3. **`stepPieces` is one-way by construction** — forward Euler with a bounce branch and a
+   `p.rest = true` latch, fed `Math.max(0, dScroll)`. It cannot be run backwards, and `d.age` is
+   deliberately clamped monotonic on top of it.
+
+### Ruling 8b — the mechanism. Everything is a lookup, the break included.
+
+Stated precisely enough to build against, which is all this round does.
+
+| at scroll `y`, for arrival `i` | |
+|---|---|
+| `rel` | `y − START[i]` |
+| state | `rel < 0` not here yet · `rel < FALL` in the air at `t = rel/FALL` · else down |
+| `age` | `clamp((y − LAND[i]) / LIFE[i], 0, 1)` — **no longer monotonic**, and `down`/`gone` stop being flags and become predicates |
+| generation | the count of `SPLITS` at or below `age`; dusted at `age ≥ DUST_AT` |
+| flight | `(y − LAND[i]) × MS_PER_PX`, less what earlier generations already spent — the same quantity round 10's landing repair already computes, promoted from a repair to the definition |
+| shard pose | replayed from that generation's own birth state for `flight`, substepped at `SUB` |
+
+Three consequences, and the third is the only real risk:
+
+- **The dust must be seeded.** `Math.random` → the file's own `rng`, seeded off `d.i`. This hands 03
+  round 10 its abandoned measurement back: once seeded, two first visits *can* be compared as
+  pixels, and the gate that round had to weaken to a structural claim becomes available in full.
+- **The queue may decide when work is done, never what is drawn.** The generation is read off `age`;
+  the 4 ms budget survives only as scheduling.
+- **Replay is bounded by rest, not by life.** `stepPieces` no-ops on a resting piece, so a
+  generation costs only its flight up to rest — and every settled generation can be cached as a
+  pose and never replayed again. **Nobody has measured the worst case**: a scroll-up across six
+  objects, up to **115 pieces** on one of them (item 150, measured), on the frame the visitor
+  reverses. **That number is the only thing that can still veto this ruling, and it is milliseconds,
+  not megabytes.** Measure it before writing the frame loop, exactly as the MB was measured before
+  designing the window.
+
+### What round 8 reopens, and what it does not
+
+- **Round 6 ruling 2 is half struck.** *A position runs both ways, an event does not* was the whole
+  of it; the event now runs both ways too. **Ruling 1 (the fall) and ruling 3 (the scroll is the
+  only clock) are untouched — 8b is ruling 3 finally applied to the half of the piece that never
+  got it.** `frozen_when_idle` gets stronger under this ruling, not weaker.
+- **13's one-way decay is struck for the scroll direction only.** Nothing about the forward grammar
+  changes: things still fall, shatter, split twice and sink. What is deleted is the latch.
+- **[10](10-the-index-surface.md)'s jump-back was ruled out *because* decay is one-way. That reason
+  is gone.** The shelf could re-enter the piece at an item. Not this ticket's to decide — 10 is owed
+  the news, and it is a gain rather than a cost.
+- **Round 7 ruling 4 must be re-gated with a second end** — a field newer than the counter is now
+  the failure mode, and it was never checkable before.
+- **`contact_latches` and `decay_one_way` now assert the opposite of the ruling.** Re-aim them, do
+  not delete them: what survives is *the forward grammar is unchanged*, which is still worth a gate.
+- **[14](14-the-ending-and-the-frame.md) is untouched.** The last object never breaks, in either
+  direction.
+
+### Verified, not asserted
+
+Every number above is measured, and nothing in the repo was modified to get it — no source file was
+patched, and the sweep was run against HEAD. Frames at `prototypes/webgl/verify04r8/`: `01-midfall` /
+`02-up-150` are the fall reversing, `03-deep-1934` is the piece behaving, and
+`04-top-still-1934` is the defect. `sweep10` 41/41 green with that defect live, which is the
+round's one durable lesson restated: **a gate has a direction, and a gate that only ever walks
+forward has only ever tested forward.**
