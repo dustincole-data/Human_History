@@ -7,3 +7,6 @@ dist/
 *.stackdump
 __pycache__/
 .pytest_cache/
+
+# harness run logs — the numbers live in the ticket, not in the repo
+prototypes/webgl/harness/*.log
