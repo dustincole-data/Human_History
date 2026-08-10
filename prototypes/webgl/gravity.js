@@ -1559,7 +1559,12 @@ function frame() {
          was already true by the time the object came into view, the branch was skipped, and every
          citation the visitor scrolled back up into was missing. The label layer went from 13,016
          characters to 3,886 and nothing else noticed. */
-      if (!d.atoms) build(d);
+      /* …but not past the seam. Ticket 10's rule is that the piece leaves NOTHING on the shelf,
+         and the ending block above enforces it for the one object whose words outlive their own
+         decay — it unbuilds them the moment the fade completes. Moving `build()` here put the two
+         in a loop: the seam took the ending's words down and the update loop put them straight
+         back, seven span nodes over the shelf for the rest of the page. */
+      if (!d.atoms && fade < 1) build(d);
       d.air = false; d.t = 1;
       pose(d, scrollY);                              // the whole wreck, resolved from the tables
       prebuild(d);                                   // and the next generation, cut before it is due

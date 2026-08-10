@@ -27,6 +27,9 @@ async function newPage(w = 1440, h = 900) {
   if (page) await page.close();
   page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  /* "Failed to load resource: 404" does not say WHICH resource, and a gate that reports a number
+     without the thing it measured costs a round to chase. The URL comes off the response. */
+  page.on('response', r => { if (r.status() >= 400) errors.push(`HTTP ${r.status()} ${r.url()}`); });
   page.on('pageerror', e => errors.push(String(e)));
   if (SLOW) await page.route('**/{img,thumb}/*.webp', async route => {
     await new Promise(r => setTimeout(r, 40 + Math.floor(Math.random() * 300)));
@@ -345,6 +348,23 @@ ok('seam_is_scroll_only', f1 === f2 && f2 === f3 && f1 > 0 && f1 < 1,
    and everything stops" actually claims. */
 await to(0, 3);
 await to(I.top - 1400, 2);
+/* 04 ROUND 9 ADDS ONE WAIT, AND IT IS NOT ROUND 12'S WAIT COMING BACK. What round 12 removed was
+   a fixed 2000ms sleep, which finished any ease before the first shot and hid it. This waits on
+   `pending()` and `queue.length` — assets in flight and cuts not yet made — and an ease is neither,
+   so a value drifting on a clock still runs straight through it and the A/B across two seconds
+   still catches it.
+
+   It is needed because the rewind widened the window. A jump to the seam now fetches photographs
+   for AHEAD + FALL + BACK and builds the wrecks of objects the visitor has already passed, so the
+   page takes about 84 frames to finish assembling where it used to take a handful — measured, and
+   frozen the moment it is done. That is "no pixels, no fall" (03) at the size the rewind made it,
+   and it is what the piece pays so that scrolling back up costs nothing. */
+for (let i = 0; i < 60; i++) {
+  const q = await page.evaluate(() => ({ p: window.__hh.pending(), q: window.__hh.queue.length }));
+  if (!q.p && !q.q) break;
+  await tick(3);
+}
+await tick(8);
 const shotA = await page.screenshot();
 await page.waitForTimeout(2000);
 const shotB = await page.screenshot();

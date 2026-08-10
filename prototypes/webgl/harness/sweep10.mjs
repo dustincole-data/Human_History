@@ -783,6 +783,20 @@ ok('window_is_not_a_clock', runA.length === runB.length && disagree.length === 0
       the difference in the compositor rather than in anything the page decides. The canvas and the
       DOM are what the page controls, so they are what is gated; a screenshot here would be
       measuring Chromium's text rasteriser. */
+/* SAMPLE A SETTLED PAGE, NOT A LOADING ONE. Under `--slow` this gate read 10 built objects on the
+   direct walk and 9 on the return and called the page route-dependent. It was not: the missing one
+   was item 12, `gone`, no fragments, drawing nothing — the window had re-admitted it and its
+   photograph was still in flight, which is "no pixels, no fall" (03) and a legitimate transient
+   rather than a state. Given the wait, both routes land on the same ten. Same quiescence the
+   `window_is_not_a_clock` gate above already takes, and for the same reason. */
+const quiesce = async () => {
+  for (let i = 0; i < 60; i++) {
+    const s = await page.evaluate(() => ({ p: window.__hh.pending(), q: window.__hh.queue.length }));
+    if (!s.p && !s.q) break;
+    await tick(3);
+  }
+  await tick(8);
+};
 const fullState = () => page.evaluate(() => ({
   objs: window.__hh.drops.filter(d => d.built).map(d => [
     d.i, +d.age.toFixed(6), d.splits, d.dusted ? 1 : 0, d.gone ? 1 : 0, d.tie ? d.tie.j : -1,
@@ -799,11 +813,11 @@ const fullState = () => page.evaluate(() => ({
   for (const y of [12000, 47000, 96000, 130000]) {
     await fresh();
     for (let v = 0; v < y; v += 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
-    await to(y, 10);
+    await to(y, 10); await quiesce();
     const direct = await fullState();
     for (let v = y; v < y + 9000; v += 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
     for (let v = y + 9000; v > y; v -= 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
-    await to(y, 10);
+    await to(y, 10); await quiesce();
     const returned = await fullState();
     const rows = direct.objs.filter((r, k) => r !== returned.objs[k]).length;
     if (rows || direct.objs.length !== returned.objs.length ||
