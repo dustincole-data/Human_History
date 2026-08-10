@@ -32,7 +32,10 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
   the instant they have been shattered**, so at most ten are resident: **3.1 MB measured peak
   against the 80 MB gate**, and it does not move when the set grows to 400. The two rules that hold
   it up bind anything built later: **no pixels, no fall** and **no overtaking**.
-- **Nothing overlaps, anywhere, ever.** Deep Time's no-collision layout contract (reserved zones, non-overlapping slot grid, each arrival one self-contained box, verified by a scroll sweep asserting zero rectangle intersections) is proven and reusable. The sweep is a **ship gate**, not a review note.
+- **Nothing overlaps, anywhere, ever** — and as of [10](issues/10-the-index-surface.md) that is
+  held on **both** surfaces: zero rectangle intersections over every cell and every row readout on
+  the index, at 1440×900 and 390×844, as well as over the piece's words. Deep Time's no-collision
+  layout contract (reserved zones, non-overlapping slot grid, each arrival one self-contained box, verified by a scroll sweep asserting zero rectangle intersections) is proven and reusable. The sweep is a **ship gate**, not a review note.
 - **The anchor references are locked; the sober register is dead.** References ([11](issues/11-visual-anchor.md)): **Neal Agarwal's [The Deep Sea](https://neal.fun/deep-sea/)** (a changing ground, unframed objects, one counter as the whole UI) and **Deep Time** (the same hand). Positioning: *"Twelve thousand years of things people built, and what was standing next to each one."* **Not a chart** — Dustin's word. But [11](issues/11-visual-anchor.md)'s sober, canon-off *register* was built and **rejected outright** — *"complete garbage"* — and [12](issues/12-scrollytelling-craft.md) reversed it on evidence. **[13](issues/13-visual-direction-v2.md) settled the replacement: GRAVITY / SHATTER** — real-time physics over a still ground, objects breaking down into it. Note the one thing The Deep Sea lends that no longer applies: its *changing* ground. Here the ground is the fixed thing and the objects are what change.
 - **Flatness is the failure mode — settled by [12](issues/12-scrollytelling-craft.md).** The Pudding's rule: a piece works when it has *"variety in their shape and… change as the story progressed — it wasn't just a flat line."* **A treatment that looks the same at item 5 and item 300 has already failed.** The site needs a designed shape with movements, not one grammar repeated 300 times.
 - **Embellishment is licensed by evidence, not taste — [12](issues/12-scrollytelling-craft.md).** Bateman's *Useful Junk?*: embellished charts were recalled significantly better after 2–3 weeks, at no cost to accuracy, and were strongly preferred. **The Visual Cinnamon canon governs after all**; colour lives in the ground, light, marks and type — never as a tint on the photographs.
@@ -142,6 +145,33 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   green with their own code deleted because localhost is never late. Also carries the audit 03 was
   opened for (carry/adapt/discard, the stated stack) and [10](issues/10-the-index-surface.md)'s
   thumbnail budget.
+- [10 — The index surface](issues/10-the-index-surface.md) — **THE SHELF. Closed in one round, and
+  it closes [06](issues/06-visual-treatment.md) item 6 with it.** The piece is twelve thousand
+  years of things being destroyed; the index is *the same ground carrying all 230 of them standing
+  whole* — which is the reward [12](issues/12-scrollytelling-craft.md) demanded, delivered without
+  a crescendo, so [01](issues/01-the-fun-thesis.md)'s no-finale is kept rather than broken. Four
+  rulings. **Chronology wrapped into rows at one height** — arranging by *moment* was tried and
+  costs too much (the co-occurrence window slides, so rows would draw boundaries that are not
+  there and the deep head becomes forty rows of one), and what survives is the honest half: a row
+  is a WRAP, and **its own span printed in the gutter is 01's density spacing made visible** — the
+  first row holds 5,246 years, the last holds 11. **A cell shows the object and nothing else**,
+  because one height plus a name needs a fixed column and a fixed column is a contact sheet;
+  words return complete on tap or focus, and there is no hover state because mobile is a ship
+  gate. **Opened in place, and the jump back is RULED OUT on a ruling, not a difficulty** — decay
+  is one-way, so re-entering the scroll at an item can only mean a reload, and a reload is a new
+  visit; instead the shelf does what the scroll cannot and holds the thing intact, with everything
+  standing within eighty years of it lit, which is **01's ambient engine at index density and the
+  first time [06](issues/06-visual-treatment.md) item 1 was tested there**. **The credits live
+  here**: one citation in full on the opened cell, all 230 in a roll lying in the earth below.
+  03's budget held exactly — a **second bake** at `80 × dpr 2 = 160`, **26.2 MB** for all 230
+  resident against the 80 MB gate (45.6 MB at 400), 0 sprites resident. **24 gates green normally
+  and 24 under `--slow`, and the piece's 39 re-run green both ways.** Five defects found by frames
+  and gates rather than by argument, incl. **three of the piece's citations stranded on the shelf
+  forever** because the frame returned above its own teardown, and a hard horizontal edge at the
+  seam that cost the stop a second screen of runway. **Three more harness faults than page
+  faults** — one gate reported `4 → 4 → 4 → 4 → 4` as a pass because every row it sampled was the
+  same era, and a probe read gold artifacts as sky, which is round 9's finding arriving again by
+  another door.
 - **Matting solved, and it relaxes a filter** — `prototypes/anchor-preview/matte.py` (rembg + isnet, local, free) cut **9 of the 10** subjects that defeated the hand-rolled flood fill, including **Aldrin out of the visor photo** and **Sputnik's antennas**. [05](issues/05-arrival-set.md)'s cut-out admission test is therefore far weaker than [11](issues/11-visual-anchor.md) assumed: famous *moments* can become objects.
 
 ### New from Dustin, 2026-08-09 — after seeing round 7 run

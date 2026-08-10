@@ -1,0 +1,35 @@
+
+=== css_scaling_instead_of_a_bake  (expect index_is_a_second_bake + index_decoded_under_the_gate red) ===
+  *** DID NOT GO RED *** (red: index_is_a_second_bake, thumb_never_exceeds_its_draw)
+
+=== master_thumb_slips_in  (expect thumb_never_exceeds_its_draw red) ===
+  RED as designed: thumb_never_exceeds_its_draw
+
+=== sprites_follow_you_in  (expect index_never_holds_a_sprite red) ===
+  RED as designed: index_never_holds_a_sprite
+
+=== cells_overlap  (expect no_cell_collision_1440 + no_cell_collision_390 red) ===
+  RED as designed: no_cell_collision_1440, no_cell_collision_390
+
+=== wrong_window  (expect open_lights_the_contemporary_window red) ===
+  RED as designed: open_lights_the_contemporary_window
+
+=== words_climb_off_the_earth  (expect open_words_lie_in_their_own_earth red) ===
+  RED as designed: open_words_lie_in_their_own_earth, index_contrast
+
+=== roll_drops_the_licence  (expect every_item_carries_its_attribution red) ===
+  RED as designed: every_item_carries_its_attribution
+
+=== no_runway_for_the_seam  (expect piece_is_gone_before_the_shelf red) ===
+  RED as designed: piece_is_gone_before_the_shelf
+
+=== return_before_the_teardown  (expect the_piece_leaves_nothing_on_the_shelf red) ===
+  RED as designed: index_never_holds_a_sprite, the_piece_leaves_nothing_on_the_shelf, index_contrast
+
+=== seam_on_a_clock  (expect seam_is_scroll_only + index_frozen_when_idle red) ===
+  *** DID NOT GO RED *** (red: none)
+
+=== light_is_frozen  (expect index_light_is_dated red) ===
+  RED as designed: index_light_is_dated
+
+=== earth_takes_the_light  (expect index_ground_never_dates red) ===

@@ -53,6 +53,7 @@
 import { ITEMS, lightFor, shortCred, setHud, setIntro, fadeIntro, done, hash, REDUCED } from './shell.js';
 import { hexA, rng, noise1, Dust, tileFor, mottle, restProfile } from './burial.js';
 import { sites, voronoi, cutPiece, avgColor, makePiece, stepPieces, drawPieces } from './decay.js';
+import * as INDEX from './index.js';
 
 setIntro(
   'Everything here hit the ground once. It broke, and then the pieces broke, and the pieces of ' +
@@ -247,7 +248,13 @@ function fit() {
     if (!d.down) d.prepped = false;               // the landing solve is against a surface that moved
     if (d.atoms) { if (flip) rebuild(d); else d.laid = false; }
   }
+  /* The shelf wraps against the viewport, so it is laid out again — but only once it exists;
+     fit() runs during module init, before there is a TOTAL to hang it under. The spacer is
+     re-set here too: its height is a function of innerHeight, so a resize that did not move it
+     would leave the piece's own runway and the shelf's top disagreeing about where TOTAL is. */
+  if (indexBuilt) { setSpacer(); INDEX.build(indexTop()); }
 }
+let indexBuilt = false;
 
 /* ------------------------------------------------------------------ the objects */
 
@@ -450,9 +457,32 @@ let prevScroll = 0, live = 0;
 let lightRGB = [255, 122, 26];
 let reach = 0;                                        // how far the light of the age gets, 0..1
 
+/* TICKET 10 — THE QUIET STOP, and it costs one screen.
+
+   The piece's runway has always been `TOTAL + 100lvh`: the last object's life ends at TOTAL and
+   the extra screen is what lets the scrollbar get there. The shelf is the next thing in the
+   document flow, so with that runway alone its first row would rise into the viewport at exactly
+   scrollY = TOTAL — the same pixel the last object dies on, with nowhere for the piece to go out.
+
+   So there is a SECOND screen between them, and it is the stop itself: the last thing breaks, the
+   piece goes out over the screen that follows, and then there is one screen of nothing before the
+   shelf. 01 asked for a quiet stop rather than a finale, and a screen of dark ground is what one
+   is. */
+const spacerEl = document.getElementById('spacer');
+const setSpacer = () => { spacerEl.style.height = (TOTAL + innerHeight * 2) + 'px'; };
+const indexTop = () => TOTAL + innerHeight * 2;
+
 fit();
 addEventListener('resize', fit);
-document.getElementById('spacer').style.height = (TOTAL + innerHeight) + 'px';
+setSpacer();
+
+/* Reached by this same scrollbar and by nothing else: no route, no click, no transition to wait
+   on. The whole layout is built here, out of the baked thumbnail dimensions, before a single
+   photograph of it is fetched. */
+INDEX.build(indexTop());
+indexBuilt = true;
+const glEl = document.getElementById('gl'), hudEl = document.getElementById('hud');
+let faded = -1;
 
 /* The overlay used to wait on all 230 photographs, because all 230 were fetched before the first
    frame existed. It now waits on the ones the first screen can actually use — everything the
@@ -989,6 +1019,18 @@ function frame() {
   const dScroll = scrollY - prevScroll; prevScroll = scrollY;
   const fwd = Math.max(0, dScroll);                  // only downward scroll advances anything
 
+  /* ---- TICKET 10, the seam. The piece goes out over the screen before the shelf, on the
+          scrollbar and on nothing else — stop moving and the fade stops with you, same as
+          everything else in this file. Past it the canvas is not drawn at all: the last object
+          died at TOTAL, so there is nothing down there to draw, and a hidden canvas that is
+          still being painted every frame is a cost the index would pay for nothing. ---- */
+  const fade = INDEX.fadeAt(scrollY, H);
+  if (fade !== faded) {
+    faded = fade;
+    glEl.style.opacity = hudEl.style.opacity = (1 - fade).toFixed(3);
+    glEl.style.visibility = hudEl.style.visibility = fade >= 1 ? 'hidden' : 'visible';
+  }
+
   // the intro goes with the first two objects. Against the FULL page height it would still be
   // legible 19,000px in, which is how it ended up printed across the third burial field.
   fadeIntro(Math.min(1, scrollY / START[8]));
@@ -1108,6 +1150,17 @@ function frame() {
   // the impact spray is spawned by the same landing and is owed the same flight, once
   for (let left = most; left > 0; left -= SUB) dust.step(Math.min(SUB, left));
   landed.length = 0;
+
+  /* TICKET 10 — the drawing stops here on the index, and NOT ONE LINE EARLIER.
+
+     Past the seam the last object died long ago, so there is nothing left to paint and a canvas
+     that is invisible but still taking four full-frame fills is a cost the shelf pays for
+     nothing. But the return sits BELOW the update loop rather than at the top of the frame,
+     and that placement is the whole of the fix: with it at the top, any drop still holding words
+     when the fade completed never reached its own `unbuild()`, and its citation stayed printed in
+     the fixed label layer — over the shelf, for the rest of the page. Three of them were on the
+     first frame taken of this surface. State always advances; only the pixels stop. */
+  if (fade >= 1) { requestAnimationFrame(frame); return; }
 
   /* The era's light, read straight off the scrollbar rather than eased toward a target — an
      ease is a wall clock wearing a hat. It crosses over the back half of each arrival's budget,
@@ -1337,6 +1390,10 @@ window.__hh = {
     const p = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), 1, 1).data;
     return [p[0], p[1], p[2]];
   },
+  /* ticket 10's surface, for the index gates. `probe` is the shelf's own arithmetic; `fade` is
+     the seam read at a scroll position rather than off a stored flag. */
+  index: INDEX.probe, indexOpen: INDEX.openAt, indexClose: INDEX.close,
+  fadeAt: y => INDEX.fadeAt(y, H),
   PER: Array.from(PER), START: Array.from(START), LAND: Array.from(LAND),
   LIFE: Array.from(LIFE), CO: Array.from(CO), TIE: Array.from(TIE),
   snap: () => ({
