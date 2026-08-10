@@ -53,9 +53,11 @@
             text-wrap:balance;text-shadow:0 2px 24px rgba(0,0,0,.9)}
   #intro p{margin-top:1em;font-size:clamp(12px,1.15vw,14px);font-weight:500;opacity:.7;
            line-height:1.5;text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  /* text-align because it wraps: the line is tracked capitals and does not fit one line on a phone,
+     and a shrink-to-fit box left-aligns its second line under a first line that looks centred. */
   #hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5;font-size:11px;
         font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.4;
-        pointer-events:none}
+        pointer-events:none;text-align:center}
   /* On a phone the hint is 195px of tracked capitals across the middle and the signature is 169px
      hard against the right, both on the 22px line: 92px of them are the same pixels. It has been
      that way since 14 put the pill on the page and nothing could see it, because furniture was
