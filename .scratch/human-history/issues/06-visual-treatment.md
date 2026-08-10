@@ -359,11 +359,14 @@ same on a phone. The `-sky` crops are the backdrop band, which is where this rou
 
 ### Still open in 06
 
-- **The texture window.** 04 handed over a measured lever — 396px sprites make `prep` 12×
-  cheaper at 163 MB decoded against an 80 MB gate. It runs in the sweep as a standing gate and
-  is [03](03-engine-reuse-or-clean-build.md)'s to spend.
+- ~~**The texture window.**~~ **Spent by [03](03-engine-reuse-or-clean-build.md) round 10.**
+  The sprites are baked at the height they are drawn and released once shattered: 301.2 MB → a
+  **3.1 MB** measured peak. Nothing about the treatment changed — master and bake are
+  indistinguishable at 1:1 (`prototypes/webgl/verify10/sprite-master-vs-bake.png`), and every one
+  of this round's 34 gates re-ran green, twice.
 - **The index surface.** [10](10-the-index-surface.md) has not been prototyped against this
-  treatment, which item 1 said it must be.
+  treatment, which item 1 said it must be. 03 has budgeted it: thumbnails must be a **second
+  bake**, because CSS scaling does not reduce decoded cost.
 - **A handful of credits are bare URLs** (`https://commons.wikimedia.org/wi…`), which read badly
   as scattered words. That is the record, not the treatment —
   [05](05-arrival-set.md)/[07](07-copy-voice-and-name.md).

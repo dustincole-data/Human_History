@@ -219,10 +219,22 @@ function drawStars(c, alpha) {
   }
 }
 
+/* TICKET 03 — the two numbers that decide how many pixels this page may ever hold.
+
+   Every sprite is drawn DRAW_H CSS px tall, at every viewport and on every device; the canvas is
+   rasterised at DPR_CAP density at most. Their product, 264 device px, is therefore the largest
+   height any photograph is ever put on a screen at, at any zoom. A source row above that is
+   fetched, decoded, held for the life of the page, and then discarded by the resampler on its
+   way to the glass. `bake_sprites.py` caps the shipped files at exactly this product and the
+   sweep asserts the relationship, so moving either number here without re-baking is a red gate
+   rather than a silent 300 MB. */
+const DRAW_H = 132;
+const DPR_CAP = 2;
+
 let wasNarrow = false;
 function fit() {
   W = innerWidth; H = innerHeight;
-  dpr = Math.min(devicePixelRatio, 2);
+  dpr = Math.min(devicePixelRatio, DPR_CAP);
   cvs.width = Math.round(W * dpr); cvs.height = Math.round(H * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bakeSurface();
@@ -239,14 +251,9 @@ function fit() {
 
 /* ------------------------------------------------------------------ the objects */
 
-const imgs = await Promise.all(ITEMS.map(it => new Promise(res => {
-  const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null);
-  im.src = `img/${it.k}.webp`;
-})));
-
 const labelLayer = document.getElementById('labels');
 const drops = ITEMS.map((it, i) => ({
-  it, im: imgs[i], i, ar: imgs[i] ? imgs[i].width / imgs[i].height : 1, light: lightFor(it.y),
+  it, im: null, i, ar: 1, light: lightFor(it.y), loading: null,
   /* the fall, as pure scroll geometry. prepped once; t is where the scrollbar is inside it. */
   prepped: false, t: -1, air: false,
   x: 0, w: 0, h: 0, a0: 0, spin: 0, ySpawn: 0, yLand: 0, dxLow: 0,
@@ -258,6 +265,76 @@ const drops = ITEMS.map((it, i) => ({
 
 const dust = new Dust();
 const queue = [];                                   // deferred cutting, so a split never drops a frame
+const landed = [];                                  // whatever hit the ground this frame
+
+/* ------------------------------------------------------------------ the texture window
+
+   TICKET 03, the second half. Capping the shipped sprite at its own draw height takes 230
+   photographs from 301 MB decoded to 66 MB, which clears the 80 MB gate — but only for 230.
+   A count is not a ceiling: 01 put the set at 200–400, and the same cap at 400 items is 114 MB
+   and over. So residency is bounded instead of the number being small.
+
+   A sprite is read in exactly three places and all three sit inside one arrival: prep() solves
+   the landing height off its silhouette, the fall draws it, and land() cuts it into fragments.
+   After the impact the object's pixels live in its own fragment canvases and the photograph is
+   never touched again — `d.im` is dead the instant it has been shattered. Before its start it is
+   not needed either. So the resident set is the handful of arrivals in flight, whatever N is.
+
+   ONE INVARIANT HOLDS THIS UP: no pixels, no fall. prep() solves the exact height of contact
+   from the real outline, so an object prepped from its bounding box would land somewhere else —
+   and then the same scroll position would draw two different frames depending on what had
+   finished loading. An arrival whose sprite has not arrived is therefore in exactly the state it
+   is in above its own start: not here yet. It falls when its pixels do, from the same tables,
+   onto the same latched landing position. */
+
+const AHEAD = 4000;                // px of scroll a sprite is fetched ahead of its own start
+let inFlight = 0, solvedBlind = 0, peakHeld = 0;
+
+function want(d) {
+  if (d.im || d.loading) return d.loading;
+  inFlight++;
+  const im = new Image();
+  im.decoding = 'async';
+  im.src = `img/${d.it.k}.webp`;
+  /* decode() rather than onload: the first draw of an undecoded image blocks the frame it lands
+     on, which is the one frame in this object's life that is already the busiest. */
+  const settle = ok => {
+    inFlight--; d.loading = null;
+    if (!ok || d.down || d.gone) return;         // its whole life went by while it was in the air
+    d.im = im; d.ar = im.naturalWidth / im.naturalHeight;
+  };
+  d.loading = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
+    .then(() => settle(true), () => settle(false));
+  return d.loading;
+}
+
+function release(d) {
+  if (!d.im) return;
+  d.im.removeAttribute('src');                   // hand the decoded buffer back, not just the ref
+  d.im = null;
+}
+
+/* Which sprites may be resident at this scroll position. An arrival that is going to be retired
+   unfallen — the whole page above a scrollbar drag — is never fetched at all, which is why a
+   jump costs the seven landings it shows and not the two hundred it passed. */
+function texture(y) {
+  let held = 0, px = 0;
+  for (const d of drops) {
+    if (d.down || d.gone) release(d);              // shattered, or passed: its pixels are spent
+    else {
+      const rel = y - START[d.i];
+      if (rel > -AHEAD && rel - FALL < LIFE[d.i]) want(d); else release(d);
+    }
+    /* counted over EVERY drop still holding a reference, not only the ones this frame meant to
+       keep. The first version tallied inside the branch above and skipped anything already down,
+       so a release that had quietly stopped working read as a flat 15MB while the page sat on all
+       230 photographs — the counter agreed with the intention instead of measuring the holdings.
+       The leak gate caught it; this is what it is now allowed to see. */
+    if (d.im) { held++; px += d.im.naturalWidth * d.im.naturalHeight; }
+  }
+  if (px > peakHeld) peakHeld = px;
+  return held;
+}
 
 /* ------------------------------------------------------------------ the scroll budget
 
@@ -376,6 +453,11 @@ let reach = 0;                                        // how far the light of th
 fit();
 addEventListener('resize', fit);
 document.getElementById('spacer').style.height = (TOTAL + innerHeight) + 'px';
+
+/* The overlay used to wait on all 230 photographs, because all 230 were fetched before the first
+   frame existed. It now waits on the ones the first screen can actually use — everything the
+   texture window would want at scroll 0 — and the rest arrive ahead of the scrollbar. */
+await Promise.all(drops.filter(d => START[d.i] < AHEAD).map(want));
 done();
 
 /* ------------------------------------------------------------------ the fall, solved once
@@ -386,7 +468,12 @@ done();
    else, which is what makes the landing scroll position exact rather than emergent. */
 
 function prep(d) {
-  const i = d.i, hh = 132;
+  /* The tripwire under the texture window's one invariant. Solving this without the photograph
+     means solving it against a bounding box, which puts the object down at a different height —
+     so the same scroll position would draw two frames depending on what had loaded. The caller
+     already refuses to get here; this counts the day it stops. */
+  if (!d.im) { solvedBlind++; return; }
+  const i = d.i, hh = DRAW_H;
   d.w = hh * d.ar; d.h = hh;
   d.x = W * (0.18 + 0.64 * ((i * 0.618034) % 1));
   d.a0 = (hash(d.it.k, 7) - 0.5) * 0.34;            // deterministic: a reload looks identical
@@ -915,24 +1002,51 @@ function frame() {
      The retire branch is what makes a scrollbar drag survivable: an item whose whole life is
      already behind the visitor is dropped without ever cutting a fragment, so jumping two
      hundred arrivals forward costs four landings, not two hundred. */
+  texture(scrollY);                                  // which photographs may be in memory here
+
+  /* THE WINDOW MAY DELAY AN ARRIVAL. IT MAY NEVER RE-ORDER ONE.
+
+     `drops` is walked in index order, which is date order, so in an all-resident build the thing
+     an arrival ties to has always landed before it — TIE[i] is some j < i and LAND is increasing.
+     land() reads that: it arms the tie only if the partner is already down, on 04's ruling that
+     nothing is asserted about a thing that never fell.
+
+     A window breaks it. If arrival 190's photograph comes back before 188's, 190 lands first,
+     finds its partner still in the air, and draws no line — and which of the two arrives first is
+     the network's business, so the same scroll position drew a different set of ties on two
+     first visits. `window_is_not_a_clock` caught exactly this and it is the only thing it caught.
+
+     So a stalled arrival stalls everything behind it. Anything already retired is unaffected — it
+     needs no pixels and is skipped above — so a scrollbar drag still costs what it shows. */
+  let waiting = false;
+
   let airborne = 0;
   for (const d of drops) {
     if (d.gone) continue;
     const rel = scrollY - START[d.i];
 
     if (!d.down) {
-      if (rel >= FALL) {
-        if (rel - FALL >= LIFE[d.i]) {               // its whole life is behind us: skip it entire
-          // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
-          // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
-          // and the sprite hangs at its spawn point, labelled, for the rest of the page.
-          d.gone = true; d.air = false; d.t = -1; unbuild(d);
-          continue;
-        }
+      if (rel >= FALL && rel - FALL >= LIFE[d.i]) {   // its whole life is behind us: skip it entire
+        // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
+        // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
+        // and the sprite hangs at its spawn point, labelled, for the rest of the page.
+        // This branch runs BEFORE the two that need pixels, so the two hundred arrivals a
+        // scrollbar drag passes are retired without ever being fetched.
+        d.gone = true; d.air = false; d.t = -1; unbuild(d);
+        continue;
+      }
+      if (rel >= 0 && !d.im) waiting = true;           // due, and its photograph is not here
+      if (rel < 0 || !d.im || waiting) {
+        // above its start; or its own photograph has not arrived; or an earlier arrival's has
+        // not. All three are the same state and are drawn as it: not here yet.
+        d.t = -1; d.air = false;
+        if (d.atoms) unbuild(d);
+      } else if (rel >= FALL) {
         if (!d.prepped) prep(d);
         if (!d.atoms) build(d);
         land(d);
-      } else if (rel >= 0) {
+        landed.push(d);                              // owed the flight its own impact already paid for
+      } else {
         if (!d.prepped) prep(d);
         if (!d.atoms) build(d);
         d.t = rel / FALL;
@@ -940,9 +1054,6 @@ function frame() {
         d.px = d.x;
         d.py = d.ySpawn + (d.yLand - d.ySpawn) * arc(d.t);
         d.angle = d.a0 + d.spin * d.t;
-      } else {
-        d.t = -1; d.air = false;                     // scrolled back above its start: not here yet
-        if (d.atoms) unbuild(d);
       }
     }
 
@@ -974,6 +1085,29 @@ function frame() {
     for (const d of drops) if (d.pieces.length) stepPieces(d.pieces, step, surfAt);
     dust.step(step);
   }
+
+  /* ROUND 10, and the texture window forced it. The step above is fed the delta of the frame the
+     shards happen to be alive in, which is fine while the visitor is scrolling and degenerate the
+     moment an object lands on a frame with no forward scroll. Dragging the scrollbar used to land
+     everything on the same frame as the jump — one 240 ms step, paid by the jump's own delta.
+     A windowed sprite arrives a frame or two after that, into `fwd = 0`, and its shards then sit
+     exactly where the cut left them: a shattered object that looks whole.
+
+     So an object that has just landed is given the flight the scroll between its own impact and
+     here has already paid for, less whatever the frame above already gave it. On a walk that
+     difference is zero — an object lands within one frame's scroll of its own landing position —
+     and on an all-resident jump it is zero too, because there the jump's own delta had already
+     maxed the step out. It is a repair for exactly the case the window created and for no other. */
+  let most = 0;
+  for (const d of landed) {
+    let owed = Math.min(MAX_STEP, Math.max(0, scrollY - d.landScroll) * MS_PER_PX) - ms;
+    if (owed <= 0) continue;
+    if (owed > most) most = owed;
+    for (; owed > 0; owed -= SUB) stepPieces(d.pieces, Math.min(SUB, owed), surfAt);
+  }
+  // the impact spray is spawned by the same landing and is owed the same flight, once
+  for (let left = most; left > 0; left -= SUB) dust.step(Math.min(SUB, left));
+  landed.length = 0;
 
   /* The era's light, read straight off the scrollbar rather than eased toward a target — an
      ease is a wall clock wearing a hat. It crosses over the back half of each arrival's budget,
@@ -1180,6 +1314,14 @@ function frame() {
    the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
 window.__hh = {
   drops, queue, surfAt, FALL, TOTAL, W_YEARS, SPLITS, DUST_AT, NAME_OUT, INK_LO,
+  /* the texture window, for the round-10 gates. DRAW_H x DPR_CAP is the claim the shipped files
+     are baked against; `held` is the resident set counted off the live references rather than
+     off any tally the page keeps, and `blind` is the tripwire on a landing solved without its
+     own photograph. */
+  DRAW_H, DPR_CAP, AHEAD,
+  held: () => drops.filter(d => d.im).map(d => ({ i: d.i, k: d.it.k, air: d.air, down: d.down,
+                                                  w: d.im.naturalWidth, h: d.im.naturalHeight })),
+  peakHeld: () => peakHeld, pending: () => inFlight, blind: () => solvedBlind,
   /* the backdrop, for the round-9 gates. `reach` is read live off the frame; `reachFor` and
      `starAlpha` are the curves themselves, so a gate can check the drawn pixels against the
      function rather than against another copy of the page's own opinion. */

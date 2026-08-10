@@ -25,7 +25,13 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
   - **Boundary ruled 2026-08-08.** **IN:** photographs of real objects, **plus engravings, prints, diagrams and illustrations made in the period** — those are themselves real historical artifacts, and they cut out cleanly. **OUT:** modern 3D renders and modern vector illustration, as firmly as AI generation. The claim the site defends is *"every image is a real artifact, or was made at the time."* This matters at sourcing time: a search for a historical object frequently surfaces a **modern render** that cuts out beautifully — it is a constraint breach, not a lucky find. See [02](issues/02-image-supply.md).
 - **Global, not America-specific.** The set must not read as a Western canon with tokens attached. This is an editorial requirement on [05](issues/05-arrival-set.md), not a nice-to-have.
 - **Mobile is first-class.** Real-device phone test is a ship gate. Prior scars: iOS first-tap-is-hover, iOS URL-bar canvas squash, canvas must re-sync from its own box via ResizeObserver.
-- **Decoded memory is the hard ceiling, and it is the #1 technical risk.** Decoded cost is `w × h × 4` regardless of encoding. Deep Time shipped **51 assets = 3.34 MB transfer / 75.56 MB decoded**, against an 80 MB gate. This site's images are the *content*, not decoration, and there will be more of them at larger sizes. Naive reuse blows the budget outright. See [03](issues/03-engine-reuse-or-clean-build.md).
+- ~~**Decoded memory is the hard ceiling, and it is the #1 technical risk.**~~ **Settled by
+  [03](issues/03-engine-reuse-or-clean-build.md) round 10.** Decoded cost is still `w × h × 4`
+  regardless of encoding, and that is still the arithmetic — but the ceiling is no longer a count
+  of the set. Sprites are baked at the height they are drawn (`132 × dpr 2 = 264`) and **released
+  the instant they have been shattered**, so at most ten are resident: **3.1 MB measured peak
+  against the 80 MB gate**, and it does not move when the set grows to 400. The two rules that hold
+  it up bind anything built later: **no pixels, no fall** and **no overtaking**.
 - **Nothing overlaps, anywhere, ever.** Deep Time's no-collision layout contract (reserved zones, non-overlapping slot grid, each arrival one self-contained box, verified by a scroll sweep asserting zero rectangle intersections) is proven and reusable. The sweep is a **ship gate**, not a review note.
 - **The anchor references are locked; the sober register is dead.** References ([11](issues/11-visual-anchor.md)): **Neal Agarwal's [The Deep Sea](https://neal.fun/deep-sea/)** (a changing ground, unframed objects, one counter as the whole UI) and **Deep Time** (the same hand). Positioning: *"Twelve thousand years of things people built, and what was standing next to each one."* **Not a chart** — Dustin's word. But [11](issues/11-visual-anchor.md)'s sober, canon-off *register* was built and **rejected outright** — *"complete garbage"* — and [12](issues/12-scrollytelling-craft.md) reversed it on evidence. **[13](issues/13-visual-direction-v2.md) settled the replacement: GRAVITY / SHATTER** — real-time physics over a still ground, objects breaking down into it. Note the one thing The Deep Sea lends that no longer applies: its *changing* ground. Here the ground is the fixed thing and the objects are what change.
 - **Flatness is the failure mode — settled by [12](issues/12-scrollytelling-craft.md).** The Pudding's rule: a piece works when it has *"variety in their shape and… change as the story progressed — it wasn't just a flat line."* **A treatment that looks the same at item 5 and item 300 has already failed.** The site needs a designed shape with movements, not one grammar repeated 300 times.
@@ -116,6 +122,26 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   and printed a lit hairline along the whole horizon. **Two of the new gates were wrong before the
   page was** — both counted a falling photograph as sky — so every sky reading is now taken with
   nothing in the air.
+- [03 — Reuse Deep Time's engine, or clean build](issues/03-engine-reuse-or-clean-build.md) — **the
+  texture window. CLOSED, and the project's #1 technical risk with it.** 04's lever was spent after
+  being corrected: its 163 MB was the probe *upscaling* every sprite to exactly 396 px, and its 12×
+  was mostly image-vs-canvas (real figure 2.5×). **The cap is derived, not chosen** — `DRAW_H 132 ×
+  DPR_CAP 2 = 264` device px is the tallest any photograph is ever rasterised at, so everything
+  above it is decoded and thrown away: **301.2 MB → 65.8 MB**, transfer 14.2 → 6.5 MB, and
+  indistinguishable at 1:1 (the 3× zoom that says otherwise is lying about the viewing condition).
+  **But a count is not a ceiling** — 65.8 MB is under the gate for 230 and over it for 400 — so
+  residency is bounded instead: a sprite is dead the instant it has been shattered, so **at most 10
+  are resident, measured peak 3.1 MB against an 80 MB gate**, and the number does not move when the
+  set grows. First load went from all 230 (14.2 MB) to **8 photographs, 0.20 MB, 835 ms**; a
+  120,000 px drag fetches **21**, not 188. Two rules hold it up: **no pixels, no fall** (the landing
+  is solved off the real silhouette, so a blind solve would draw two frames at one scroll position)
+  and **no overtaking** (arrivals landed in fetch order, so an arrival whose tie partner was still
+  in flight drew no line — caught by a gate, not by reasoning). 39 gates green on a normal network
+  and 39 green again with every sprite held back 40–340 ms at random; six perturbations
+  red-then-reverted. **Three things were wrong before the page was**, incl. two gates that stayed
+  green with their own code deleted because localhost is never late. Also carries the audit 03 was
+  opened for (carry/adapt/discard, the stated stack) and [10](issues/10-the-index-surface.md)'s
+  thumbnail budget.
 - **Matting solved, and it relaxes a filter** — `prototypes/anchor-preview/matte.py` (rembg + isnet, local, free) cut **9 of the 10** subjects that defeated the hand-rolled flood fill, including **Aldrin out of the visor photo** and **Sputnik's antennas**. [05](issues/05-arrival-set.md)'s cut-out admission test is therefore far weaker than [11](issues/11-visual-anchor.md) assumed: famous *moments* can become objects.
 
 ### New from Dustin, 2026-08-09 — after seeing round 7 run
