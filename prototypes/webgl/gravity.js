@@ -150,6 +150,75 @@ function bakeGround() {
   }
 }
 
+/* ------------------------------------------------------------------ the sky
+
+   06 item 4, and Dustin's second ask of 2026-08-08: "we're probably also going to have to come
+   up with a realistic background that changes based on the time."
+
+   THIS IS THE LIGHT, NOT A NEW GROUND. 13 froze the earth and put the dated colour system in the
+   light. The backdrop is the air ABOVE the ground line — a different surface — and nothing here
+   touches one pixel of the earth below it, which is gated (`ground_never_dates`). The other two
+   readings were ruled out rather than chosen against: a depicted scene behind the objects needs
+   generated or modern-illustrated imagery, which the map forbids outright, and a backdrop plate
+   has an edge, which 11 forbids; and an earth that changes colour is 13's to reopen, not this
+   ticket's — it would also reopen 06's own item 5, which closed precisely because the soil's
+   value never changes.
+
+   What is dated — and what makes this a light rather than a hue on a gradient — is REACH: how far
+   the light people actually had got. A flame lights a few metres and the sky over it is black and
+   full of stars. Gas, then arc, then filament lighting push a glow up off the horizon until the
+   sky itself is the lit thing and the stars are gone. That is real, dated and measurable, and it
+   is why item 6 and item 226 no longer have the same backdrop with a different tint on it.
+
+   REACH IS A SMOOTH FUNCTION OF THE YEAR, NOT A STEP PER LAMP — deliberately. 11 warned that a
+   dated backdrop asserts era boundaries and that periodization is regional; a step at 1820 would
+   print "the world had gaslight in 1820" as a visual fact. A continuous curve claims only that
+   artificial light got stronger over time, which is true everywhere. Nothing is written. The
+   HUD's lamp name is the only disclosure and it was already there. */
+
+const REACH_MID = 1920, REACH_W = 45;                 // the electrification decades, softened
+const logistic = y => 1 / (1 + Math.exp(-(y - REACH_MID) / REACH_W));
+const REACH_TOP = logistic(2030);
+const reachFor = y => Math.min(1, logistic(y) / REACH_TOP);
+const STAR_OUT = 0.72;                                // reach at which the last star is gone
+const starAlpha = r => Math.pow(Math.max(0, 1 - r / STAR_OUT), 1.2);
+
+/* THE BACKDROP IS CACHED, and the reason is measured. It is four large fills a frame — a
+   full-canvas gradient, a star field, a radial pool and a lit band — and on a canvas Chromium has
+   demoted out of GPU acceleration (which a page read this often gets) they cost 3–6ms. Drawn
+   straight, the sweep's frame gate ran 21–27ms against a 25ms budget and went red once, while the
+   round-8 build it replaces sat at 18.3–19.1ms in the same window.
+
+   But every one of those fills is a pure function of (reach, the era's colour, the viewport) —
+   the same property that makes the whole file scroll-driven. So it is drawn into one canvas and
+   redrawn only when that key changes, and the frame pays one opaque blit. The key quantises reach
+   to 1/256 and the colour to two units, which is a change of a fifth of one channel value in the
+   sky: below anything a screen can show, and it takes the redraw from every frame to about one in
+   five. This is a cache of a pure function, not an easing or a smoothing — the value drawn at a
+   scroll position is the value that position asks for, which is what `backdrop_is_scroll_only`
+   is standing there to check. */
+const bcvs = document.createElement('canvas');
+const bctx = bcvs.getContext('2d');
+let bkey = '';
+
+/* The stars, drawn straight into the backdrop. Deterministic and completely still: there is no
+   wall clock in this file and a twinkle would be one. */
+function drawStars(c, alpha) {
+  const r = rng(4711), gy = groundY();
+  const n = Math.round(W * gy / 2900);                // ~320 at 1440×900, ~70 on a phone
+  for (let i = 0; i < n; i++) {
+    const x = r() * W, y = r() * gy, q = r(), t = r();
+    // thinner and dimmer toward the horizon, the way real atmosphere takes them
+    const alt = 1 - y / gy;
+    if (alt < 0.12 && q > alt * 3) continue;
+    const a = (0.09 + q * q * q * 0.60) * (0.34 + alt * 0.66) * alpha;
+    const s = q > 0.988 ? 1.7 : q > 0.90 ? 1.2 : 1;
+    const col = t < 0.15 ? [255, 226, 190] : t < 0.29 ? [206, 222, 255] : [244, 246, 252];
+    c.fillStyle = `rgba(${col.join(',')},${a.toFixed(3)})`;
+    c.fillRect(x, y, s, s);
+  }
+}
+
 let wasNarrow = false;
 function fit() {
   W = innerWidth; H = innerHeight;
@@ -158,6 +227,7 @@ function fit() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bakeSurface();
   bakeGround();
+  bkey = '';                                          // the backdrop is sized to the viewport too
   const flip = wasNarrow !== (W < 720);
   wasNarrow = W < 720;
   for (const d of drops) {
@@ -301,6 +371,7 @@ const MAX_STEP = 240;                               // ms of debris advanced in 
 
 let prevScroll = 0, live = 0;
 let lightRGB = [255, 122, 26];
+let reach = 0;                                        // how far the light of the age gets, 0..1
 
 fit();
 addEventListener('resize', fit);
@@ -914,25 +985,80 @@ function frame() {
   const rgbOf = h => [1, 3, 5].map(j => parseInt(h.substr(j, 2), 16));
   const c0 = rgbOf(cur.light[1]), c1 = rgbOf(drops[i1].light[1]);
   for (let j = 0; j < 3; j++) lightRGB[j] = c0[j] + (c1[j] - c0[j]) * k;
+  // reach crosses on exactly the clock the colour does, which is the scrollbar and nothing else
+  reach = reachFor(cur.it.y) + (reachFor(drops[i1].it.y) - reachFor(cur.it.y)) * k;
   setHud(cur.it.y, cur.light[2], cur.light[1]);
 
-  /* ---- sky and the era's light. This is where every bit of colour on the page lives. ---- */
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = '#05060b';
-  ctx.fillRect(0, 0, W, H);
+  /* ---- sky and the era's light. This is where every bit of colour on the page lives, and as
+         of round 9 it is also where the only dated surface on the page lives. Four layers, all
+         functions of `reach` and therefore of the scrollbar:
+
+           the night     the unlit sky the light is a light against. Near black, always there.
+           the stars     baked once; erased as the skyglow comes up, gone by reach 0.72.
+           the pool      the lamp itself. At reach 0 it is small, bright and low — a fire lights
+                         a few metres. At reach 1 it is the whole frame and nearly even, which is
+                         what a lit night actually looks like and is the shape change 12 asked
+                         for: item 6 and item 226 are not the same picture in a different colour.
+           the haze      lit air lying on the land, growing with the pool.
+
+         The earth is blitted opaque OVER all of it, further down. Nothing here reaches it. ---- */
   const gy = groundY();
-  const glow = ctx.createRadialGradient(W / 2, gy, 0, W / 2, gy, Math.max(W, H) * 0.9);
-  glow.addColorStop(0, `rgba(${lightRGB.map(Math.round).join(',')},0.20)`);
-  glow.addColorStop(0.55, `rgba(${lightRGB.map(Math.round).join(',')},0.05)`);
-  glow.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
-  // a low band of lit air sitting on the land — the light has somewhere to land
-  const haze = ctx.createLinearGradient(0, gy - 190, 0, gy + 30);
-  haze.addColorStop(0, 'rgba(0,0,0,0)');
-  haze.addColorStop(1, `rgba(${lightRGB.map(Math.round).join(',')},0.13)`);
-  ctx.fillStyle = haze;
-  ctx.fillRect(0, gy - 190, W, 220);
+  /* Quantised FIRST, and the bake reads only the quantised values. Baking from the raw `reach`
+     while keying on the rounded one made the cache path-dependent: two scroll positions inside one
+     bucket share a key but not a value, so the pixels you got were whichever edge of the bucket
+     you happened to enter from, and the same scroll position drew two different skies depending on
+     whether you had come down to it or up to it. `backdrop_is_scroll_only` caught it. */
+  const rq = Math.round(reach * 256) / 256;
+  const L = lightRGB.map(v => Math.round(v / 2) * 2);
+  const key = `${W}x${H}@${dpr}|${rq}|${L.join(',')}`;
+  if (key !== bkey) {
+    bkey = key;
+    const lit = `rgba(${L.join(',')},`;
+    bcvs.width = Math.round(W * dpr); bcvs.height = Math.round(H * dpr);
+    bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const sky = bctx.createLinearGradient(0, 0, 0, gy);
+    for (const t of [0, 0.55, 1]) {
+      const amt = (0.12 + 0.34 * t) * rq * 0.24;      // how much of the age's light is in the air
+      const dark = 4 + 2 * t;                         // the night under it
+      sky.addColorStop(t, `rgb(${L.map(v => Math.round(dark + v * amt)).join(',')})`);
+    }
+    /* the whole canvas, not just down to the ground line. The earth is opaque over most of what
+       is below gy, but the soil contour rises as much as 32px above it, and any band this fill
+       does not reach is a band nothing clears. The gradient clamps to its horizon stop below gy,
+       which is the right value for the sliver that shows. */
+    bctx.fillStyle = sky;
+    bctx.fillRect(0, 0, W, H);
+
+    const sa = starAlpha(rq);
+    if (sa > 0.004) drawStars(bctx, sa);
+
+    const R = Math.max(W, H) * (0.34 + 0.86 * rq);
+    const glow = bctx.createRadialGradient(W / 2, gy, 0, W / 2, gy, R);
+    glow.addColorStop(0, lit + (0.30 - 0.11 * rq).toFixed(3) + ')');
+    glow.addColorStop(0.34 + 0.28 * rq, lit + (0.045 + 0.055 * rq).toFixed(3) + ')');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    bctx.fillStyle = glow;
+    bctx.fillRect(0, 0, W, H);
+
+    /* A low band of lit air sitting on the land — the light has somewhere to land. The ramp rises
+       to its value 40px ABOVE the ground line and then HOLDS it flat all the way down. That is
+       not a nicety: the soil contour wanders ±32px either side of gy, so a ramp still climbing at
+       the ground line is brightest exactly where the land dips, and it printed a lit hairline
+       tracing the whole contour — a stroke, which is the one thing 11 said nothing on this page
+       has. Held flat, every dip and every rise is the same value and the horizon is a value step. */
+    const hz = 120 + 190 * rq, a = 0.075 + 0.05 * rq;
+    const haze = bctx.createLinearGradient(0, gy - hz, 0, gy - 40);
+    haze.addColorStop(0, 'rgba(0,0,0,0)');
+    haze.addColorStop(1, lit + a.toFixed(3) + ')');
+    bctx.fillStyle = haze;
+    bctx.fillRect(0, gy - hz, W, hz - 40);
+    bctx.fillStyle = lit + a.toFixed(3) + ')';
+    bctx.fillRect(0, gy - 40, W, 100);
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.drawImage(bcvs, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   /* ---- the photographs and their fragments, raw. Never lit, never tinted, never graded. ---- */
   for (const d of drops) {
@@ -1054,6 +1180,14 @@ function frame() {
    the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
 window.__hh = {
   drops, queue, surfAt, FALL, TOTAL, W_YEARS, SPLITS, DUST_AT, NAME_OUT, INK_LO,
+  /* the backdrop, for the round-9 gates. `reach` is read live off the frame; `reachFor` and
+     `starAlpha` are the curves themselves, so a gate can check the drawn pixels against the
+     function rather than against another copy of the page's own opinion. */
+  STAR_OUT, reachFor, starAlpha, reach: () => reach, groundY, dust,
+  /* bgAt one pixel at a time is a GPU readback each call, which is fine for a few hundred words
+     and useless for counting stars over a third of the screen. Same read, one rectangle. */
+  px: (x, y, w, h) => ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr),
+                                       Math.round(w * dpr), Math.round(h * dpr)),
   /* the composited pixel a word is sitting on, read straight off the canvas. 06 item 5 wanted
      legibility measured rather than asserted, and this is the honest way to do it: the text is
      DOM over a canvas, so the background under any word is exactly one getImageData away. */

@@ -1,7 +1,7 @@
 # 06 — Visual treatment: one system from many sources
 
 Type: prototype
-Status: open - items 1, 2, 3, 5 and 6 resolved in round 8; item 4 (a dated backdrop) still open
+Status: CLOSED - items 1, 2, 3, 5 and 6 in round 8; item 4, the dated backdrop, in round 9
 Blocked by: 01, 02, 11
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -262,12 +262,103 @@ first pass** instead of pretending it is not there (cold 16.4/22.0 ms in the run
 the body at six fields and five ties, `07`–`09` the same at 390×844. The `-ground` crops are the
 soil band, which is where all of this round's work is.
 
+## Round 9, 2026-08-09 — the dated backdrop. It is the LIGHT. 06 closes.
+
+Item 4, Dustin's second ask of 2026-08-08: *"we're probably also going to have to come up with
+a realistic background that changes based on the time."*
+
+### Ruling 1 — it is the LIGHT, and the other two readings were not close
+
+Stated before building, because this ticket's own input said to. Three readings, one legal:
+
+| reading | verdict |
+|---|---|
+| the air above the ground line **is the era's light** | **legal under [13](13-visual-direction-v2.md)**, which put the dated colour system in the light and froze the earth. A different surface from the ground. |
+| a depicted scene behind — cave wall, street, skyline | **dead on two constraints that are not 13.** It needs generated or modern-illustrated imagery, which the map forbids outright; and a backdrop plate has an edge, which [11](11-visual-anchor.md) forbids. Not a reopen — out. |
+| the **earth** changes colour by era | **reopens 13, and reopens 06's own item 5** — the legibility gate closed single-ended precisely because the soil's value never changes. Dustin's, not a ticket's. Untouched. |
+
+**Nothing here touches one pixel of the earth**, and that is a gate rather than a claim:
+`ground_never_dates` samples 30 composited earth pixels at five eras and demands they be
+byte-identical. They are.
+
+### Ruling 2 — what is dated is REACH, and it is a smooth function of the year
+
+A hue on a gradient is not a light. What makes this realistic is **how far the light people
+actually had got**: a flame lights a few metres and the sky over it is black and full of stars;
+gas, then arc, then filament lighting push a glow up off the horizon until the sky itself is the
+lit thing and the stars are gone. Real, dated, and measurable — it is what the Bortle scale
+measures.
+
+**Reach is a logistic on the year centred on 1920, not a step per lamp — deliberately.**
+[11](11-visual-anchor.md) warned that a dated backdrop asserts era boundaries and that
+periodization is regional. A step at 1820 prints *"the world had gaslight in 1820"* as a visual
+fact. A continuous curve claims only that artificial light got stronger over time, which is true
+everywhere. **Nothing is written**; the HUD's lamp name is the only disclosure and it was already
+there. 13's colour ramp is untouched — reach drives value, the ramp still drives hue.
+
+Four layers, all functions of reach and therefore of the scrollbar: the unlit night · a baked
+star field, erased by skyglow and gone by reach 0.72 (~1950) · the lit pool, which at firelight
+is small, bright and low and at LED is the whole frame and nearly even · the lit air on the land.
+**The pool's shape changes, not just its colour** — which is [12](12-scrollytelling-craft.md)'s
+flatness rule paid: item 6 and item 226 are not the same picture in a different tint.
+
+### The backdrop is cached, and the cache is a cache of a pure function
+
+Four large fills a frame cost 3–6ms on a canvas Chromium has demoted out of GPU acceleration.
+Every one of them is a pure function of (reach, the era's colour, the viewport), so the backdrop
+is drawn into its own canvas and redrawn only when that key changes; the frame pays one opaque
+blit. The key quantises reach to 1/256 and the colour to two units — a fifth of one channel
+value, below what a screen can show — which takes the redraw from every frame to about one in
+five. **This is not an easing.** The value drawn at a scroll position is the value that position
+asks for, and `backdrop_is_scroll_only` stands there to check it.
+
+**It caught the cache's first version**, which keyed on the rounded reach but baked from the raw
+one: two positions inside one bucket shared a key and not a value, so the sky you got was
+whichever edge of the bucket you entered from — the same scroll position drawing two different
+skies depending on whether you came down to it or up to it.
+
+### One real defect, found by a pixel scan and not by the eye
+
+The first sky fill covered the canvas only down to the ground line. The soil contour wanders
+±32px either side of it, so the sliver above every dip was a band **nothing cleared** — the haze
+composited over itself every frame and saturated to the era's colour at full opacity, printing a
+lit hairline tracing the whole horizon. A stroke, which is the one thing 11 says nothing on this
+page has. The fill now covers the whole canvas, and the haze ramp reaches its value 40px above
+the ground line and holds it flat through the contour zone, so a dip and a rise are the same
+value and the horizon is a value step.
+
+### What the sweep says — 34 gates, 34 green
+
+All 29 of round 8's re-run green, including `credit_contrast` at **5.16:1** over 455 composited
+samples and `no_text_collision` at **0** over 290 stops at 1440×900 **and** 390×844. Five new:
+
+| gate | result |
+|---|---|
+| `backdrop_is_dated` | sky value tracks reach at every step; **×10.8** firelight → LED. Where the lamp does not change — 3500 BCE to 100 BCE — the sky is identical, which is the honest half. |
+| `ground_never_dates` | **30 earth pixels byte-identical across all five eras** |
+| `stars_go_out` | 165 → 165 → 64 → 0 → 0 |
+| `hud_contrast` | worst **9.54:1** over the HUD number and era name at every era |
+| `backdrop_is_scroll_only` | same position, two paths, plus 2s of wall clock — identical |
+| `frame_budget` | warm median **16.7ms**, p95 floor **19.0ms** |
+
+**Teeth — six perturbations, six reds, six reverts, file restored byte-identical.** Freezing
+reach, tinting the earth by era, keeping the stars lit through electrification, lifting the sky
+until the HUD stops reading, easing reach toward its target, and putting the cache's raw-value
+bake back. Two reddened a second gate as well, and both follow: a frozen reach also stops the
+stars going out, and an eased reach also stops the sky tracking reach.
+
+**Two of the new gates were wrong before the page was**, which is round 8's pattern repeating.
+Both read falling-object pixels as sky: `stars_go_out` counted 1,775 stars at one era and 1,362
+at another whose star field is *identical*, and the difference was one sprite's edges. Every sky
+reading is now taken with nothing in the air.
+
+### Frames
+
+`prototypes/webgl/verify9/` — named by the lamp, `00` firelight through `08` LED, `09`–`11` the
+same on a phone. The `-sky` crops are the backdrop band, which is where this round's work is.
+
 ### Still open in 06
 
-- **Item 4, the dated backdrop.** Dustin's second ask of 2026-08-08 — *"a realistic background
-  that changes based on the time"* — is **not built**. The era's light is still 13's radial glow
-  and low haze. Building a backdrop means stating first whether it is the *light* (legal under
-  13) or a new dated *ground* (a reopen of 13, and only Dustin does that).
 - **The texture window.** 04 handed over a measured lever — 396px sprites make `prep` 12×
   cheaper at 163 MB decoded against an 80 MB gate. It runs in the sweep as a standing gate and
   is [03](03-engine-reuse-or-clean-build.md)'s to spend.
