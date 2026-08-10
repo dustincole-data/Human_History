@@ -154,52 +154,72 @@ export function restProfile(img, w, h, angle, colW = 4) {
 
 /* ---------------------------------------------------------------- landing dust
 
-   Soil does not splash upward, it squirts out sideways. Cone is measured from HORIZONTAL. */
+   Soil does not splash upward, it squirts out sideways. Cone is measured from HORIZONTAL.
 
-export class Dust {
-  constructor(max = 1200) { this.p = []; this.max = max; }
+   04 ROUND 9 — SEEDED, AND BORN ONCE. Every value here used to come from `Math.random`: seven
+   sites, and they were the largest of the three wall clocks left in the piece. The spray was
+   therefore different on every visit to the same scroll position, which is why 03 round 10 had
+   to abandon a pixel comparison of two first visits and settle for a structural one. The seed is
+   the arrival's own index, so the spray is a function of WHICH OBJECT LANDED and of nothing else.
 
-  impact(x, y, n, pal) {
-    for (let i = 0; i < n && this.p.length < this.max; i++) {
-      const dir = i % 2 ? 1 : -1;
-      const a = (Math.random() * 34 - 17) * Math.PI / 180;      // ±17° from horizontal
-      const s = 60 + Math.random() * 120;
-      this.p.push({
-        x, y, vx: Math.cos(a) * s * dir, vy: Math.sin(a) * s - 8, g: 300,
-        r: 1 + Math.random() * 2, t: 0, life: 500 + Math.random() * 400,
-        c: Math.random() < 0.62 ? pal.d : pal.l
-      });
-    }
+   A particle also keeps the state it was born with and is never spliced out of the list, because
+   scrolling back up has to be able to put it back in the air. Death is `t >= life` — a predicate,
+   read at draw time — rather than a removal, and the spray at any scroll position is the birth
+   state integrated forward by the distance the scrollbar has covered since the impact. Exactly
+   the treatment the shards get in decay.js, for exactly the same reason. */
+
+function spark(r, x, y, i, pal) {
+  const dir = i % 2 ? 1 : -1;
+  const a = (r() * 34 - 17) * Math.PI / 180;                  // ±17° from horizontal
+  const s = 60 + r() * 120;
+  return { x, y, vx: Math.cos(a) * s * dir, vy: Math.sin(a) * s - 8, g: 300,
+           r: 1 + r() * 2, t: 0, life: 500 + r() * 400,
+           c: r() < 0.62 ? pal.d : pal.l };
+}
+
+export function impactDust(x, y, n, pal, seed) {
+  const r = rng(seed), out = [];
+  for (let i = 0; i < n; i++) out.push(spark(r, x, y, i, pal));
+  return out;
+}
+
+/* fine dust hangs — the secondary breath, ~150ms after the hit */
+export function breathDust(x, y, n, pal, seed) {
+  const r = rng(seed), out = [];
+  for (let i = 0; i < n; i++) out.push({
+    x: x + (r() - 0.5) * 70, y, vx: (r() - 0.5) * 12,
+    vy: -10 - r() * 10, g: -2, r: 0.8 + r() * 1.1,
+    t: 0, life: 1500 + r() * 1000, c: pal.d
+  });
+  return out;
+}
+
+/* the pose a replay starts from, stamped once the whole spray exists */
+export function stampDust(list) {
+  for (const q of list) q.b = { x: q.x, y: q.y, vx: q.vx, vy: q.vy };
+  return list;
+}
+
+export function rewindDust(list) {
+  for (const q of list) { q.x = q.b.x; q.y = q.b.y; q.vx = q.b.vx; q.vy = q.b.vy; q.t = 0; }
+}
+
+export function stepDust(list, dt) {
+  for (const q of list) {
+    if (q.t >= q.life) continue;                              // spent, but still here
+    q.t += dt;
+    q.vy += q.g * dt / 1000;
+    q.x += q.vx * dt / 1000;
+    q.y += q.vy * dt / 1000;
   }
+}
 
-  /* fine dust hangs — the secondary breath, ~150ms after the hit */
-  breath(x, y, n, pal) {
-    for (let i = 0; i < n && this.p.length < this.max; i++) {
-      this.p.push({
-        x: x + (Math.random() - 0.5) * 70, y, vx: (Math.random() - 0.5) * 12,
-        vy: -10 - Math.random() * 10, g: -2, r: 0.8 + Math.random() * 1.1,
-        t: 0, life: 1500 + Math.random() * 1000, c: pal.d
-      });
-    }
-  }
-
-  step(dt) {
-    for (let i = this.p.length - 1; i >= 0; i--) {
-      const q = this.p[i];
-      q.t += dt;
-      if (q.t >= q.life) { this.p.splice(i, 1); continue; }
-      q.vy += q.g * dt / 1000;
-      q.x += q.vx * dt / 1000;
-      q.y += q.vy * dt / 1000;
-    }
-  }
-
-  draw(ctx, camY) {
-    for (const q of this.p) {
-      const k = q.t / q.life;
-      const a = k > 0.7 ? (1 - k) / 0.3 : 1;
-      ctx.fillStyle = hexA(q.c, 0.5 * a);
-      ctx.fillRect(q.x, q.y - camY, q.r, q.r);
-    }
+export function drawDust(ctx, list) {
+  for (const q of list) {
+    if (q.t >= q.life) continue;
+    const k = q.t / q.life;
+    const a = k > 0.7 ? (1 - k) / 0.3 : 1;
+    ctx.fillStyle = hexA(q.c, 0.5 * a);
+    ctx.fillRect(q.x, q.y, q.r, q.r);
   }
 }

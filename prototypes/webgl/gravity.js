@@ -44,15 +44,39 @@
    testing (the landing offset is solved once, before the fall starts, from the object's real
    silhouette at the exact angle it will be tumbling at when it arrives).
 
-   THE RULING ON SCROLLING BACK UP — the fall reverses, the break does not. Height is a function
-   of scroll, so scrolling up mid-fall lifts the object back out of frame. But contact LATCHES:
-   the instant an object touches down it is broken, and no amount of scrolling back up reassembles
-   it. The line is between a position and an event. A position is a function of where you are and
-   is free to run either way; an event happened, and scrolling up is not a time machine. */
+   ------------------------------------------------------------------------------------------
+   ROUND NINE — ticket 04. THE BREAK REVERSES TOO, and round 6's line is struck.
+
+   Round 6 ruled "the fall reverses, the break does not", on the grounds that a position runs both
+   ways and an event does not. Dustin asked for the other half: "when I scroll up the items should
+   reverse." Round 8 priced it, found the memory objection was worth 7.7MB against an 80MB gate,
+   and ruled the full rewind — dust re-condenses, shards reassemble, dead objects resurrect.
+
+   What made the break irreversible was never the concept. It was three wall clocks: `Math.random`
+   in the dust, a 4ms cut budget that decided which generation got drawn, and a one-way integrator
+   under a monotonic `age`. All three are gone. NOTHING IN THIS FILE LATCHES ANY MORE — `down`,
+   `age`, `splits`, `dusted` and `gone` are predicates read off the scrollbar, not flags something
+   set, and the only remaining question at any scroll position is what the tables say.
+
+   HOW THE BREAK RUNS BACKWARDS, given a forward-only integrator. It does not: the SCROLL runs
+   backwards and the integrator always runs forwards. Each generation of shards is born once, at a
+   scroll position the tables fix, and keeps the pose it was born in; the pose drawn at scroll y is
+   that birth integrated forward by `floor((y - born) * MS_PER_PX / SUB)` whole steps. Walking down
+   adds a step, walking up rewinds to birth and re-runs. Same arithmetic either way, so the same
+   scroll position is the same frame however the visitor got there.
+
+   AND A SETTLED GENERATION IS NEVER REPLAYED. Measured before this was built, on the six-object
+   frame ruling 8b named: replaying every live object from birth every frame is 0.2–0.6ms here but
+   p95 22.4ms on a 6x-throttled CPU, which is over the budget on the phone that is a ship gate.
+   Stopping at rest is what makes it free — a piece at rest is at rest for the remainder of its
+   generation, so `restN` is recorded the first time the whole field stops and the pose above it is
+   a constant. That is not an optimisation; it is the reason the ruling is affordable. */
 
 import { ITEMS, lightFor, shortCred, setHud, setIntro, fadeIntro, done, hash, REDUCED } from './shell.js';
-import { hexA, rng, noise1, Dust, tileFor, mottle, restProfile } from './burial.js';
-import { sites, voronoi, cutPiece, avgColor, makePiece, stepPieces, drawPieces } from './decay.js';
+import { hexA, rng, noise1, impactDust, breathDust, stampDust, rewindDust, stepDust, drawDust,
+         tileFor, mottle, restProfile } from './burial.js';
+import { sites, voronoi, cutPiece, avgColor, makePiece, stamp, stepPieces, drawPieces,
+         rewindPieces } from './decay.js';
 import * as INDEX from './index.js';
 
 /* THE VOICE (07): the world states its own rules, in the present tense, and the only time the page
@@ -254,7 +278,12 @@ function fit() {
   const flip = wasNarrow !== (W < 720);
   wasNarrow = W < 720;
   for (const d of drops) {
-    for (const p of d.pieces) p.rest = false;     // re-settle onto the new land
+    /* re-settle onto the new land. Round 9: clearing `rest` is no longer enough, because a pose is
+       now the count of steps taken from a birth and that count was reached against the OLD
+       surface. Every generation goes back to its birth and the next frame re-runs it; `restN` goes
+       with it, or the field would be pinned to a rest position on a contour that no longer exists. */
+    if (d.gens) for (const G of d.gens) { rewindPieces(G.pieces); G.n = 0; G.restN = null; }
+    if (d.dust) { rewindDust(d.dust); d.dustN = 0; d.dustRest = null; }
     if (!d.down) d.prepped = false;               // the landing solve is against a surface that moved
     if (d.atoms) { if (flip) rebuild(d); else d.laid = false; }
   }
@@ -269,20 +298,43 @@ let indexBuilt = false;
 /* ------------------------------------------------------------------ the objects */
 
 const labelLayer = document.getElementById('labels');
+/* one shared empty, so "this object has no fragments right now" costs no allocation and no branch
+   at any of the six places that read `d.pieces`. Never written to. */
+const NONE = [];
 const drops = ITEMS.map((it, i) => ({
   it, im: null, i, ar: 1, light: lightFor(it.y), loading: null,
   /* the fall, as pure scroll geometry. prepped once; t is where the scrollbar is inside it. */
   prepped: false, t: -1, air: false,
   x: 0, w: 0, h: 0, a0: 0, spin: 0, ySpawn: 0, yLand: 0, dxLow: 0,
   down: false, px: 0, py: 0, angle: 0, landScroll: 0, age: 0, splits: 0,
-  pieces: [], specks: [], dusted: false, credX: 0, gone: false,
+  /* the wreck. `built` says it exists; `gens` holds every generation of it, each with the pose it
+     was born in, so a scroll-up rewinds rather than re-cuts. `pieces` is whichever generation the
+     scrollbar is currently inside — a reference, re-pointed each frame, so everything downstream
+     that reads `d.pieces` keeps reading the one true answer. */
+  built: false, gens: null, stage: null, queued: false, pieces: NONE, specks: NONE, speckSet: null, dust: null,
+  dustN: 0, dustRest: null, dusted: false, credX: 0, gone: false,
   /* the words. Built on the way down, taken apart on the ground, removed at death. */
-  atoms: null, cred: null, srEl: null, laid: false, blown: false, tie: null
+  atoms: null, cred: null, srEl: null, laid: false, blown: false, tie: null, slot: null
 }));
 
-const dust = new Dust();
+/* PAINT ORDER IS DOM ORDER, SO DOM ORDER HAS TO BE A FUNCTION OF THE INDEX. The words used to be
+   appended straight to the layer as each object built them, which was in index order for as long
+   as the only way to reach an object was to scroll down to it. Under the rewind the window
+   re-admits arrivals NEWEST-first, so the same six citations came back in the opposite order and
+   the layer painted them in it.
+
+   Nothing overlapped — the collision contract held — but the glyphs still rasterised differently
+   against what was behind them, and two walks to the same scroll position produced screenshots
+   that differed on 27,817 pixels by one unit each. That is invisible and it is still a page whose
+   pixels depend on the route taken, which is the whole of ruling 8b. One static slot per arrival,
+   made once and never moved: the layer's order is now the set's order, whatever the visitor did.
+   The slots are `div`s so that `#labels span` — what the collision gate walks — is unaffected. */
+for (const d of drops) {
+  d.slot = document.createElement('div');
+  labelLayer.appendChild(d.slot);
+}
+
 const queue = [];                                   // deferred cutting, so a split never drops a frame
-const landed = [];                                  // whatever hit the ground this frame
 
 /* ------------------------------------------------------------------ the texture window
 
@@ -305,6 +357,15 @@ const landed = [];                                  // whatever hit the ground t
    onto the same latched landing position. */
 
 const AHEAD = 4000;                // px of scroll a sprite is fetched ahead of its own start
+/* 04 ROUND 9. The window was one-ended because the piece was: an object was finished the moment
+   its life ran out and nothing could ever ask for it again. The rewind makes the scrollbar able to
+   walk back into a life that has already ended, so the window gets the matching end — a wreck and
+   its photograph are kept for BACK px past the object's own death, and only beyond that is it
+   taken apart. Beyond it the rebuild is exact rather than remembered, because every cut is seeded.
+   Named beside AHEAD and equal to it on purpose: ruling 8a costed a 4,000px SYMMETRIC window at
+   7.7MB against an 80MB gate, and the bound must stay a window — unbounded residency is 65.8MB at
+   230 items and 114.4MB at 400, which is over. */
+const BACK = 4000;                 // …and how far past its own death it is kept
 let inFlight = 0, solvedBlind = 0, peakHeld = 0;
 
 function want(d) {
@@ -317,7 +378,12 @@ function want(d) {
      on, which is the one frame in this object's life that is already the busiest. */
   const settle = ok => {
     inFlight--; d.loading = null;
-    if (!ok || d.down || d.gone) return;         // its whole life went by while it was in the air
+    /* ROUND 9: `built`, not `down`. `down` is now a predicate on the scrollbar, so it is already
+       true for an arrival whose photograph is still in flight — the exact arrival this callback
+       exists to serve. Dropping it here would leave the object permanently unbuilt. What is still
+       thrown away is a photograph whose wreck has already been cut, or one for an object the
+       window has since demolished. */
+    if (!ok || d.built) return;
     d.im = im; d.ar = im.naturalWidth / im.naturalHeight;
   };
   d.loading = (im.decode ? im.decode() : new Promise((res, rej) => { im.onload = res; im.onerror = rej; }))
@@ -337,16 +403,25 @@ function release(d) {
 function texture(y) {
   let held = 0, px = 0;
   for (const d of drops) {
-    if (d.down || d.gone) release(d);              // shattered, or passed: its pixels are spent
-    else {
-      const rel = y - START[d.i];
-      /* 14 — the last object has no life to run out, so the upper bound does not apply to it.
-         This was found by the ending simply never happening: the window released its photograph
-         at `rel - FALL >= LIFE`, "no pixels, no fall" then held it in the air, and the piece ended
-         on an object that was still falling. It costs nothing — the release on `d.down` above
-         fires the instant it lands, exactly as it does for the other 229. */
-      if (rel > -AHEAD && (d.i === LAST || rel - FALL < LIFE[d.i])) want(d); else release(d);
-    }
+    /* 14 — the last object has no life to run out, so the upper bound does not apply to it.
+       This was found by the ending simply never happening: the window released its photograph
+       at `rel - FALL >= LIFE`, "no pixels, no fall" then held it in the air, and the piece ended
+       on an object that was still falling. It costs nothing — the release on `d.built` below
+       fires the instant it lands, exactly as it does for the other 229. */
+    const rel = y - START[d.i];
+    if (!(rel > -AHEAD && (d.i === LAST || rel - FALL < LIFE[d.i] + BACK))) {
+      release(d); demolish(d);                     // out of the window at either end
+    } else if (d.built) {
+      /* its pixels live in its fragment canvases now and the photograph is spent. ROUND 9 MOVED
+         THIS OFF `d.down` AND ONTO THE WRECK, which is the thing that actually holds the pixels.
+         `down` is a predicate on the scrollbar now: it is already true of an arrival whose sprite
+         is still in flight, and releasing on it dropped the sprite the landing was waiting for.
+         Keying on the wreck also gets the two hard cases right for free — an object back in the
+         air has no wreck, so it is re-fetched rather than falling invisibly, and an object the
+         window has re-admitted on a scroll-up has no wreck either, so its photograph arrives in
+         time to rebuild one. */
+      release(d);
+    } else want(d);
     /* counted over EVERY drop still holding a reference, not only the ones this frame meant to
        keep. The first version tallied inside the branch above and skipped anything already down,
        so a release that had quietly stopped working read as a flat 15MB while the page sat on all
@@ -481,12 +556,19 @@ const IMPACT = 12;
 
 /* Debris still has to settle somewhere, and settling takes integration. It is fed SCROLL, not
    time: this many ms of shard flight per px of downward scroll. A shard therefore comes to rest
-   over ~110px of scroll, and freezes mid-air the instant the visitor stops. */
-const MS_PER_PX = 3.0;
-const SUB = 50;                                     // integrator step ceiling, ms
-const MAX_STEP = 240;                               // ms of debris advanced in one frame, max
+   over ~110px of scroll, and freezes mid-air the instant the visitor stops.
 
-let prevScroll = 0, live = 0;
+   ROUND 9 MADE SUB A QUANTUM RATHER THAN A CEILING, and that is what turns the debris into a
+   lookup. It used to be the largest step the integrator would take, with the actual step being
+   whatever the frame's own scroll delta came to — so a shard's trajectory depended on how fast
+   the visitor was moving, and the same scroll position genuinely did not look the same twice. A
+   pose is now a whole number of SUB steps from the generation's birth, which is a function of the
+   scrollbar alone. `MAX_STEP` went with the change: it capped how much debris one frame would
+   advance, and nothing is advanced per frame any more. */
+const MS_PER_PX = 3.0;
+const SUB = 50;                                     // ms of shard flight in one step — the quantum
+
+let live = 0;
 let lightRGB = [255, 122, 26];
 let reach = 0;                                        // how far the light of the age gets, 0..1
 
@@ -587,35 +669,72 @@ const toWorld = (d, lx, ly) => {
 
 /* ------------------------------------------------------------------ impact
 
-   The one irreversible line in the file. Everything above it is a position and runs both ways;
-   everything below it happened. Once `down` is set nothing clears it — scroll back up and you
-   are looking at a broken thing, not at an unbroken one. */
+   ROUND 9 STRUCK THE ONE IRREVERSIBLE LINE IN THIS FILE. It used to read: everything above is a
+   position and runs both ways, everything below happened. It does not any more — this builds the
+   wreck, and building it is a pure function of the arrival's index, so `demolish` can throw the
+   whole thing away and this can put back something byte-for-byte identical. What it is NOT is a
+   thing that happens once: it is the constructor for a state the tables already imply. */
 
 function land(d) {
-  d.down = true; d.air = false; d.t = 1;
+  /* NO PIXELS, NO FALL (03) — restated here as a guard rather than left to the caller. The old
+     version set its flags first and cut only `if (d.im)`, which was harmless while `down` latched
+     and is not now: an object marked built with nothing in it would never be fetched again, and
+     the window would have quietly deleted it from the page. */
+  if (!d.im) return;
+  d.built = true;
   d.angle = d.a0 + d.spin;
   d.px = d.x; d.py = d.yLand;
   d.landScroll = LAND[d.i];                         // exact, not observed
   const cx = d.x + d.dxLow, cy = surfAt(cx);
 
+  /* seeded off the index and off nothing else — see burial.js. The two impact sprays and the
+     breath get their own streams so that changing the count of one never shifts the others. */
   if (!REDUCED) {
     const n = Math.min(34, 14 + Math.round(IMPACT * 1.6));
-    dust.impact(cx - d.w * 0.28, cy, n, SOIL);
-    dust.impact(cx + d.w * 0.28, cy, n, SOIL);
-    dust.breath(cx, cy, 12, SOIL);
+    d.dust = stampDust([
+      ...impactDust(cx - d.w * 0.28, cy, n, SOIL, d.i * 7717 + 1),
+      ...impactDust(cx + d.w * 0.28, cy, n, SOIL, d.i * 7717 + 2),
+      ...breathDust(cx, cy, 12, SOIL, d.i * 7717 + 3)
+    ]);
+    d.dustN = 0; d.dustRest = null;
   }
 
   d.blown = d.i !== LAST;                            // the name and date break; see `place()`
                                                      // — except the last one's, which never does
   d.credX = Math.max(W * 0.15, Math.min(W * 0.85, cx));
 
-  /* the tie is armed here rather than drawn from the tables directly, because it needs the
-     partner's real fall point — which only exists once that partner has actually landed. If the
-     visitor jumped past it, there is no line: nothing is asserted about a thing that never fell. */
-  const j = TIE[d.i];
-  if (j >= 0 && drops[j].down && !drops[j].gone) d.tie = { j, gap: d.it.y - ITEMS[j].y, on: false };
+  /* THE RELATION COMES FROM THE TABLES; WHETHER IT IS DRAWN IS A PREDICATE. Round 7 armed the tie
+     here only if the partner was already down, on the rule that nothing is asserted about a thing
+     that never fell — and that was a latch taken at build time, so it depended on the ORDER the
+     two ends were built in. Walking down, partners build oldest-first and the tie arms. Walking
+     up, the window re-admits arrivals NEWEST-first, so every tie found its partner missing and
+     five of them silently stopped existing. Round 10's no-overtaking defect, arriving through the
+     door the rewind opened.
 
-  if (d.im) { if (d.i === LAST) keepWhole(d); else shatterNow(d, cx, cy, IMPACT); }
+     So the relation is unconditional and `tieLive` at draw time carries the ruling instead: both
+     ends have to be built and on the ground for the line to appear, and it is re-decided every
+     frame rather than once. A jump still asserts nothing about a thing that never fell. */
+  const j = TIE[d.i];
+  d.tie = j >= 0 ? { j, gap: d.it.y - ITEMS[j].y, on: false } : null;
+
+  /* generation zero. Everything after it is cut from it, and every generation keeps the pose it
+     was born in — see `poseTo`. */
+  d.gens = [{ pieces: [], born: LAND[d.i], n: 0, restN: null }]; d.stage = null;
+  if (d.i === LAST) keepWhole(d); else shatterNow(d, cx, cy, IMPACT);
+  d.pieces = d.gens[0].pieces;
+}
+
+/* The window took the wreck out of range, at either end. Nothing here is remembered, because
+   nothing here has to be: `land()` rebuilds all of it from the index and the tables. This is the
+   only place a fragment canvas is ever dropped, and it is what keeps the rewind a WINDOW rather
+   than a page's worth of retained debris. */
+function demolish(d) {
+  if (!d.built) return;
+  d.built = false;
+  d.gens = null; d.stage = null; d.pieces = NONE; d.specks = NONE; d.speckSet = null;
+  d.dust = null; d.dustN = 0; d.dustRest = null;
+  d.tie = null; d.splits = 0; d.dusted = false;
+  unbuild(d);
 }
 
 /* THE ENDING (14). Cut as ONE piece and left standing exactly where it landed.
@@ -642,7 +761,9 @@ function keepWhole(d) {
      car apparently floating over the soil. Three pixels is the shards' own floor. */
   pc.sink = 3;
   pc.y += pc.sink;
-  d.pieces.push(pc);
+  stamp(pc);                                         // bedded BEFORE its birth is recorded
+  d.gens[0].pieces.push(pc);
+  d.gens[0].restN = 0;                               // nothing to settle: it is already at rest
 }
 
 /* everything separates at once, on straight brittle edges */
@@ -660,7 +781,7 @@ function shatterNow(d, cx, cy, speed) {
       -30 - r() * 70 - speed * 6,
       (r() - 0.5) * 4, d.angle);
     pc.sink = 2 + r() * 6;                           // it beds INTO the surface, it does not perch on it
-    d.pieces.push(pc);
+    d.gens[0].pieces.push(pc);
   }
 }
 
@@ -696,7 +817,7 @@ function toSpecks(d, p, seed) {
   const r = rng(seed);
   const n = Math.max(3, Math.min(9, Math.round(p.w * p.h / 26)));
   for (let k = 0; k < n; k++) {
-    d.specks.push({
+    d.speckSet.push({
       x: p.x + (r() - 0.5) * p.w * 1.5,
       y: p.y - p.h * 0.45 + (r() - 0.5) * p.h * 0.6,
       depth: 10 + r() * 26, drift: (r() - 0.5) * 26,
@@ -705,32 +826,196 @@ function toSpecks(d, p, seed) {
   }
 }
 
-function advance(d) {
-  if (d.i === LAST) return;             // 14: it never breaks, so it never splits and never dusts
+/* ------------------------------------------------------------------ the break, as a lookup
 
-  /* The shards shatter again, twice. Each piece is replaced IN PLACE by its children — clearing
-     the array first and refilling it from the queue blanks the object for a frame, which reads
-     as a flicker. */
-  while (d.splits < SPLITS.length && d.age >= SPLITS[d.splits]) {
-    const at = d.splits++;
-    d.pieces.slice().forEach((p, k) => queue.push(() => {
-      if (d.gone) return;
-      const j = d.pieces.indexOf(p);
-      if (j < 0) return;
-      const out = splitPiece(d, p, d.i * 999 + at * 71 + k);
-      if (out) d.pieces.splice(j, 1, ...out);
-    }));
-  }
+   RULING 8b. The generation drawn is read off `age`, the pose is read off the scroll distance
+   since that generation was born, and neither of them asks what frame it is or how the visitor
+   got here. What used to live here was `advance()`: a one-way walk that pushed cut jobs onto the
+   4ms queue as `age` crossed each split. Three things were wrong with it under the new ruling and
+   only the third was obvious — it could not run backwards; it left `d.splits` and `d.dusted` as
+   latches; and THE QUEUE DECIDED WHAT WAS DRAWN, because whether a field had split yet depended
+   on how much budget the frame had left. Two walks over the same page disagreed about how many
+   objects were carrying fragments, which is how that last one was finally seen. */
 
-  if (!d.dusted && d.age >= DUST_AT) {
-    d.dusted = true;
-    d.pieces.slice().forEach((p, k) => queue.push(() => {
-      if (d.gone) return;
-      const j = d.pieces.indexOf(p);
-      if (j >= 0) d.pieces.splice(j, 1);
-      toSpecks(d, p, d.i * 131 + k);
-    }));
+const genBorn = (i, g) => LAND[i] + (g > 0 ? SPLITS[g - 1] * LIFE[i] : 0);
+const genAt = age => { let g = 0; while (g < SPLITS.length && age >= SPLITS[g]) g++; return g; };
+
+/* A shard rests once and then rests forever, so the first step at which the whole field has
+   stopped is recorded and the pose above it is a constant. This is what makes the rewind free:
+   measured before it was built, replaying every live object from birth on every frame is p95
+   22.4ms on a 6x-throttled CPU and 0.2ms with this. REST_CAP is a termination guard and nothing
+   else — a field settles in about eleven steps and the cap is two hundred. */
+const REST_CAP = 200;
+
+/* THE CUTTING BUDGET, and the slice inside it. Both are frame-cost numbers rather than mechanic
+   numbers — they decide how long the page takes to get somewhere, never what it draws when it
+   arrives. Measured against the shipped build on the same machine in the same window: HEAD runs a
+   17.9ms p95 and the first round-9 build ran 26.1ms against a 25ms ceiling, because publishing a
+   generation whole means the cut can no longer be hidden behind a half-broken object. Lowering the
+   budget is what buys that back, and it is affordable because the cut now starts at the landing
+   instead of at the split — there is far more runway to spend it over. */
+const CUT_MS = 2.5;                                 // ms of cutting a frame may spend
+const SLICE_MS = 0.6;                               // …and the most one job may overrun it by
+
+function poseTo(G, want) {
+  if (G.restN != null && want > G.restN) want = G.restN;
+  if (want === G.n) return;
+  if (want < G.n) { rewindPieces(G.pieces); G.n = 0; }   // the scroll ran back: start from birth
+  while (G.n < want && G.n < REST_CAP) {
+    stepPieces(G.pieces, SUB, surfAt);
+    G.n++;
+    if (G.restN == null && G.pieces.every(p => p.rest)) { G.restN = G.n; break; }
   }
+  if (G.restN == null && G.n >= REST_CAP) G.restN = G.n;
+}
+
+const settleGen = G => poseTo(G, G.restN != null ? G.restN : REST_CAP);
+
+/* Generation g is cut from generation g-1 AT REST. That is not a convenience: a split happens at
+   0.30 of a life, which is at least 420px of scroll after the parent landed, and a parent settles
+   inside 110px — so at rest is where the parent has always been when it broke. Pinning it makes
+   the child's birth position a function of the tables instead of a function of when the cut ran. */
+/* CUT A FEW PARENTS AT A TIME, PUBLISH THE GENERATION WHOLE. Cutting is the only expensive thing
+   in the frame — the profile is `getImageData`, `trim` and `getContext`, all of it in here — and
+   the old build hid that by queueing one job PER PIECE, so the budget could stop half way and the
+   object was drawn as a mixture of parents and children. That is the "same age draws two different
+   generations" defect 8b outlaws, so the mixture is no longer available as a way to be cheap.
+
+   What replaces it: the work is sliced across frames exactly as before, but into a STAGING array
+   that nothing draws from. `d.gens` only ever gains a generation that is complete, so what is on
+   screen is still `genAt(age)` and nothing else. `ms < 0` means finish it now — the path taken when
+   the scrollbar has arrived at a generation the queue has not reached yet, which is a frame that is
+   late rather than a frame that lies.
+
+   `settleGen` at the top of every slice, not just the first: a parent's pose is rewound whenever
+   its object goes off screen, and children cut from a rewound parent would be born in mid-air. */
+function stepBuild(d, ms) {
+  const t0 = performance.now();
+  while (d.gens.length <= SPLITS.length) {
+    const at = d.gens.length - 1, from = d.gens[at];
+    settleGen(from);
+    if (!d.stage || d.stage.at !== at) d.stage = { at, k: 0, out: [] };
+    const st = d.stage;
+    while (st.k < from.pieces.length) {
+      const kids = splitPiece(d, from.pieces[st.k], d.i * 999 + at * 71 + st.k);
+      /* a piece too small to break again survives whole, rather than vanishing. The old queue did
+         the same by leaving it in place when `splitPiece` returned null. */
+      if (kids) st.out.push(...kids); else st.out.push(from.pieces[st.k]);
+      st.k++;
+      if (ms >= 0 && performance.now() - t0 > ms) return false;
+    }
+    d.gens.push({ pieces: st.out, born: genBorn(d.i, d.gens.length), n: 0, restN: null });
+    d.stage = null;
+  }
+  return true;
+}
+
+/* HOW OFTEN THE SCROLLBAR ARRIVED SOMEWHERE THE QUEUE HAD NOT REACHED. Every increment is a frame
+   that paid for a whole generation at once, which is the one case where ruling 8b's "the queue may
+   decide when work is done" costs a dropped frame. Correctness is not negotiable — the alternative
+   is drawing a generation the age does not call for — so this is a diagnostic on the SCHEDULING,
+   and a walk that never trips it is a walk where the budget was never overridden. */
+let lateCuts = 0;
+
+function ensureGen(d, g) {
+  if (d.gens.length <= g) lateCuts++;
+  while (d.gens.length <= g) stepBuild(d, -1);
+}
+
+/* The last visible state, and it is built from the last generation's SETTLED pose — so the specks
+   sit where the fragments actually came to rest, whatever route the scrollbar took to get here.
+
+   BUILT ONCE AND KEPT, then shown or hidden. The first version rebuilt them every time `age` came
+   back down past DUST_AT and dropped them every time it went up, which is correct and expensive:
+   `toSpecks` calls `avgColor`, and `avgColor` is a `getImageData` per fragment — a hundred and
+   twelve of them on one object. Scrubbing across the end of a life is exactly what the rewind
+   invites, so the one operation in the wreck that reads pixels must not be on that path. */
+function ensureSpecks(d) {
+  if (d.speckSet) return;
+  ensureGen(d, SPLITS.length);
+  const G = d.gens[SPLITS.length];
+  settleGen(G);
+  d.speckSet = [];
+  G.pieces.forEach((p, k) => toSpecks(d, p, d.i * 131 + k));
+}
+
+/* Nothing of the wreck is on screen at this scroll position. The wreck itself is untouched — it
+   is kept until the window demolishes it — but every readout goes back to what it says before the
+   object landed, because a stale one is a claim about the page that is not true. Round 9 found
+   both halves of that the same way: `pieces` still pointing at a generation drew a falling
+   photograph through its own fragments, and `splits` still reading 2 told the sweep an object
+   above its own start had broken twice. */
+function blank(d) {
+  d.pieces = NONE; d.specks = NONE; d.splits = 0; d.dusted = false;
+  /* AND THE WRECK GOES BACK TO ITS BIRTH. The window keeps a wreck for BACK px past its object's
+     death and AHEAD px above its start, so at any moment a dozen of them are retained and not
+     drawn — and their poses were left wherever the last frame that DID draw them stopped. Nothing
+     could see it, which is not the same as it not being there: `pure_function` compares every
+     fragment of every built object and found ten to thirteen of them differing by route. A cache
+     whose contents depend on how the visitor arrived is the thing this round exists to delete, so
+     an object that is not on screen holds its generations at step zero. Guarded on `G.n` so it is
+     a comparison and not a rewind on every frame. */
+  if (d.gens) for (const G of d.gens) if (G.n) { rewindPieces(G.pieces); G.n = 0; }
+  if (d.dust && d.dustN) { rewindDust(d.dust); d.dustN = 0; }
+}
+
+/* Everything an object's wreck is doing at scroll y, resolved from the tables. */
+function pose(d, y) {
+  const g = genAt(d.age);
+  /* 14: the ending never breaks, so its generation is 0 whatever its age says. `splits` is a
+     readout rather than a counter now, and a readout taken from the wrong quantity is how
+     `only_the_last_one_survives` caught this: one piece, no specks — and splits reading 1. */
+  d.splits = d.i === LAST ? 0 : g;
+  d.dusted = d.i !== LAST && d.age >= DUST_AT;
+  if (d.dusted) { ensureSpecks(d); d.pieces = NONE; d.specks = d.speckSet; }
+  else {
+    ensureGen(d, d.i === LAST ? 0 : g);              // 14: it never breaks, so it never leaves gen 0
+    const G = d.gens[d.i === LAST ? 0 : g];
+    poseTo(G, Math.max(0, Math.floor((y - G.born) * MS_PER_PX / SUB)));
+    d.pieces = G.pieces;
+    d.specks = NONE;                                 // back above DUST_AT: the dust re-condenses
+  }
+  if (d.dust) {
+    let want = Math.max(0, Math.floor((y - LAND[d.i]) * MS_PER_PX / SUB));
+    if (d.dustRest != null && want > d.dustRest) want = d.dustRest;
+    if (want !== d.dustN) {
+      if (want < d.dustN) { rewindDust(d.dust); d.dustN = 0; }
+      while (d.dustN < want && d.dustN < REST_CAP) {
+        stepDust(d.dust, SUB);
+        d.dustN++;
+        if (d.dustRest == null && d.dust.every(q => q.t >= q.life)) { d.dustRest = d.dustN; break; }
+      }
+      if (d.dustRest == null && d.dustN >= REST_CAP) d.dustRest = d.dustN;
+    }
+  }
+}
+
+/* The queue survives, and it survives as SCHEDULING AND NOTHING ELSE. Its job is to have the next
+   generation cut before the scrollbar asks for it, so `ensureGen` above never has to do the work
+   on the frame that needs it. If it is behind — a scrollbar drag into the middle of a life — the
+   frame cuts synchronously and pays for it, because a frame that is late is a frame, and a frame
+   showing the wrong generation is a lie. */
+function prebuild(d) {
+  /* EVERY generation, from the moment the object lands, not one ahead of where it is. Cutting 39
+     fragments into 117 is the expensive one, and queueing it only once the first split has already
+     happened leaves the budget about seven frames to do it in — it did not fit, `ensureGen` ran
+     synchronously on the frame the split was due, and `frame_budget` went to a 27.9ms p95 against
+     a 25ms ceiling. Queued at landing instead, both cuts have the whole pre-split runway. Every
+     generation is kept anyway, so building them early costs nothing that is not already spent. */
+  if (d.i === LAST || d.queued || d.gens.length > SPLITS.length) return;
+  /* THE SLICE IS SMALL AND THE JOB RE-QUEUES ITSELF, which is not the same as a big slice. The
+     frame's cutting budget is 4ms and the queue checks the clock BETWEEN jobs, so one job can only
+     ever overrun by its own slice — a 3ms slice therefore put the worst frame at 4 + 3 and the p95
+     at 24.9ms against a 25ms ceiling, which is not a pass, it is a coin toss. At 1ms the object
+     still gets the whole 4ms if the frame has it, because finishing a slice puts the next one back
+     on the queue immediately; what changes is that the overrun is a millisecond. */
+  const slice = () => {
+    d.queued = false;
+    if (!d.built) return;
+    if (!stepBuild(d, SLICE_MS)) { d.queued = true; queue.push(slice); }
+  };
+  d.queued = true;
+  queue.push(slice);
 }
 
 /* ------------------------------------------------------------------ the words
@@ -845,7 +1130,7 @@ function build(d) {
     a.vx = (hash(it.k, 600 + k) - 0.5) * 190;
     a.vy = -70 - hash(it.k, 700 + k) * 90;
     a.vr = (hash(it.k, 800 + k) - 0.5) * 1.0;
-    labelLayer.appendChild(el);
+    d.slot.appendChild(el);
   });
   d.cred = d.atoms.filter(a => a.cls === 'c');
   d.cred.forEach((a, k) => { a.u = d.cred.length > 1 ? k / (d.cred.length - 1) : 0.5; });
@@ -854,8 +1139,22 @@ function build(d) {
   const sr = document.createElement('span');
   sr.className = 'sr';
   sr.textContent = `${it.n}, ${it.disp}. ${it.src} · ${it.lic} · ${shortCred(it.cred)}`;
-  labelLayer.appendChild(sr);
+  d.slot.appendChild(sr);
   d.srEl = sr;
+  /* THESE WORDS HAVE NEVER BEEN MEASURED. `lay()` writes every offset `place()` reads — `ax/ay`,
+     `gx/gy`, `px/py` — onto the atom objects, and the ones made above are new objects with none
+     of them. Leaving `laid` set from a previous incarnation means `place()` skips the measure and
+     every offset reads `undefined`, which makes `tx` NaN, which makes the transform string
+     invalid, which the browser silently drops — so the whole citation renders at the top-left
+     corner at full opacity.
+
+     THIS IS OLDER THAN ROUND 9 AND IT SHIPPED. The only route to a rebuild used to be `fit()`
+     crossing 720px, which calls `rebuild()` and does not clear the flag either, so resizing a
+     phone-width window past the breakpoint has always done this. Round 9 found it because
+     demolish-and-rebuild became a thing that happens on every scroll-up rather than a thing that
+     happens when someone drags a window edge. It belongs here rather than at either call site:
+     the function that makes unmeasured atoms is the function that knows they are unmeasured. */
+  d.laid = false;
 }
 
 // crossing 720px changes the split, so the words are thrown away and cut again
@@ -1028,8 +1327,20 @@ function place(d) {
   }
 
   /* ---- the name, breaking. Up and out with the shards, and gone. ---- */
+  /* ONE EXPRESSION, ALL THE WAY TO nu = 1. This used to stop at `nu < 1` and then just set the
+     opacity to zero, leaving the name where the last frame of the break had put it — which was
+     fine while the only way to reach `nu = 1` was to have scrolled through the break. Under the
+     rewind a name can be rebuilt already dead, and then it had an opacity and NO transform.
+
+     Invisible, and it still moved the page: an element with a transform composites differently
+     from one without, so the presence of fifteen dead name-words changed how the LIVE citations
+     antialiased against the soil. Two walks to the same position differed on 27,817 pixels by one
+     unit each, with the canvas byte-identical and every visible word in the same place — found by
+     hiding one layer at a time until the composite was the only thing left that disagreed.
+     `put` already writes nothing to the collision list below 0.02 opacity, so running the last
+     frame of the break every frame costs a transform string and buys a page that has no memory. */
   const nu = Math.min(1, d.age / NAME_OUT);
-  if (d.blown && nu < 1) {
+  if (d.blown) {
     const cx = d.credX;
     const top = surfAt(cx) - d.h * 0.55;
     for (const a of d.atoms) {
@@ -1037,8 +1348,6 @@ function place(d) {
       put(a, cx + a.ax + a.vx * nu, top + a.ay + a.vy * nu + 300 * nu * nu,
           1, a.vr * nu, 1 - nu * nu, null);
     }
-  } else if (d.blown) {
-    for (const a of d.atoms) if (a.cls !== 'c' && a.el.style.opacity !== '0') a.el.style.opacity = '0';
   }
 
   /* ---- the citation, coming apart with its object ---- */
@@ -1120,9 +1429,6 @@ function draw(a, x, y, s, r, o, ink) {
 /* ------------------------------------------------------------------ the frame */
 
 function frame() {
-  const dScroll = scrollY - prevScroll; prevScroll = scrollY;
-  const fwd = Math.max(0, dScroll);                  // only downward scroll advances anything
-
   /* ---- TICKET 10, the seam. The piece goes out over the screen before the shelf, on the
           scrollbar and on nothing else — stop moving and the fade stops with you, same as
           everything else in this file. Past it the canvas is not drawn at all: the last object
@@ -1197,97 +1503,100 @@ function frame() {
 
   let airborne = 0;
   for (const d of drops) {
-    if (d.gone) continue;
     const rel = scrollY - START[d.i];
 
-    if (!d.down) {
-      // 14: the last object has no life behind it to skip — retiring it here is exactly the jump
-      // that makes the ending reachable arriving and finding nothing there.
-      if (d.i !== LAST && rel >= FALL && rel - FALL >= LIFE[d.i]) {   // whole life behind us: skip it
-        // clearing `air` is not housekeeping. An item caught mid-fall by a scrollbar jump is
-        // still flagged airborne, and the draw loop asks nothing but that flag — leave it set
-        // and the sprite hangs at its spawn point, labelled, for the rest of the page.
-        // This branch runs BEFORE the two that need pixels, so the two hundred arrivals a
-        // scrollbar drag passes are retired without ever being fetched.
-        d.gone = true; d.air = false; d.t = -1; unbuild(d);
-        continue;
-      }
-      if (rel >= 0 && !d.im) waiting = true;           // due, and its photograph is not here
-      if (rel < 0 || !d.im || waiting) {
-        // above its start; or its own photograph has not arrived; or an earlier arrival's has
-        // not. All three are the same state and are drawn as it: not here yet.
-        d.t = -1; d.air = false;
-        if (d.atoms) unbuild(d);
-      } else if (rel >= FALL) {
-        if (!d.prepped) prep(d);
-        if (!d.atoms) build(d);
-        land(d);
-        landed.push(d);                              // owed the flight its own impact already paid for
-      } else {
-        if (!d.prepped) prep(d);
-        if (!d.atoms) build(d);
-        d.t = rel / FALL;
-        d.air = true; airborne++;
-        d.px = d.x;
-        d.py = d.ySpawn + (d.yLand - d.ySpawn) * arc(d.t);
-        d.angle = d.a0 + d.spin * d.t;
-      }
+    /* ROUND 9. Every one of these is a predicate on the scrollbar. There is no branch here that
+       asks what state the object was left in, because there is no state to be left in: the object
+       is wherever `rel` says it is, and the same `rel` gives the same answer on the way back up.
+
+       `gone` is what the object's own life running out looks like, and it is no longer a burial —
+       the wreck stays until the WINDOW takes it (`texture` -> `demolish`), which is BACK px later
+       and reversible. Scroll up into the life again and everything comes back. */
+    d.down = rel >= FALL;
+    d.age = d.down ? Math.min(1, Math.max(0, (scrollY - LAND[d.i]) / LIFE[d.i])) : 0;
+    d.gone = d.down && d.age >= 1 && d.i !== LAST;
+
+    if (rel < 0 || d.gone) {
+      /* above its own start, or its life is behind us. Neither draws, and neither is remembered.
+         This runs BEFORE anything that needs pixels, so the two hundred arrivals a scrollbar drag
+         passes still cost nothing — they are never fetched and never cut. */
+      d.t = -1; d.air = false; blank(d);
+      if (d.atoms) unbuild(d);
+      /* AND THIS IS WHERE THE RUNWAY IS. An object re-admitted by the window on a scroll-up is
+         still `gone` for the next BACK px, and it used to spend all of them doing nothing — then
+         `age` dropped below 1, the frame needed its deepest generation, and the whole cut tree was
+         built at once. 144 late cuts on a walk down and 364 by the end of a walk back up. The
+         window exists precisely so there is time; this is what spends it. */
+      /* REBUILD IT NOW, WHILE THERE IS STILL TIME. The window re-admits an object BACK px before
+         the scrollbar reaches the end of its life, and until this line that runway was spent
+         doing nothing: the object stayed unbuilt until `age` fell under 1, and then one frame paid
+         for the impact cut and both splits at once. Building the wreck the moment the pixels are
+         here turns the whole window into runway — 364 late cuts over a walk down and back became
+         two. Nothing is drawn: the object is `gone` and `blank()` has already emptied it. */
+      if (d.gone && !d.built && d.im) { if (!d.prepped) prep(d); land(d); }
+      if (d.built) prebuild(d);
+      continue;
     }
 
-    // decay is one-way: scrolling back shows what is already broken, it never un-breaks it
-    if (d.down) {
-      const a = Math.min(1, (scrollY - d.landScroll) / LIFE[d.i]);
-      if (a > d.age) { d.age = a; advance(d); }
-      // 14: the last object's age still runs — nothing is special-cased about the clock — but the
-      // age of a thing that never breaks does not kill it. What takes it off the page is the seam,
-      // above, because an object with no decay has no death of its own to die.
-      if (d.age >= 1 && d.i !== LAST) {
-        d.gone = true;                               // every canvas it held is dropped here
-        d.pieces.length = 0; d.specks.length = 0;
-        unbuild(d);                                  // and the citation goes with the last speck
+    if (!d.built) {
+      if (!d.im) waiting = true;                     // due, and its photograph is not here
+      if (!d.im || waiting) {
+        // its own photograph has not arrived, or an earlier arrival's has not. Both are the same
+        // state and are drawn as it: not here yet.
+        d.t = -1; d.air = false; blank(d);
+        if (d.atoms) unbuild(d);
+        continue;
       }
+      if (!d.prepped) prep(d);
+      if (d.down) land(d);
+    }
+
+    if (d.down) {
+      /* THE WORDS ARE NOT PART OF THE WRECK, and putting them together was a bug this round made
+         and then found. `build()` used to sit under `if (!d.built)`, which was the same thing as
+         "is drawable" for as long as a wreck could only be made at the moment it became visible.
+         The window now builds a wreck BACK px early, while the object is still `gone` — so `built`
+         was already true by the time the object came into view, the branch was skipped, and every
+         citation the visitor scrolled back up into was missing. The label layer went from 13,016
+         characters to 3,886 and nothing else noticed. */
+      if (!d.atoms) build(d);
+      d.air = false; d.t = 1;
+      pose(d, scrollY);                              // the whole wreck, resolved from the tables
+      prebuild(d);                                   // and the next generation, cut before it is due
+    } else {
+      /* AN OBJECT BACK IN THE AIR IS NOT ALSO ON THE GROUND. The wreck exists exactly while the
+         object is down, so walking back above a landing takes it apart again — and it can be
+         taken apart safely because putting it back is a seeded, deterministic rebuild. Without
+         the demolish the object was still flagged built, which cost it its photograph in the
+         texture window and dropped it out of the sky; without the blank the smoke walk drew a
+         falling photograph through the thirty-eight fragments of its own second break. */
+      if (d.built) demolish(d);
+      if (!d.atoms) build(d);
+      blank(d);
+      d.t = rel / FALL;
+      d.air = true; airborne++;
+      d.px = d.x;
+      d.py = d.ySpawn + (d.yLand - d.ySpawn) * arc(d.t);
+      d.angle = d.a0 + d.spin * d.t;
     }
   }
   live = airborne;
 
-  // Cutting is the only expensive thing in the frame, so it gets a time budget rather than a
-  // count. A fixed twelve cuts hit 83ms p95 on the frames where a whole field split at once.
-  const budget = performance.now() + 4;
+  /* Cutting is still the only expensive thing in the frame and it still gets a time budget rather
+     than a count — a fixed twelve cuts hit 83ms p95 on the frames where a whole field split at
+     once. What changed in round 9 is what the budget is ALLOWED TO DECIDE. It runs work early; it
+     never decides which generation is on screen, because `pose()` above has already resolved that
+     off `age` and cut synchronously if it had to. The budget is now a way to make sure that never
+     happens, not a way of choosing.
+
+     ROUND 10'S LANDING REPAIR IS GONE FROM HERE, and not because it was wrong. It computed the
+     flight an object was owed between its own impact and the current scroll position, to fix
+     shards that sat where the cut left them when a windowed sprite arrived on a frame with no
+     forward scroll. That quantity is now the DEFINITION of a shard's pose rather than a repair
+     applied to it — `poseTo` asks for exactly `floor((y - born) * MS_PER_PX / SUB)` steps every
+     frame, whatever happened on the frames before it — so the case it repaired cannot arise. */
+  const budget = performance.now() + CUT_MS;
   while (queue.length && performance.now() < budget) queue.shift()();
-
-  /* Debris settles on scroll too. A shard's flight is real integration — it has to arc and bed
-     into the surface — but what is being integrated is distance travelled by the scrollbar, so
-     a stopped scroll is a stopped frame. Substepped, because a flick worth 900px would otherwise
-     ask for 2.7 seconds in one go and throw shards straight through the ground. */
-  const ms = Math.min(MAX_STEP, fwd * MS_PER_PX);
-  for (let left = ms; left > 0; left -= SUB) {
-    const step = Math.min(SUB, left);
-    for (const d of drops) if (d.pieces.length) stepPieces(d.pieces, step, surfAt);
-    dust.step(step);
-  }
-
-  /* ROUND 10, and the texture window forced it. The step above is fed the delta of the frame the
-     shards happen to be alive in, which is fine while the visitor is scrolling and degenerate the
-     moment an object lands on a frame with no forward scroll. Dragging the scrollbar used to land
-     everything on the same frame as the jump — one 240 ms step, paid by the jump's own delta.
-     A windowed sprite arrives a frame or two after that, into `fwd = 0`, and its shards then sit
-     exactly where the cut left them: a shattered object that looks whole.
-
-     So an object that has just landed is given the flight the scroll between its own impact and
-     here has already paid for, less whatever the frame above already gave it. On a walk that
-     difference is zero — an object lands within one frame's scroll of its own landing position —
-     and on an all-resident jump it is zero too, because there the jump's own delta had already
-     maxed the step out. It is a repair for exactly the case the window created and for no other. */
-  let most = 0;
-  for (const d of landed) {
-    let owed = Math.min(MAX_STEP, Math.max(0, scrollY - d.landScroll) * MS_PER_PX) - ms;
-    if (owed <= 0) continue;
-    if (owed > most) most = owed;
-    for (; owed > 0; owed -= SUB) stepPieces(d.pieces, Math.min(SUB, owed), surfAt);
-  }
-  // the impact spray is spawned by the same landing and is owed the same flight, once
-  for (let left = most; left > 0; left -= SUB) dust.step(Math.min(SUB, left));
-  landed.length = 0;
 
   /* TICKET 10 — the drawing stops here on the index, and NOT ONE LINE EARLIER.
 
@@ -1398,14 +1707,15 @@ function frame() {
       ctx.restore();
     }
     if (d.pieces.length) drawPieces(ctx, d.pieces);
-    if (d.specks.length) {
-      const t = Math.max(0, (d.age - DUST_AT) / (1 - DUST_AT));
-      for (const q of d.specks) {
-        const kk = Math.max(0, (d.age - q.t0) / Math.max(0.01, 1 - q.t0));
-        ctx.fillStyle = `rgba(${q.col[0]},${q.col[1]},${q.col[2]},${(1 - kk * 0.55).toFixed(3)})`;
-        ctx.fillRect(q.x + q.drift * kk, q.y + q.depth * kk, q.r, q.r);
-      }
-      if (t >= 1) d.specks.length = 0;
+    /* the specks were already a pure readout of `age` — position, drift and depth are all read
+       off it — so they came back for free. What had to go was the line under this loop that
+       emptied the array once `age` passed 1: a draw call that deletes the thing it draws, which
+       is the last place in the file where looking at a frame changed it. The window drops them
+       now, in `demolish`, along with everything else the object owns. */
+    for (const q of d.specks) {
+      const kk = Math.max(0, (d.age - q.t0) / Math.max(0.01, 1 - q.t0));
+      ctx.fillStyle = `rgba(${q.col[0]},${q.col[1]},${q.col[2]},${(1 - kk * 0.55).toFixed(3)})`;
+      ctx.fillRect(q.x + q.drift * kk, q.y + q.depth * kk, q.r, q.r);
     }
   }
 
@@ -1415,7 +1725,11 @@ function frame() {
   ctx.drawImage(gcvs, 0, 0);
   ctx.restore();
 
-  if (!REDUCED) dust.draw(ctx, 0);
+  /* the spray belongs to the impact, so it is on screen exactly while its own object is on the
+     ground. The wreck outlives that by BACK px — the window keeps it so a scroll-up costs nothing
+     — and without this test an arrival the visitor has scrolled back ABOVE goes on throwing soil
+     into the air over an empty field. Seven of them were doing it, 4,000px up the page. */
+  if (!REDUCED) for (const d of drops) if (d.dust && d.down && !d.gone) drawDust(ctx, d.dust);
 
   /* ---- the tie. 01's engine, drawn: a line laid along the soil between two things that were
          standing at the same time. 04 ruling 6 built it and printed the miss on it — `SAME YEAR`
@@ -1435,8 +1749,13 @@ function frame() {
      hairlines in the space one belongs in — no collision, and unreadable anyway, which is the
      kind of thing a collision gate is structurally unable to catch. So narrow draws only the
      newest: the tie that answers "what was THIS standing next to". */
+  /* `built` joins the test in round 9. `down` and `gone` are predicates on the scrollbar now, so
+     they are both already true of an arrival whose photograph has not come back — and a tie drawn
+     to an end that is not on the ground reads its partner's `credX` from the last time it was,
+     which after a demolish is a line to a place nothing is lying. */
+  const tieLive = d => d.built && d.down && !d.gone;
   if (W < 720) for (const d of drops)
-    if (d.tie && d.down && !d.gone && drops[d.tie.j].down && !drops[d.tie.j].gone) newest = d.i;
+    if (d.tie && tieLive(d) && tieLive(drops[d.tie.j])) newest = d.i;
 
   /* Newest first, and each tie sits a little deeper in the soil than the one above it. That is
      not decoration: five ties drawn on one contour merge into a single unbroken stroke and the
@@ -1449,7 +1768,7 @@ function frame() {
     const T = d.tie;
     if (!T) continue;
     const p = drops[T.j];
-    T.on = d.down && !d.gone && p.down && !p.gone && (newest < 0 || d.i === newest);
+    T.on = tieLive(d) && tieLive(p) && (newest < 0 || d.i === newest);
     if (!T.on) continue;
 
     const age = Math.max(d.age, p.age);
@@ -1541,14 +1860,29 @@ window.__hh = {
      are baked against; `held` is the resident set counted off the live references rather than
      off any tally the page keeps, and `blind` is the tripwire on a landing solved without its
      own photograph. */
-  DRAW_H, DPR_CAP, AHEAD,
+  DRAW_H, DPR_CAP, AHEAD, BACK,
   held: () => drops.filter(d => d.im).map(d => ({ i: d.i, k: d.it.k, air: d.air, down: d.down,
                                                   w: d.im.naturalWidth, h: d.im.naturalHeight })),
-  peakHeld: () => peakHeld, pending: () => inFlight, blind: () => solvedBlind,
+  peakHeld: () => peakHeld, pending: () => inFlight, blind: () => solvedBlind, lateCuts: () => lateCuts,
+  /* 04 round 9. The rewind keeps a wreck for BACK px past its object's death and keeps EVERY
+     generation of it, because a parent is what its children are cut from and a rewind across a
+     split needs the parent back. That is a second resident set beside the photographs and it is
+     the one the ruling grew, so it is measured rather than assumed. Summed off the live canvases,
+     not off any tally the page keeps about its own intentions — 03 round 10's leak was a counter
+     that agreed with the intention while the page sat on all 230 photographs. */
+  fragBytes: () => { let b = 0, n = 0;
+    for (const d of drops) { if (!d.gens) continue;
+      for (const G of d.gens) for (const q of G.pieces) { b += q.cv.width * q.cv.height * 4; n++; } }
+    return { bytes: b, pieces: n }; },
   /* the backdrop, for the round-9 gates. `reach` is read live off the frame; `reachFor` and
      `starAlpha` are the curves themselves, so a gate can check the drawn pixels against the
      function rather than against another copy of the page's own opinion. */
-  STAR_OUT, reachFor, starAlpha, reach: () => reach, groundY, dust,
+  STAR_OUT, reachFor, starAlpha, reach: () => reach, groundY,
+  /* the impact spray lives on the arrivals now, one seeded list each, so there is no global pool
+     to reach for. The round-9 sky probes clear it to read the air behind it; clearing the lists is
+     enough, because nothing respawns them — dust is made at impact and an impact is a rebuild. */
+  clearDust: () => { for (const d of drops) if (d.dust) d.dust.length = 0; },
+  dustN: () => drops.reduce((s, d) => s + (d.dust ? d.dust.filter(q => q.t < q.life).length : 0), 0),
   /* bgAt one pixel at a time is a GPU readback each call, which is fine for a few hundred words
      and useless for counting stars over a third of the screen. Same read, one rectangle. */
   px: (x, y, w, h) => ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr),

@@ -148,8 +148,29 @@ export function avgColor(cv) {
    that says it has stopped. A resting piece costs one drawImage and zero maths. */
 
 export function makePiece(p, x, y, vx, vy, vrot, rot = 0) {
-  return { cv: p.cv, w: p.w, h: p.h, x, y, vx, vy, rot, vrot,
-           rest: false, bounce: 1, sink: 0, born: 0, dead: false };
+  return stamp({ cv: p.cv, w: p.w, h: p.h, x, y, vx, vy, rot, vrot,
+                 rest: false, bounce: 1, sink: 0, born: 0, dead: false });
+}
+
+/* 04 ROUND 9 — THE POSE A REPLAY STARTS FROM. `stepPieces` is forward Euler with a latch, so it
+   cannot be run backwards; what runs backwards is the scroll position, and the way to honour that
+   is to keep the state the piece was BORN in and integrate to wherever the scrollbar now is. Every
+   piece therefore carries its own birth, and a generation is rewound rather than reversed.
+
+   Re-stamped by any caller that moves a piece after making it — `keepWhole` beds the ending into
+   the surface, and a birth that predates that would put the ending three pixels high on the first
+   rewind. */
+export function stamp(p) {
+  p.b = { x: p.x, y: p.y, vx: p.vx, vy: p.vy, rot: p.rot, vrot: p.vrot };
+  return p;
+}
+
+export function rewindPieces(list) {
+  for (const p of list) {
+    const b = p.b;
+    p.x = b.x; p.y = b.y; p.vx = b.vx; p.vy = b.vy; p.rot = b.rot; p.vrot = b.vrot;
+    p.rest = false; p.bounce = 1;
+  }
 }
 
 export function stepPieces(list, dt, surfAt) {

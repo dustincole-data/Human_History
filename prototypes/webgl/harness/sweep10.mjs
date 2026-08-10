@@ -120,23 +120,56 @@ await to(mid - T.FALL * 0.33, 4);
 const up = (await snap()).items.find(x => x.air);
 ok('rise_on_scroll_up', up && up.y < air0.y, `${air0?.y} -> ${up?.y}`);
 
+/* The round trip to y=0 takes item 60 out of the texture window entirely, so coming back needs its
+   photograph again — "no pixels, no fall" (03), the same allowance `hang` makes above and for the
+   same reason. Under round 9 the window also demolishes the wreck out there, so the return is a
+   full refetch rather than a redraw and four ticks stopped being enough: the gate read `undefined`
+   and called it a broken mechanic. Bounded, so a photograph that never arrives is still a red. */
 await to(0, 3); await to(mid, 4);
+for (let i = 0; i < 60 && !(await snap()).items.some(x => x.air); i++) await tick(3);
 const back = (await snap()).items.find(x => x.air);
-ok('pure_function', back && Math.abs(back.y - air0.y) < 0.01, `${air0?.y} vs ${back?.y}`);
+ok('fall_is_a_pure_function', back && Math.abs(back.y - air0.y) < 0.01, `${air0?.y} vs ${back?.y}`);
 
 await to(T.START[probe] - 40, 4);
 ok('unmade_above_start', (await snap()).air === 0, 'nothing airborne above its start');
 
+/* ROUND 9 RE-AIMS `contact_latches`, AND IT IS NOT A DELETION. The claim it made — an object past
+   its landing is broken for good — is the half Dustin struck. What survives is the other half, and
+   it is still worth a gate: THE FORWARD GRAMMAR IS UNCHANGED. Past the landing the object is down
+   and broken, exactly as before. What is added is the ruling itself, measured the only way it can
+   be: the object 200px back up the page must be in the air AT THE SAME HEIGHT as it is for a
+   visitor who never went past it at all. A rewind that merely puts something back in the air is
+   not the ruling; a rewind that puts it back where the tables say is. */
 await to(T.LAND[probe] + 30, 5);
+const hit = (await snap()).items.find(x => x.i === probe);
 await to(T.LAND[probe] - 200, 4);
-const latched = (await snap()).items.find(x => x.i === probe);
-ok('contact_latches', latched && latched.down && !latched.air, `down=${latched?.down} air=${latched?.air}`);
+const backUp = (await snap()).items.find(x => x.i === probe);
+await fresh();
+await to(T.LAND[probe] - 200, 8);            // the same pixel, never having been past it
+const virgin = (await snap()).items.find(x => x.i === probe);
+ok('contact_is_a_position',
+   !!hit && hit.down && !hit.air &&
+   !!backUp && backUp.air && !backUp.down &&
+   !!virgin && Math.abs(backUp.y - virgin.y) < 0.01,
+   !hit || !hit.down ? `never landed at LAND+30`
+   : !backUp || !backUp.air ? `still down 200px back up: down=${backUp?.down} air=${backUp?.air}`
+   : `down at LAND+30; back in the air 200px up at py=${backUp.y}, and a page that never passed ` +
+     `it puts it at ${virgin?.y}`);
 
-await to(T.LAND[probe] + T.LIFE[probe] * 0.45, 5);
+/* …and the same treatment for `decay_one_way`, whose name was its whole claim. The forward
+   grammar: age rises with the scrollbar. The ruling: it falls back, and returning to the pixel it
+   came from restores it EXACTLY — not approximately, because age is now division and not an
+   accumulator. */
+await fresh();
+await to(T.LAND[probe] + T.LIFE[probe] * 0.45, 8);
 const ageA = (await snap()).items.find(x => x.i === probe)?.age;
 await to(T.LAND[probe] + 10, 4);
 const ageB = (await snap()).items.find(x => x.i === probe)?.age;
-ok('decay_one_way', ageA != null && ageA === ageB, `age ${ageA} -> ${ageB}`);
+await to(T.LAND[probe] + T.LIFE[probe] * 0.45, 4);
+const ageC = (await snap()).items.find(x => x.i === probe)?.age;
+ok('decay_runs_both_ways',
+   ageA != null && ageA > 0.4 && ageB != null && ageB < 0.02 && ageC === ageA,
+   `age ${ageA} -> ${ageB} on the way back up -> ${ageC} returning to the same pixel`);
 
 /* ---------------- the long sweep: truth gates, from a page nobody has touched ---------------- */
 await fresh();
@@ -163,7 +196,12 @@ for (const y of stops) {
   tieCurve.push([y, s.ties]);
   for (const it of live) {
     const gap = now - T.years[it.i];
-    if (gap > T.W && T.LIFE[it.i] > 1400.5) groundViol.push({ y, i: it.i, gap });
+    if (gap > T.W && T.LIFE[it.i] > 1400.5) groundViol.push({ y, i: it.i, gap, end: 'older' });
+    /* THE SECOND END, and round 8 is the reason it exists. This gate asked only whether a field
+       was too OLD for the counter, so a ground that froze and rode home with the visitor — a 1934
+       car lying on the soil under a counter reading 7,000 BCE — could not fail it at any
+       threshold. 8,934 years NEWER than the moment, and 41 green gates said the page was fine. */
+    if (T.years[it.i] - now > T.W) groundViol.push({ y, i: it.i, gap: T.years[it.i] - now, end: 'newer' });
   }
   // the drawn dash pattern must divide into exactly gap+1 segments
   for (const t of s.tieDash) {
@@ -236,9 +274,55 @@ for (const y of stops) {
   if (/YEARS?\s+APART|SAME\s+YEAR/i.test(txt)) captions.push(y);
   if (++n % 200 === 0) process.stdout.write(`  …${n}/${stops.length}\r`);
 }
-ok('one_at_a_time', maxAir <= 1, `max airborne ${maxAir} over ${stops.length} stops`);
+/* AND NOW THE SAME WALK, BACKWARDS. Round 8's durable lesson: a gate has a direction, and a gate
+   that only ever walks forward has only ever tested forward. Every stop above was taken descending
+   "on a page nobody has touched", which is one visitor; the other one reaches the bottom and comes
+   back, and that visitor is the one who found a Neolithic counter over a 1934 car. The down leg
+   here is coarse — its only job is to get everything landed, and LIFE_MIN is 1400px so a 500px
+   stride cannot skip a life — and the up leg is walked at the same STEP the forward sweep uses. */
+const upStops = [];
+const wreck = { bytes: 0, pieces: 0, at: 0 };
+/* The up walk does NOT wait for photographs at every stop, and `to()` does under `--slow`. That
+   wait is right for a gate that reads the page's own opinion of what is on the ground; this one
+   compares `T.years[i]` — the TABLE — against the counter, so an arrival whose sprite has not
+   landed is still checked and still able to fail. With the wait in, the rewind's constant
+   re-admission kept `pending()` above zero at nearly every one of 1,034 stops and the phase ran
+   for two hours; without it the phase measures the same thing in ten minutes. The cost is that
+   `maxAir` from this direction is a bonus rather than a proof, which the down walk already is. */
+const toUp = async y => { await page.evaluate(v => scrollTo({ top: v, behavior: 'instant' }), y); await tick(1); };
+{
+  await fresh();
+  for (let y = 0; y < T.TOTAL; y += 500) { await to(y, 1); }
+  for (let y = T.TOTAL; y > 0; y -= STEP) upStops.push(y);
+  let m = 0;
+  for (const y of upStops) {
+    await toUp(y);
+    const s2 = await snap();
+    maxAir = Math.max(maxAir, s2.air);
+    let nowI = -1;
+    for (let i = 0; i < N; i++) { if (T.LAND[i] <= y) nowI = i; else break; }
+    const now = T.years[Math.max(0, nowI)];
+    for (const it of s2.items.filter(x => x.down)) {
+      const older = now - T.years[it.i], newer = T.years[it.i] - now;
+      if (older > T.W && T.LIFE[it.i] > 1400.5) groundViol.push({ up: y, i: it.i, gap: older, end: 'older' });
+      if (newer > T.W) groundViol.push({ up: y, i: it.i, gap: newer, end: 'newer' });
+    }
+    /* the wreck's own residency, sampled on the way back up because that is where it is largest:
+       the rewind keeps every generation of every object within BACK px of the scrollbar */
+    if (m % 5 === 0) { const f = await page.evaluate(() => window.__hh.fragBytes());
+                       if (f.bytes > wreck.bytes) { wreck.bytes = f.bytes; wreck.pieces = f.pieces; wreck.at = y; } }
+    if (++m % 300 === 0) process.stdout.write(`  up …${m}/${upStops.length}\r`);
+  }
+}
+
+ok('one_at_a_time', maxAir <= 1, `max airborne ${maxAir} over ${stops.length + upStops.length} stops, both directions`);
 ok('ground_is_the_moment', groundViol.length === 0,
-   `${groundViol.length} fields older than ${T.W}y on the ground outside the floor clamp`);
+   groundViol.length
+     ? `${groundViol.filter(v => v.end === 'older').length} older + ` +
+       `${groundViol.filter(v => v.end === 'newer').length} NEWER than the counter, worst ` +
+       `${Math.max(...groundViol.map(v => v.gap))}y: ${JSON.stringify(groundViol[0])}`
+     : `no field more than ${T.W}y from the counter in EITHER direction, over ${stops.length} stops ` +
+       `walked down and ${upStops.length} walked back up`);
 ok('tie_cuts_are_true', tieCutViol.length === 0,
    `${tieCutViol.length} ties whose drawn segment count is not gap+1`);
 ok('no_miss_caption', captions.length === 0,
@@ -533,7 +617,7 @@ const audit = await (async () => {
       im.onerror = () => res({ k: d.it.k, w: 0, h: 0 });
       im.src = `img/${d.it.k}.webp`;
     })));
-    return { all, cap: H.DRAW_H * H.DPR_CAP, DRAW_H: H.DRAW_H, DPR_CAP: H.DPR_CAP, AHEAD: H.AHEAD };
+    return { all, cap: H.DRAW_H * H.DPR_CAP, DRAW_H: H.DRAW_H, DPR_CAP: H.DPR_CAP, AHEAD: H.AHEAD, BACK: H.BACK };
   });
   await p2.close();
   return r;
@@ -557,12 +641,30 @@ ok('decoded_under_the_gate', peakMB < GATE,
 
 /* 3. It does not accumulate. The reading taken on the way out of the page that made all 1,043
       stops: the resident set is still one window, not a page's worth of photographs never let go. */
-/* the bound is the window itself, not a taste number: everything whose start lies within AHEAD
-   of the scrollbar, at the tightest arrival spacing, plus the one in the air and the one landing */
-const WINDOW = Math.ceil(audit.AHEAD / Math.min(...T.PER)) + 2;
+/* The bound is the window itself, not a taste number: everything whose start lies within AHEAD of
+   the scrollbar, at the tightest arrival spacing, plus the one in the air and the one landing.
+
+   ROUND 9 WIDENS IT, AND WIDENING IT IS THE POINT. The rewind holds a photograph for BACK px past
+   its own landing so that scrolling back into a fall does not have to re-fetch it — without that
+   the object fell invisibly, which is how the omission was found. So the span is AHEAD + FALL +
+   BACK rather than AHEAD, and the count roughly doubles: ruling 8a's "at most ten resident becomes
+   at most twenty". The gate is recomputed from the constants the page exports rather than from a
+   number typed here, so it cannot drift away from what the page actually does. */
+const WINDOW = Math.ceil((audit.AHEAD + T.FALL + audit.BACK) / Math.min(...T.PER)) + 2;
 ok('sprite_window_does_not_leak', held.sweptN <= WINDOW,
    `${held.sweptN} sprites held (${(held.sweptPx * 4 / 1048576).toFixed(1)}MB) after ${held.stops} stops ` +
-   `over the full ${Math.round(T.TOTAL)}px, against a window of ${WINDOW}`);
+   `over the full ${Math.round(T.TOTAL)}px, against a window of ${WINDOW} ` +
+   `(AHEAD ${audit.AHEAD} + FALL ${T.FALL} + BACK ${audit.BACK} over the tightest spacing ${Math.min(...T.PER)})`);
+
+/* 3b. THE WRECK IS A WINDOW TOO — 04 round 9. The photographs are bounded above by `AHEAD + FALL
+      + BACK`; the fragments are bounded by `LIFE + BACK`, and they are a second resident set that
+      did not exist as a bound before the rewind, because a shattered object used to be released
+      the instant it finished breaking. Ruling 8a costed the whole rewind at 7.7 MB against the
+      80 MB gate, and this is the half of that number nothing was measuring. Sampled on the UP
+      walk, where the set is at its largest. */
+ok('wreck_window_does_not_leak', wreck.bytes / 1048576 < GATE,
+   `peak ${(wreck.bytes / 1048576).toFixed(2)}MB of fragment canvases (${wreck.pieces} pieces across ` +
+   `every generation of every live object, at y=${Math.round(wreck.at)}) against a ${GATE}MB gate`);
 
 /* 4. The invariant the whole window rests on. prep() solves the exact height of contact off the
       real silhouette, so a landing solved without its own photograph would put the object down
@@ -629,13 +731,15 @@ ok('only_the_last_one_survives', lastViol.length === 0 && lastSeen > 0 && jumpOK
       were landing in fetch order, so an arrival whose partner had not come back yet drew no tie,
       and the tie set differed between two first visits.
 
-      NOT a screenshot comparison, and the reason is measured rather than asserted. Two things on
-      this page are wall-clock by design and neither belongs to the window: `Dust.impact` is
-      seeded by `Math.random`, and the deferred cut has a 4 ms/frame budget (06 round 8) that
-      decides whether the newest arrival's shards are split before or after they fly. The shipped
-      round-9 build fails a pixel comparison of two first visits for exactly those reasons —
-      checked, on HEAD, before this gate was written. So the comparison is over every structural
-      fact the page claims is a function of scroll, which is where a window would show up. */
+      A SCREENSHOT COMPARISON AGAIN, AND 04 ROUND 9 IS WHAT PAID FOR IT. Round 10 wanted this and
+      could not have it: two things on the page were wall-clock by design — `Dust.impact` seeded
+      by `Math.random`, and a 4 ms cut budget that decided whether the newest arrival's shards had
+      split yet — so the shipped build failed a pixel comparison of two first visits, and the gate
+      had to fall back to a structural claim. Both are gone: the spray is seeded off the arrival's
+      index and the generation is read off `age` with the budget reduced to scheduling. So the
+      claim is the strong one it was always meant to be — two first visits are THE SAME PICTURE —
+      and the structural comparison is kept alongside it, because a pixel diff says "different"
+      without saying what. */
 const state = async (y) => {
   await fresh();
   await to(y, 8);
@@ -651,13 +755,67 @@ const state = async (y) => {
     +d.px.toFixed(3), +d.py.toFixed(3),
   ].join('/')));
 };
-const runA = await state(96000), runB = await state(96000);
+const runA = await state(96000), shotA = await page.screenshot();
+const runB = await state(96000), shotB = await page.screenshot();
 const disagree = runA.filter((r, k) => r !== runB[k]);
-ok('window_is_not_a_clock', runA.length === runB.length && disagree.length === 0,
+const samePixels = Buffer.compare(shotA, shotB) === 0;
+ok('window_is_not_a_clock', runA.length === runB.length && disagree.length === 0 && samePixels,
    disagree.length || runA.length !== runB.length
      ? `two first visits disagreed on ${disagree.length} of ${runA.length}: ${disagree.slice(0, 2).join(' | ')}`
-     : `two first visits agree on all ${runA.length} arrivals down — index, age, splits, dust, ` +
-       `tie partner, fragments, specks, words and position`);
+   : !samePixels
+     ? `two first visits agree on all ${runA.length} arrivals structurally and STILL differ as pixels`
+     : `two first visits are pixel-identical, and agree on all ${runA.length} arrivals down — ` +
+       `index, age, splits, dust, tie partner, fragments, specks, words and position`);
+
+/* 7. THE WHOLE PAGE IS A PURE FUNCTION OF SCROLL, not just the fall. 04 round 6's `pure_function`
+      checked one number — the height of one object, after a round trip to y=0 — because that was
+      the only thing the ruling covered. Ruling 8b covers everything after impact too, so the gate
+      covers everything: at four positions spread over the page, every arrival's age, generation,
+      dust state, tie, and THE POSITION AND ROTATION OF EVERY FRAGMENT AND EVERY SPECK, plus the
+      canvas pixels and the label layer's HTML, walked to directly and then walked to again from
+      9,000px further down.
+
+      WHY NOT A SCREENSHOT HERE, when the gate above is one. Measured, not assumed: after a
+      105,000px round trip the composite differs from the direct walk by one RGB unit on ~27,800
+      glyph pixels — while the canvas is pixel-identical, the label layer's HTML is byte-identical,
+      and all 87 in-viewport elements match on rect, opacity, transform, colour and font. Hiding
+      either layer makes the two screenshots identical and hiding neither does not, which places
+      the difference in the compositor rather than in anything the page decides. The canvas and the
+      DOM are what the page controls, so they are what is gated; a screenshot here would be
+      measuring Chromium's text rasteriser. */
+const fullState = () => page.evaluate(() => ({
+  objs: window.__hh.drops.filter(d => d.built).map(d => [
+    d.i, +d.age.toFixed(6), d.splits, d.dusted ? 1 : 0, d.gone ? 1 : 0, d.tie ? d.tie.j : -1,
+    d.pieces.map(q => `${q.x.toFixed(3)},${q.y.toFixed(3)},${q.rot.toFixed(4)}`).join(';'),
+    d.specks.map(q => `${q.x.toFixed(3)},${q.y.toFixed(3)}`).join(';'),
+    d.dust ? d.dust.map(q => `${q.x.toFixed(3)},${q.y.toFixed(3)},${q.t}`).join(';') : ''
+  ].join('/')),
+  canvas: (() => { const d = window.__hh.px(0, 0, innerWidth, innerHeight);
+    let h = 0; for (let i = 0; i < d.data.length; i++) h = (h * 31 + d.data[i]) >>> 0; return h; })(),
+  html: document.getElementById('labels').outerHTML
+}));
+{
+  const bad = [];
+  for (const y of [12000, 47000, 96000, 130000]) {
+    await fresh();
+    for (let v = 0; v < y; v += 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
+    await to(y, 10);
+    const direct = await fullState();
+    for (let v = y; v < y + 9000; v += 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
+    for (let v = y + 9000; v > y; v -= 300) { await page.evaluate(t => scrollTo({ top: t, behavior: 'instant' }), v); await tick(1); }
+    await to(y, 10);
+    const returned = await fullState();
+    const rows = direct.objs.filter((r, k) => r !== returned.objs[k]).length;
+    if (rows || direct.objs.length !== returned.objs.length ||
+        direct.canvas !== returned.canvas || direct.html !== returned.html)
+      bad.push(`y=${y}: ${rows} objects differ, canvas ${direct.canvas === returned.canvas ? 'same' : 'DIFFERS'}, ` +
+               `labels ${direct.html === returned.html ? 'same' : 'DIFFER'}`);
+  }
+  ok('pure_function', bad.length === 0,
+     bad.length ? bad.join(' | ')
+       : `four positions walked to directly and again from 9,000px below: every fragment, speck and ` +
+         `dust particle in the same place, canvas pixels identical, label layer byte-identical`);
+}
 
 await page.setViewportSize({ width: 1440, height: 900 });
 ok('no_console_errors', errors.length === 0, errors.slice(0, 3).join(' | ') || 'clean');
@@ -698,8 +856,8 @@ for (const i of ERAS) {
        scrollbar left it. The harness clears the particle set and lets one frame redraw without
        it: dust is not dated, it is not the earth, and it is the only thing between the two.
        Nothing respawns it — dust is made at impact and an impact needs forward scroll. */
-    const dustWas = H.dust.p.length;
-    H.dust.p.length = 0;
+    const dustWas = H.dustN();
+    H.clearDust();
     await new Promise(requestAnimationFrame);
     await new Promise(requestAnimationFrame);
 

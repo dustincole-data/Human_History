@@ -14,9 +14,11 @@ perturbing protects the cheap half.
 Serve `prototypes/` on 8812; the only URL is `/webgl/index.html`.
 
 ```
-node sweep10.mjs  [out.json] [--slow]     # the piece — 41 gates
+node sweep10.mjs  [out.json] [--slow]     # the piece — 43 gates
 node sweep11i.mjs [out.json] [--slow]     # the index surface — 26 gates, 27 under --slow
 node teeth11.mjs  [case]                  # 16 perturbations against sweep11i
+node teeth07.mjs  [case]                  # 4 perturbations against sweep10 (ticket 07)
+node teeth04r9.mjs [case]                 # 6 perturbations against sweep10 (the rewind)
 ```
 
 Ticket 04 round 8's instruments. All four are **read-only** — they measure the page, they do not
@@ -32,6 +34,12 @@ node   shots04r8.mjs                      # the four frames in ../verify04r8/
 
 Playwright is resolved from `Projects/Deep_Time/package.json`; there is no install here.
 `teeth11.mjs` shells `node sweep11i.mjs` from the working directory, so the two stay together.
+
+```
+node bench04r8.mjs                        # the replay cost on the frame the visitor reverses.
+                                          # Read-only. Checks MS_PER_PX and SUB against the served
+                                          # source before it reports, and prices three schedules.
+```
 
 `--slow` holds every `img/` and `thumb/` request 40–340ms at random. It is not decoration: three of
 round 10's gates were green with their own code deleted because localhost is never late, and
@@ -51,6 +59,25 @@ round 12 found a fourth that never exercised the delay it was named for.
   been counted green in a table of 24 — a gate that cannot go red is a decoration.
 - **Run the teeth one case at a time and check `git status` between.** A killed suite leaves its
   perturbation in a source file; the files are only restored in the `finally`.
+
+## What round 9 added to the list
+
+- **A gate has a direction.** `sweep10` walked the page one way and returned 41/41 against a build
+  that printed 7,000 BCE over a 1934 car. The truth sweep now walks back UP as well, and
+  `ground_is_the_moment` has the second end it never had — a field NEWER than the counter.
+- **A screenshot is not always the strongest comparison available.** Two first visits SHOULD be
+  compared as pixels and now are. But across a 105,000px round trip the composite differs by one
+  RGB unit on ~27,800 glyph pixels while the canvas is pixel-identical, the label HTML is
+  byte-identical and all 87 in-viewport elements match — hiding either layer makes them identical,
+  which puts it in Chromium's compositor. `pure_function` therefore compares the canvas and the
+  DOM, and says so. Reach for a screenshot when the page owns every pixel in it.
+- **Gate what is retained, not only what is drawn.** `pure_function` compares every fragment of
+  every BUILT object, including the dozen the window is holding off-screen. Three of the round's
+  defects were invisible and real, and a gate scoped to the visible ones would have passed all of
+  them.
+- **Measure the shipped build on the same machine in the same window before believing a
+  regression.** Round 9's frame budget looked like noise until HEAD was served side by side from
+  `_h_*.js` copies and measured at 17.9ms against 26.1ms. Delete the copies afterwards.
 
 ## Never hand-patch a source file to test a gate
 

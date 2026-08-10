@@ -562,3 +562,138 @@ patched, and the sweep was run against HEAD. Frames at `prototypes/webgl/verify0
 `04-top-still-1934` is the defect. `sweep10` 41/41 green with that defect live, which is the
 round's one durable lesson restated: **a gate has a direction, and a gate that only ever walks
 forward has only ever tested forward.**
+
+## Round 9, 2026-08-10 — the break reverses. Built.
+
+Ruling 8b, built. The three wall clocks named in round 8 are gone and **nothing in the piece
+latches any more**: `down`, `age`, `splits`, `dusted` and `gone` are predicates read off the
+scrollbar, not flags something set. The forward grammar is untouched — things fall, shatter, split
+twice and sink, in that order, at the same scroll positions as before.
+
+### First, the number that could have vetoed it
+
+Measured before a line of the frame loop was written, exactly as instructed, on the real 230-item
+set with real fragment canvases and the real `surfAt`. Harness: `harness/bench04r8.mjs`, read-only.
+
+| the reverse frame, 40 timed reps per position | cold | median | p95 | worst |
+|---|---|---|---|---|
+| **A** every live object replayed from birth, full flight | 0.1–2.7 ms | **0.2–0.6 ms** | 0.3–3.0 ms | **3.3 ms** |
+| **B** the same, stopped at rest | 0.1–1.5 ms | 0.1–0.2 ms | — | 1.6 ms |
+| **A, on a 6× throttled CPU** | 3.3 ms | 1.3 ms | **22.4 ms** | **33.3 ms** |
+
+Against a 25 ms frame budget. **Not a veto — but the throttled row is why the pose cache is not an
+optimisation.** Replaying every generation from birth on every frame is free on this laptop and
+over budget on the phone that is a ship gate, so `restN` — the step at which a field has entirely
+come to rest, above which the pose is a constant — is load-bearing. Ruling 8b's *"every settled
+generation can be cached as a pose and never replayed again"* is the reason the ruling is
+affordable, not a footnote to it.
+
+Two things fell out of the measurement before it measured anything. **The heaviest frame is not the
+one with the most work**: 18,219 piece-substeps across seven objects timed 1.10 ms while 11,785
+across seven timed 3.30, because cost is pieces still in flight and a settled field is a `p.rest`
+scan. And **the census disagreed with the tables** — a 200px walk found 5 objects carrying pieces
+where the arithmetic over `LAND`/`LIFE` says 6, and a second walk found 7, one more than the tables
+permit, because the 4 ms cut queue had not dusted an object whose `age` was already past `DUST_AT`.
+Two walks over one page disagreeing about what is on the ground is the wall clock 8b deletes,
+turning up as a side effect of trying to measure something else.
+
+### The mechanism, as built
+
+A forward-only integrator is kept and the SCROLL is what runs backwards. Each generation of shards
+is born once at a scroll position the tables fix, keeps the pose it was born in, and the pose drawn
+at `y` is that birth integrated forward by `floor((y − born) × MS_PER_PX / SUB)` whole steps.
+Walking down adds a step; walking up rewinds to birth and re-runs. Same arithmetic either way.
+
+- **`SUB` became a quantum, not a ceiling.** It was the largest step the integrator would take,
+  with the real step being the frame's own scroll delta — so a shard's trajectory depended on how
+  fast the visitor was moving. `MAX_STEP` went with it: nothing is advanced per frame any more.
+- **Generation g is cut from g−1 at rest.** Not a convenience — a split happens at 0.30 of a life,
+  ≥420px after landing, and a field settles inside 110px, so at rest is where the parent has always
+  been. Pinning it makes the child's birth a function of the tables.
+- **The dust is seeded off `d.i`** (7 sites, all in `burial.js`, none anywhere else) and particles
+  keep their birth state and are never spliced out; death is `t >= life`, a predicate read at draw.
+- **The queue decides when, never what.** It pre-cuts the next generation before `age` reaches it;
+  if it is behind, the frame cuts synchronously and pays. A late frame is a frame; a frame showing
+  the wrong generation is a lie.
+- **`BACK = 4000` beside `AHEAD`.** A photograph is held for `BACK` past its own landing and a
+  wreck for `BACK` past its object's death; beyond that both go, and the rebuild is exact rather
+  than remembered because every cut is seeded.
+
+### Six defects, and two of them are older than this round
+
+1. **A falling object with no photograph.** An arrival back in the air was still flagged built, so
+   the texture window had released its pixels — 17,053 canvas pixels of a Coca-Cola bottle missing
+   from the sky. The wreck now exists exactly while the object is on the ground.
+2. **The tie depended on scroll direction.** Round 7 armed it at build time if the partner was
+   already down. The window re-admits arrivals **newest-first** on the way up, so every tie found
+   its partner missing and five of them silently stopped existing. The relation now comes from the
+   tables unconditionally and `tieLive` carries the ruling at draw time — round 10's no-overtaking
+   defect, arriving through the door the rewind opened.
+3. **`build()` never cleared `d.laid`** — so rebuilt words were never measured, every offset read
+   `undefined`, `tx` went NaN, the transform string was invalid, and the browser dropped it: the
+   whole citation at the top-left corner at full opacity. **Older than this ticket.** The only
+   previous route to a rebuild was `fit()` crossing 720px, which does not clear it either, so
+   resizing past the breakpoint has always done this.
+4. **The name's last frame was a special case.** `nu < 1` positioned it, `else` only set opacity 0 —
+   so a name rebuilt already dead had an opacity and no transform. Invisible, and it still moved
+   the page: an element with a transform composites differently from one without, so fifteen dead
+   name-words changed how the *live* citations antialiased. Now one expression all the way to 1.
+5. **Paint order was build order.** Words were appended as each object built them, which was index
+   order only while the sole way to reach an object was to scroll down to it. Now one static slot
+   per arrival, made once and never moved.
+6. **A draw call that deleted what it drew** — the specks array was emptied inside the draw loop
+   once `age` passed 1. The window drops them now, with everything else the object owns.
+
+### What a screenshot can and cannot be gated on — measured, not assumed
+
+`window_is_not_a_clock` **is a pixel comparison again**, which is 03 round 10's abandoned
+measurement handed back: two first visits are now byte-identical PNGs. That round could not have
+it, and named why — the unseeded dust and the cut budget — and both are gone.
+
+The **widened `pure_function` is not a screenshot**, and the reason is a measurement rather than a
+preference. After a 105,000px round trip the composite differs from the direct walk by one RGB unit
+on ~27,800 glyph pixels — while the canvas is pixel-identical, the label layer's HTML is
+byte-identical, and all 87 in-viewport elements match on rect, opacity, transform, colour and font.
+**Hiding either layer makes the two screenshots identical and hiding neither does not**, which
+places the difference in Chromium's compositor and not in anything the page decides. So the gate
+reads the canvas and the DOM — what the page controls — at four positions, comparing every
+fragment, speck and dust particle, walked to directly and again from 9,000px below.
+
+### The frame budget was the fight, and here is what it cost
+
+Publishing a generation whole is what ruling 8b buys and it is also what it costs. The old build
+queued one cut job PER PIECE, so the 4 ms budget could stop half way through a split and the object
+was drawn as a mixture of parents and children — cheap, and exactly the "same age draws two
+different generations" defect the ruling outlaws. Taking the mixture away put the cost back on the
+frame. Measured against the shipped build served side by side from the same machine in the same
+window (`_h_*.js` copies, deleted after):
+
+| floor of 4 warm passes, 380 frames at 55px/frame | median | p95 |
+|---|---|---|
+| HEAD, shipped | 16.6 ms | **17.9 ms** |
+| round 9, first build | 16.2 ms | **26.1 ms** — over the 25 ms ceiling |
+| round 9, shipped here | 16.3 ms | **23.0 ms** |
+
+Three things bought it back, and none of them touches what is drawn. The cut is **sliced into a
+staging array nothing reads from**, so `d.gens` only ever gains a generation that is complete.
+`CUT_MS` and `SLICE_MS` are named constants — 2.5 ms of cutting a frame, and the most one job may
+overrun it by — chosen against measurement rather than taste. And **the window's runway is spent
+instead of idled**: an object re-admitted on a scroll-up is `gone` for the next `BACK` px and used
+to do nothing with them, then pay for the impact cut and both splits on the frame `age` fell under
+1. Late synchronous cuts over a full page down and back: **364 → 13**.
+
+**The margin is 2.0 ms where HEAD had 7.1 ms, and that is the honest cost of the ruling.** It is
+inside the budget the project set and it is not comfortable; a future round that adds per-frame work
+will find this gate first.
+
+### Verified, not asserted
+
+**`sweep10` 43/43 green** — 41 gates carried over, `wreck_window_does_not_leak` added, and
+`contact_latches` / `decay_one_way` re-aimed rather than deleted into `contact_is_a_position` and
+`decay_runs_both_ways`, which assert the forward grammar AND the rewind.
+
+Memory, both halves of it, measured on the built page rather than estimated: **4.4 MB of
+photographs and 4.61 MB of fragment canvases (1,873 pieces across every generation of every live
+object) — 9.0 MB against the 80 MB gate.** Round 8 priced the rewind at 7.7 MB and undercounted,
+because it did not count that a rewind across a split needs the PARENT generation back, so every
+generation is retained. Both are windows and both are gated.

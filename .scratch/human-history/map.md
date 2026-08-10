@@ -32,11 +32,16 @@ Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
   the instant they have been shattered**, so at most ten are resident: **3.1 MB measured peak
   against the 80 MB gate**, and it does not move when the set grows to 400. The two rules that hold
   it up bind anything built later: **no pixels, no fall** and **no overtaking**.
-  **Amended by [04](issues/04-scroll-mechanic.md) round 8**, not reopened: the rewind makes a
-  sprite live to `LAND + LIFE + BACK` instead of dying at impact, so the bound goes from ten
-  resident to **twenty — 7.7 MB measured, still 10× under the gate and still independent of N.**
-  What must not change is that it stays a *window*: unbounded residency is 65.8 MB at 230 and
-  **114.4 MB at 400, over the gate.** Both invariants above survive untouched.
+  **Amended by [04](issues/04-scroll-mechanic.md) round 8 and BUILT in round 9**, not reopened: the
+  rewind makes a sprite live to `LAND + LIFE + BACK` instead of dying at impact. Round 8 priced that
+  at 7.7 MB; the built page measures **4.9 MB of photographs plus 4.43 MB of fragment canvases —
+  9.3 MB, 8.6× under the gate**, and the extra over the estimate is the half round 8 did not count:
+  the rewind keeps EVERY GENERATION of a wreck, because a parent is what its children are cut from.
+  Both are now gated (`decoded_under_the_gate`, `wreck_window_does_not_leak`) and both are windows,
+  which is the thing that must not change: unbounded residency is 65.8 MB at 230 and **114.4 MB at
+  400, over the gate.** *No pixels, no fall* and *no overtaking* survive untouched — and round 9
+  added a third: **an object's wreck exists exactly while the object is on the ground**, which is
+  what stops a thing back in the air being drawn as a heap.
 - **Nothing overlaps, anywhere, ever** — and as of [10](issues/10-the-index-surface.md) that is
   held on **both** surfaces: zero rectangle intersections over every cell and every row readout on
   the index, at 1440×900 and 390×844, as well as over the piece's words. Deep Time's no-collision
@@ -267,12 +272,14 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 - **"When I scroll up the items should reverse."** Three readings were priced against each other and
   he picked **the full rewind** — dust re-condenses, shards reassemble, dead objects resurrect at
   the age their scroll position implies, and scrolling above an arrival's start puts it back in the
-  air whole. -> [04](issues/04-scroll-mechanic.md) round 8, **ruled and specified, NOT built.**
+  air whole. -> [04](issues/04-scroll-mechanic.md) round 8 ruled and specified it; **round 9 BUILT
+  it.** Nothing in the piece latches any more.
   - **Round 6's ruling 2 is half struck** (*a position runs both ways, an event does not*); its
     rulings 1 and 3 stand, and 8b is ruling 3 finally reaching the post-impact half.
   - **13's one-way decay is struck for the scroll direction only.** The forward grammar is unchanged.
   - **[10](issues/10-the-index-surface.md)'s jump-back was ruled out *because* decay is one-way.
     That reason is now gone** — the shelf could re-enter the piece at an item. 10's call, not 04's.
+    **Still owed the news as of round 9's close.**
   - **The memory objection was withdrawn on measurement, not on argument:** 7.7 MB against an 80 MB
     gate. The real risk is **milliseconds** — replaying up to 115 pieces across six objects on the
     frame the visitor reverses — and it is unmeasured. Measure it before writing the frame loop.
