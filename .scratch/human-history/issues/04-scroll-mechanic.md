@@ -697,3 +697,84 @@ photographs and 4.61 MB of fragment canvases (1,873 pieces across every generati
 object) — 9.0 MB against the 80 MB gate.** Round 8 priced the rewind at 7.7 MB and undercounted,
 because it did not count that a rewind across a split needs the PARENT generation back, so every
 generation is retained. Both are windows and both are gated.
+
+### Two more defects, from the index sweep — and two gates that were timing the loading
+
+`sweep11i` found the seam defect this round created. **The ending's words came back after the
+piece went out.** Ticket 10's rule is that the piece leaves nothing on the shelf, and the seam
+unbuilds the ending's citation the moment the fade completes; moving `build()` into the drawable
+branch put the two in a loop and the update loop rebuilt them on the same frame. Seven span nodes
+over the shelf for the rest of the page, at opacity 0 — and the gate demands zero NODES rather than
+zero visible, which is the only reason it was seen.
+
+Then two gates had to be re-aimed, and both are round 9's doing because the rewind widened the
+window. Neither is a weakening and both are measured:
+
+- **`pure_function` under `--slow`** read ten built objects walking to y=12,000 and nine coming
+  back, and called the page route-dependent. The missing one was item 12 — `gone`, no fragments,
+  drawing nothing, canvas byte-identical — re-admitted by the window with its photograph still in
+  flight. That is *no pixels, no fall* (03), a transient rather than a state. Reproduced in
+  isolation: **9-vs-10 without a quiescence wait, 10-vs-10 with one.**
+- **`index_frozen_when_idle`** shoots immediately after a jump on purpose — round 12 removed a
+  fixed sleep that had been finishing an ease before the first frame. But a jump to the seam now
+  fetches `AHEAD + FALL + BACK` and builds the wrecks of objects already passed, so the page takes
+  **~84 frames to finish assembling** where it used to take a handful. It waits on `pending()` and
+  `queue.length` now — an ease is neither, so the thing the gate was written for still runs
+  straight through the wait.
+
+**That settle time is a real cost of the ruling and is recorded as one.** The page converges to the
+identical picture and freezes there, and it is what the piece pays so that scrolling back up costs
+nothing.
+
+### Gates
+
+| run | result |
+|---|---|
+| `sweep10` | **43/43 green** |
+| `sweep11i` | **26/26 green** |
+| `sweep10 --slow` | 42/43 before the quiescence fix; its one failure was the instrument. **Re-run owed.** |
+| `sweep11i --slow` | **not run** |
+| `teeth04r9` | six cases written; **see the table at the close of the round for which ran** |
+
+Also fixed in the harness: the `--slow` up walk no longer waits for photographs at all 1,034 stops
+— it compares `T.years[i]` from the tables, so an unarrived sprite can still fail it, and the wait
+put that one phase on a two-hour path for nothing. And `no_console_errors` now names the URL.
+
+### The teeth — 6/6, and three of them only bite because the instrument was repaired first
+
+`teeth04r9.mjs`, one case at a time, each putting back a latch or a wall clock the rewind deleted.
+
+| case | reddens | the claim it protects |
+|---|---|---|
+| `contact_latches_again` | `contact_is_a_position` + `ground_is_the_moment` | round 8's exact defect, restored |
+| `decay_one_way_again` | `decay_runs_both_ways` | `age 0.45 -> 0.45 on the way back up` |
+| `pose_never_rewinds` | `pure_function`, and nothing else | the pose inside a generation |
+| `dust_unseeded_again` | `window_is_not_a_clock` + `pure_function` | 03 round 10's pixel comparison |
+| `queue_decides_the_generation` | `frozen_when_idle` | the queue schedules, never chooses |
+| `back_is_unbounded` | `sprite_window_does_not_leak` | the window stays a window |
+
+**The first run was 3/6, and the three misses were all instruments rather than pages.** Round 12's
+lesson, arriving on this round's own work: *a gate that cannot go red is a decoration, and only a
+perturbation aimed at it finds one.*
+
+1. **`sprite_window_does_not_leak` was a tautology in `BACK`.** It derived its allowance from
+   `AHEAD + FALL + BACK`, so raising `BACK` raised the bound with it — set to 400,000, retaining the
+   entire page, and **nothing went red**. The memory gates could not save it either: all 230 sprites
+   decode to 65.8 MB, under the 80 MB ceiling, which is exactly 03 round 10's *"a count is not a
+   ceiling"* — at 01's 400-item bound the same page is 114 MB and over. The gate now holds the page
+   to **ruling 8a's 4,000px**, and asserts `BACK` itself, so changing the constant is the red.
+2. **The reclaimed pixel gate sampled where there is no dust.** At y=96,000 every live object landed
+   hundreds of pixels ago and its spray is spent, so `window_is_not_a_clock` stayed green with
+   `Math.random` back in the dust — blind to the very wall clock it was reclaimed for. It now also
+   shoots 120px past a landing, and reports *"two first visits agree on all 6 arrivals structurally
+   and STILL differ as pixels"* when broken.
+3. **The teeth harness read only the summary line.** `back_is_unbounded` reddened its gate exactly
+   as designed and was reported as `nothing`, because retaining every wreck also means the sky is
+   never empty, so a later phase threw `era 226: never found an empty sky` and the sweep died before
+   printing `FAILED:`. **A perturbation violent enough to abort the suite is the one where you most
+   need to know which gates fired**, so the FAIL lines are now the fallback.
+
+One `expect` was wrong rather than one gate: `queue_decides_the_generation` reddens
+`frozen_when_idle`, not the two-first-visits gate — both visits are equally late and both settle
+before the shot, so they agree with each other. *The picture changing while nobody is scrolling* is
+the stronger statement of the same defect, and it is the one that fired.

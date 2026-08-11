@@ -650,11 +650,20 @@ ok('decoded_under_the_gate', peakMB < GATE,
    BACK rather than AHEAD, and the count roughly doubles: ruling 8a's "at most ten resident becomes
    at most twenty". The gate is recomputed from the constants the page exports rather than from a
    number typed here, so it cannot drift away from what the page actually does. */
-const WINDOW = Math.ceil((audit.AHEAD + T.FALL + audit.BACK) / Math.min(...T.PER)) + 2;
-ok('sprite_window_does_not_leak', held.sweptN <= WINDOW,
+/* THE BOUND IS THE RULING'S, NOT THE CODE'S. Deriving it from `audit.BACK` made the gate a
+   tautology: raise BACK and the allowance rises with it, so `teeth04r9 back_is_unbounded` set BACK
+   to 400,000 — residency for the whole page — and NOTHING went red. (The memory gates could not
+   save it either: all 230 sprites decode to 65.8MB, under the 80MB ceiling, which is exactly 03
+   round 10's "a count is not a ceiling" — at 01's 400-item bound it is 114MB and over.) Ruling 8a
+   fixed a 4,000px SYMMETRIC window and costed it; that number is what the gate holds the page to,
+   and BACK itself is asserted against it so that changing the constant is the red. */
+const RULED = 4000;                                 // ruling 8a's window, both ends
+const WINDOW = Math.ceil((RULED + T.FALL + RULED) / Math.min(...T.PER)) + 2;
+ok('sprite_window_does_not_leak', held.sweptN <= WINDOW && audit.AHEAD <= RULED && audit.BACK <= RULED,
    `${held.sweptN} sprites held (${(held.sweptPx * 4 / 1048576).toFixed(1)}MB) after ${held.stops} stops ` +
    `over the full ${Math.round(T.TOTAL)}px, against a window of ${WINDOW} ` +
-   `(AHEAD ${audit.AHEAD} + FALL ${T.FALL} + BACK ${audit.BACK} over the tightest spacing ${Math.min(...T.PER)})`);
+   `(the ruling's ${RULED} + FALL ${T.FALL} + ${RULED} over the tightest spacing ${Math.min(...T.PER)}; ` +
+   `the page's AHEAD is ${audit.AHEAD} and BACK is ${audit.BACK}, both of which must be <= ${RULED})`);
 
 /* 3b. THE WRECK IS A WINDOW TOO — 04 round 9. The photographs are bounded above by `AHEAD + FALL
       + BACK`; the fragments are bounded by `LIFE + BACK`, and they are a second resident set that
@@ -755,16 +764,28 @@ const state = async (y) => {
     +d.px.toFixed(3), +d.py.toFixed(3),
   ].join('/')));
 };
+/* TWO POSITIONS, AND THE SECOND ONE IS THE WHOLE POINT. At y=96,000 every live object landed
+   hundreds of pixels ago, so its impact spray is long spent and draws nothing — a pixel comparison
+   taken only there is blind to the dust, which is the largest of the three wall clocks round 9
+   deleted. Proved rather than reasoned: `teeth04r9 dust_unseeded_again` puts `Math.random` back and
+   this gate stayed GREEN, while `pure_function` caught it. A gate that cannot go red for the reason
+   it was written is a decoration. The second stop is 120px past a landing, where the spray is still
+   in the air. */
+const DUSTY = T.LAND[150] + 120;
 const runA = await state(96000), shotA = await page.screenshot();
 const runB = await state(96000), shotB = await page.screenshot();
-const disagree = runA.filter((r, k) => r !== runB[k]);
-const samePixels = Buffer.compare(shotA, shotB) === 0;
+const dustA = await state(DUSTY), shotDA = await page.screenshot();
+const dustB = await state(DUSTY), shotDB = await page.screenshot();
+const disagree = runA.filter((r, k) => r !== runB[k])
+                     .concat(dustA.filter((r, k) => r !== dustB[k]));
+const samePixels = Buffer.compare(shotA, shotB) === 0 && Buffer.compare(shotDA, shotDB) === 0;
 ok('window_is_not_a_clock', runA.length === runB.length && disagree.length === 0 && samePixels,
    disagree.length || runA.length !== runB.length
      ? `two first visits disagreed on ${disagree.length} of ${runA.length}: ${disagree.slice(0, 2).join(' | ')}`
    : !samePixels
      ? `two first visits agree on all ${runA.length} arrivals structurally and STILL differ as pixels`
-     : `two first visits are pixel-identical, and agree on all ${runA.length} arrivals down — ` +
+     : `two first visits are pixel-identical at y=96,000 AND ${Math.round(DUSTY)} (120px past a ` +
+       `landing, spray still in the air), and agree on all ${runA.length} arrivals down — ` +
        `index, age, splits, dust, tie partner, fragments, specks, words and position`);
 
 /* 7. THE WHOLE PAGE IS A PURE FUNCTION OF SCROLL, not just the fall. 04 round 6's `pure_function`

@@ -231,6 +231,27 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   **Still open and not this ticket's:** the ending's words and the colophon's placeholder sentence
   ([07](issues/07-copy-voice-and-name.md)), and the inbound link from Deep Time (Dustin's, on a
   shipped site).
+- [04 — The scroll mechanic](issues/04-scroll-mechanic.md) **round 9 — the break reverses. BUILT.**
+  Ruling 8b, implemented: **nothing in the piece latches any more.** `down`, `age`, `splits`,
+  `dusted` and `gone` are predicates read off the scrollbar; the forward grammar is untouched. The
+  integrator still only runs forwards — what runs backwards is the SCROLL. Each generation of
+  shards is born once at a position the tables fix, keeps its birth pose, and the pose drawn at `y`
+  is that birth integrated forward by `floor((y − born) × MS_PER_PX / SUB)` whole steps, so walking
+  up rewinds to birth and re-runs the same arithmetic. `SUB` stopped being a step CEILING and became
+  a quantum, which is what made the shards stop depending on how fast the visitor was moving.
+  **The veto number was measured first, as instructed, and did not veto** — 0.2–0.6ms median, 3.3ms
+  worst against a 25ms budget — **but p95 22.4ms on a 6× throttled CPU**, which turns 8b's pose
+  cache from an optimisation into the reason the ruling is affordable. **Eight defects, two older
+  than the ticket**: `build()` never cleared `d.laid`, so every rebuilt citation rendered at the
+  top-left corner — *resizing past 720px has always done that*; and the tie was armed at build time,
+  so when the window re-admitted arrivals newest-first on a scroll-up, five ties silently stopped
+  existing (round 10's no-overtaking defect through a new door). **Two costs recorded rather than
+  smoothed**: the frame-budget margin went from 7.1ms to ~1.6ms (HEAD 17.9ms p95, round 9 23.4ms,
+  measured A/B on one machine), and a jump now takes ~84 frames to finish assembling because the
+  window fetches `AHEAD + FALL + BACK`. **03 round 10's abandoned pixel comparison is handed back**:
+  two first visits are byte-identical PNGs, which the unseeded dust and the cut budget had made
+  impossible. `sweep10` 43/43, `sweep11i` 26/26.
+
 - [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
   the furniture was outside every collision gate.** Resolved by building the options rather than
   picking: seven names in three families, all DNS-checked, and three voices written on the real

@@ -74,7 +74,12 @@ const CASES = {
      on two visits to the same position it is not, which is the whole reason ruling 8b separates
      "when the work is done" from "what is on screen". */
   queue_decides_the_generation: {
-    expect: ['window_is_not_a_clock'],
+    /* IT REDDENS `frozen_when_idle`, NOT the two-first-visits gate, and the run said so before this
+       line did. Both visits are equally late, and the gate waits for `queue.length === 0` before it
+       shoots — so they settle to the same picture and agree with each other. What the defect
+       actually looks like is a page that keeps changing while nobody is scrolling, which is the
+       stronger statement of the same claim and is the gate that caught it. */
+    expect: ['frozen_when_idle'],
     apply: () => patch('grav', ['    ensureGen(d, d.i === LAST ? 0 : g);              // 14: it never breaks, so it never leaves gen 0',
                                 '    if (!d.gens[d.i === LAST ? 0 : g]) { d.pieces = d.gens[d.gens.length - 1].pieces; return; }']),
   },
@@ -100,12 +105,21 @@ for (const [name, c] of Object.entries(CASES)) {
     try {
       execSync(`node sweep10.mjs`, { stdio: 'pipe', encoding: 'utf8', timeout: 2400000 });
     } catch (e) {
-      const m = (e.stdout || '').match(/FAILED: (.*)$/m);
-      red = m ? m[1].split(', ') : [];
-      if (!m) console.log('  (no FAILED line — sweep threw)\n' + (e.stdout || '').slice(-600) + (e.stderr || '').slice(-400));
       /* WHAT THE GATE MEASURED, not just that it moved: a binary red/green cannot tell a gate that
          caught the perturbation from one that fell over for another reason. */
       notes = (e.stdout || '').split('\n').filter(l => /^FAIL\s/.test(l)).map(l => '    ' + l.trim());
+      /* THE FAIL LINES ARE THE GROUND TRUTH AND THE SUMMARY IS A CONVENIENCE. `back_is_unbounded`
+         reddened `sprite_window_does_not_leak` exactly as designed, and this harness said "nothing
+         went red" — because retaining every wreck also means the sky is never empty, so a later
+         phase threw `era 226: never found an empty sky` and the sweep died before printing its
+         summary line. A perturbation violent enough to abort the suite is precisely the one where
+         you most need to know which gates fired, so the summary is preferred and the FAIL lines are
+         the fallback rather than the other way round. */
+      const m = (e.stdout || '').match(/FAILED: (.*)$/m);
+      red = m ? m[1].split(', ') : notes.map(l => l.trim().split(/\s+/)[1]).filter(Boolean);
+      if (!m) console.log(`  (no FAILED line — the sweep threw. ${red.length} gate(s) had already ` +
+                          `gone red and are read off the FAIL lines below.)\n  ` +
+                          (e.stderr || '').trim().split('\n').slice(0, 2).join('\n  '));
     }
     const hit = c.expect.every(x => red.includes(x));
     out.push({ name, red, hit });
