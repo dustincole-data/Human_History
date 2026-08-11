@@ -313,6 +313,9 @@ const drops = ITEMS.map((it, i) => ({
      that reads `d.pieces` keeps reading the one true answer. */
   built: false, gens: null, stage: null, queued: false, pieces: NONE, specks: NONE, speckSet: null, dust: null,
   dustN: 0, dustRest: null, dusted: false, credX: 0, gone: false,
+  /* the cut tree — every canvas this object will ever be, and not one position. Cut during the
+     FALL, because a cut depends on the photograph and the seed and on nothing else. See `stepTree`. */
+  tree: null, cells0: null, treeK: 0, treeQ: false,
   /* the words. Built on the way down, taken apart on the ground, removed at death. */
   atoms: null, cred: null, srEl: null, laid: false, blown: false, tie: null, slot: null
 }));
@@ -681,6 +684,11 @@ function land(d) {
      and is not now: an object marked built with nothing in it would never be fetched again, and
      the window would have quietly deleted it from the page. */
   if (!d.im) return;
+  /* AND THE SHAPES HAVE TO EXIST BEFORE THE PHOTOGRAPH GOES. `texture()` releases the sprite the
+     frame after `built`, and generation zero is the only thing cut from it — so it is finished here,
+     forced if the fall was not long enough, while there are still pixels to cut. On a walk down the
+     fall has normally already paid for it and this costs nothing but the check. */
+  if (d.i !== LAST && !treeTo(d, 0)) return;
   d.built = true;
   d.angle = d.a0 + d.spin;
   d.px = d.x; d.py = d.yLand;
@@ -731,6 +739,11 @@ function land(d) {
 function demolish(d) {
   if (!d.built) return;
   d.built = false;
+  /* THE TREE GOES WITH THE WRECK, because the tree IS the wreck's pixels — a piece's canvas is its
+     node's canvas, not a copy of it. Keeping it past the window would make the rewind a page's worth
+     of retained debris, which is exactly what 8a's 4,000px bound exists to prevent. A queued cut job
+     finds no sprite and no tree and stops; `precut` starts a fresh one if the object is airborne. */
+  d.tree = null; d.cells0 = null; d.treeK = 0;
   d.gens = null; d.stage = null; d.pieces = NONE; d.specks = NONE; d.speckSet = null;
   d.dust = null; d.dustN = 0; d.dustRest = null;
   d.tie = null; d.splits = 0; d.dusted = false;
@@ -766,14 +779,122 @@ function keepWhole(d) {
   d.gens[0].restN = 0;                               // nothing to settle: it is already at rest
 }
 
-/* everything separates at once, on straight brittle edges */
-function shatterNow(d, cx, cy, speed) {
-  const n = REDUCED ? 8 : 13;
-  const cells = voronoi(d.w, d.h, sites(d.w, d.h, n, d.i * 131 + 7));
-  const r = rng(d.i * 37 + 3);
+/* ------------------------------------------------------------------ the cut tree
+
+   ROUND 10. THE CUT IS SEPARATED FROM THE PLACEMENT, AND THAT IS THE WHOLE OF IT.
+
+   A cut is `getImageData`, `trim` and `getContext` over a polygon of a photograph. It depends on
+   the photograph and on the seed. It does NOT depend on where the object landed, how fast it was
+   going, or what the ground is doing under it — those decide where a piece is PUT, which is
+   arithmetic. Round 9 had the two welded together in `shatterNow` and `splitPiece`, so every cut
+   had to wait for a landing that told it nothing it needed.
+
+   Unwelding them buys the fall. An object is airborne for FALL px — 460, about eight frames at the
+   rate the budget gate walks — and spent all of them idle while its own cut sat ahead of it. The
+   arithmetic that made this the fight: arrivals are ~630px apart, the cutting budget is CUT_MS a
+   frame, so an arrival gets ~29ms of budget and needs ~35ms of cutting. The queue could not win,
+   fell behind, and `ensureGen` paid for whole generations synchronously on the frame that needed
+   them — 33 of those per 380-frame pass, at a measured +12ms each, on top of a guaranteed +8.5ms
+   every landing frame for `shatterNow`. Both were cuts standing in a place where nothing else could
+   be done. Cutting through the fall as well takes the ~29ms to ~50ms.
+
+   What is NOT changed, and must not be: the seeds, the order, and therefore every pixel. A node
+   exists exactly where `cutPiece` returned non-null before, the split seed is still
+   `d.i * 999 + at * 71 + k` over the same k, and a parent nothing survives from is still carried
+   into the next generation whole. The rng streams are drawn in the placement, in the same order and
+   only for the pieces that exist — which is what they did when the two were one loop.
+
+   A generation's nodes are positionally 1:1 with that generation's placed pieces. That is the
+   contract `stepBuild` reads `d.tree[at][st.k]` on, and it holds because both lists are built by
+   the same filter over the same source in the same order. */
+
+function cutKids(d, node, g, k) {
+  const cells = voronoi(node.c.w, node.c.h, sites(node.c.w, node.c.h, 3, d.i * 999 + g * 71 + k));
+  const kids = [];
   for (const cell of cells) {
-    const p = cutPiece(d.im, d.w, d.h, cell.poly);
-    if (!p) continue;
+    const q = cutPiece(node.c.cv, node.c.w, node.c.h, cell.poly);
+    if (q) kids.push(q);
+  }
+  node.kids = kids.length ? kids : null;             // null = nothing survived; the parent carries on
+}
+
+/* Sliced exactly like `stepBuild` is: `ms < 0` means finish it now. Generation zero is sliced PER
+   CELL rather than cut in one go, because cutting thirteen cells off a photograph is the 8.5ms
+   spike this exists to remove — doing it early in one lump would only move the spike, not spend it. */
+function stepTree(d, ms, upto = SPLITS.length) {
+  const t0 = performance.now();
+  const over = () => ms >= 0 && performance.now() - t0 > ms;
+
+  if (!d.tree) {
+    if (!d.im) return false;                         // no pixels, no cut — the fall's rule, restated
+    d.cells0 = voronoi(d.w, d.h, sites(d.w, d.h, REDUCED ? 8 : 13, d.i * 131 + 7));
+    d.tree = [[]]; d.treeK = 0;
+  }
+  if (d.cells0) {
+    /* generation zero is the only one cut off the PHOTOGRAPH, so it is the only one with a deadline:
+       03's window releases the photograph the frame after `built`, and `land()` forces this to
+       completion before it sets that. Everything below is cut from fragment canvases and needs no
+       sprite at all. */
+    if (!d.im) return false;
+    while (d.treeK < d.cells0.length) {
+      const c = cutPiece(d.im, d.w, d.h, d.cells0[d.treeK].poly);
+      if (c) d.tree[0].push({ c, kids: null });
+      d.treeK++;
+      if (over()) return false;
+    }
+    d.cells0 = null; d.treeK = 0;
+  }
+  while (d.tree.length <= upto) {
+    const g = d.tree.length - 1, from = d.tree[g];
+    while (d.treeK < from.length) {
+      cutKids(d, from[d.treeK], g, d.treeK);
+      d.treeK++;
+      if (over()) return false;
+    }
+    const next = [];
+    for (const node of from) {
+      if (node.kids) for (const c of node.kids) next.push({ c, kids: null });
+      else next.push({ c: node.c, kids: null });     // survives whole, and gets a fresh seed next time
+    }
+    d.tree.push(next); d.treeK = 0;
+  }
+  return true;
+}
+
+const treeReady = (d, g) => !!d.tree && !d.cells0 && d.tree.length > g;
+
+/* HOW OFTEN A CUT STILL HAD TO BE PAID FOR ON THE FRAME THAT NEEDED IT. `lateCuts` above counts the
+   scrollbar arriving at a generation the queue had not published; this counts the narrower and more
+   expensive thing underneath it — the queue not having CUT the pixels yet. A walk that never trips
+   this is a walk where the fall was long enough. */
+let lateTree = 0;
+
+function treeTo(d, g) {
+  if (treeReady(d, g)) return true;
+  lateTree++;
+  return stepTree(d, -1, g);
+}
+
+/* Queued the moment the object is in the air with its pixels here. This is the runway. */
+function precut(d) {
+  if (d.i === LAST || d.treeQ || !d.im || treeReady(d, SPLITS.length)) return;
+  const job = () => {
+    d.treeQ = false;
+    /* the window took it away mid-cut: no sprite and no tree is nothing to continue, and re-queueing
+       on it would rebuild a wreck the window has already demolished. */
+    if (!d.im && !d.tree) return;
+    if (!stepTree(d, SLICE_MS)) { d.treeQ = true; queue.push(job); }
+  };
+  d.treeQ = true;
+  queue.push(job);
+}
+
+/* everything separates at once, on straight brittle edges — and by the time this runs the shapes
+   already exist. All that is left here is where each one goes, which is what the landing knows. */
+function shatterNow(d, cx, cy, speed) {
+  const r = rng(d.i * 37 + 3);
+  for (const node of d.tree[0]) {
+    const p = node.c;
     const [wx, wy] = toWorld(d, p.cx + d.w / 2, p.cy + d.h / 2);
     const away = wx - cx;
     const pc = makePiece(p, wx, wy,
@@ -790,13 +911,11 @@ function shatterNow(d, cx, cy, speed) {
    Cutting is the only expensive thing in the frame, so every cut goes through a queue and gets a
    time budget. A split of 40 pieces spreads over three frames and never shows. */
 
-function splitPiece(d, p, seed) {
-  const cells = voronoi(p.w, p.h, sites(p.w, p.h, 3, seed));
+function placeSplit(d, p, kids, seed) {
+  if (!kids) return null;                            // nothing survived the cut: the parent goes on
   const r = rng(seed + 17);
   const out = [];
-  for (const cell of cells) {
-    const q = cutPiece(p.cv, p.w, p.h, cell.poly);
-    if (!q) continue;
+  for (const q of kids) {
     const c = Math.cos(p.rot), s = Math.sin(p.rot);
     // children push away from their parent, so the field spreads as it breaks down instead of
     // becoming a denser and denser heap in exactly the same footprint
@@ -894,10 +1013,19 @@ function stepBuild(d, ms) {
   while (d.gens.length <= SPLITS.length) {
     const at = d.gens.length - 1, from = d.gens[at];
     settleGen(from);
+    /* THE CUT COMES FIRST AND IT IS THE SAME BUDGET. If the tree has not reached this generation
+       yet, a sliced call spends its slice on the cut and comes back next frame rather than placing
+       pieces that do not exist; a forced call (`ms < 0`, the scrollbar is already here) cuts exactly
+       as far as it needs and no further, so a late frame pays for one generation and not for three. */
+    if (!treeReady(d, at + 1)) {
+      if (ms >= 0) { stepTree(d, ms, at + 1); return false; }
+      if (!treeTo(d, at + 1)) return false;          // no pixels: it cannot be cut yet
+    }
     if (!d.stage || d.stage.at !== at) d.stage = { at, k: 0, out: [] };
     const st = d.stage;
+    const nodes = d.tree[at];
     while (st.k < from.pieces.length) {
-      const kids = splitPiece(d, from.pieces[st.k], d.i * 999 + at * 71 + st.k);
+      const kids = placeSplit(d, from.pieces[st.k], nodes[st.k].kids, d.i * 999 + at * 71 + st.k);
       /* a piece too small to break again survives whole, rather than vanishing. The old queue did
          the same by leaving it in place when `splitPiece` returned null. */
       if (kids) st.out.push(...kids); else st.out.push(from.pieces[st.k]);
@@ -905,6 +1033,14 @@ function stepBuild(d, ms) {
       if (ms >= 0 && performance.now() - t0 > ms) return false;
     }
     d.gens.push({ pieces: st.out, born: genBorn(d.i, d.gens.length), n: 0, restN: null });
+    /* AND THE PARENT GOES BACK TO ITS BIRTH, unless it is the one on screen. `settleGen` above ran
+       it to rest so its children could be cut from where it actually lies — that is the only reader
+       it has — and leaving it there makes a RETAINED generation's pose depend on when the queue got
+       round to it. Round 9 deleted exactly this in `blank()` for objects that draw nothing; a drawn
+       object's other generations are the same claim and were missed. Nothing could see it: the
+       equivalence walk found three of them with the canvas pixel-identical at every stop. A cache
+       whose contents depend on how the visitor arrived is what 8b exists to delete, seen or not. */
+    if (at !== (d.i === LAST ? 0 : genAt(d.age)) && from.n) { rewindPieces(from.pieces); from.n = 0; }
     d.stage = null;
   }
   return true;
@@ -1578,6 +1714,10 @@ function frame() {
       if (d.built) demolish(d);
       if (!d.atoms) build(d);
       blank(d);
+      /* THE FALL IS THE RUNWAY. Nothing here is drawn from the tree and nothing waits on it — the
+         object is a photograph in the air either way. What it buys is that the landing frame, and
+         the two splits after it, find their shapes already cut. */
+      precut(d);
       d.t = rel / FALL;
       d.air = true; airborne++;
       d.px = d.x;
@@ -1869,6 +2009,7 @@ window.__hh = {
   held: () => drops.filter(d => d.im).map(d => ({ i: d.i, k: d.it.k, air: d.air, down: d.down,
                                                   w: d.im.naturalWidth, h: d.im.naturalHeight })),
   peakHeld: () => peakHeld, pending: () => inFlight, blind: () => solvedBlind, lateCuts: () => lateCuts,
+  lateTree: () => lateTree,
   /* 04 round 9. The rewind keeps a wreck for BACK px past its object's death and keeps EVERY
      generation of it, because a parent is what its children are cut from and a rewind across a
      split needs the parent back. That is a second resident set beside the photographs and it is

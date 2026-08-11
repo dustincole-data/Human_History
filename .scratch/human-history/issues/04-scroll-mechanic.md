@@ -778,3 +778,83 @@ One `expect` was wrong rather than one gate: `queue_decides_the_generation` redd
 `frozen_when_idle`, not the two-first-visits gate — both visits are equally late and both settle
 before the shot, so they agree with each other. *The picture changing while nobody is scrolling* is
 the stronger statement of the same defect, and it is the one that fired.
+
+## Round 10, 2026-08-11 — the frame budget. The cut moves into the fall.
+
+Round 9's one red gate. **The regression was reproduced before a line was changed**, as instructed:
+HEAD at `034ff7e` served beside the shipped build from `_h_*.js` copies, one browser, one page, the
+arms alternating so machine drift is shared. Floor of the warm passes, which is the gate's own
+reading.
+
+| interleaved, 380 frames at 55px, floor of warm passes | median | p95 |
+|---|---|---|
+| HEAD `034ff7e` | 16.7 ms | **18.7 ms** |
+| round 9 | 16.4 ms | **29.6 ms** — over the 25 ms ceiling |
+| round 10 | 16.5 ms | **20.4 ms** |
+
+**Two tabs are not an A/B.** The first harness left both builds loaded and timed them in turn —
+and in headless chromium a backgrounded tab is still `visible` and still ticks rAF: 60 frames on the
+back tab took 1337 ms against the front tab's 1293. Every reading was each build timed against the
+other one painting. One page at a time, alternating loads.
+
+### Where the time was, measured rather than reasoned
+
+The medians were identical — 16.4 vs 16.7 — so nothing was a steady tax and all of it was in the
+tail. Frames were then labelled from the TABLES rather than from the page: an object lands on the
+first frame whose y crosses `START[i] + FALL`, which is arithmetic a harness can do itself.
+
+| frames in one 380-frame pass | n | median | p95 |
+|---|---|---|---|
+| a landing | 39 (1 in 9.7) | **26.2 ms** | 42.5 |
+| a late cut | ~33 | **29.2 ms** | 63.2 |
+| neither | 305 | 17.6 ms | 30.7 |
+
+**A landing is 1 frame in 10 and p95 is 1 frame in 20, so landings alone can hold the 95th
+percentile.** And the arithmetic underneath: arrivals are ~630px apart, the cut budget is `CUT_MS` a
+frame, so an arrival gets ~29ms of budget and needs ~35ms of cutting. The queue could not win. It
+fell behind, and `ensureGen` bought whole generations synchronously on the frame that needed them.
+
+### The fix: a cut is not a landing
+
+**`shatterNow` and `splitPiece` had the cut welded to the placement.** A cut is `getImageData`,
+`trim` and `getContext` over a polygon — it depends on the photograph and the seed. Where a piece is
+PUT depends on the landing. Round 9 made every cut wait for a landing that told it nothing it needed.
+
+Unwelded, the whole cut tree of an object is a pure function of its photograph and its index, so it
+is built during the FALL — 460px, about eight frames, that were spent idle. `d.tree` holds every
+canvas the object will ever be; `land()` and `stepBuild` place them. That takes the ~29ms per
+arrival to ~50ms. **Late cuts over a warm pass: 33 → 0.**
+
+Nothing about what is drawn moves, and that is checked rather than claimed: the seeds, the order and
+the carry-over of a parent nothing survives from are identical, and the rng streams are still drawn
+in the placement, in the same order, only for pieces that exist.
+
+### A second defect, found by the equivalence walk and older than this round
+
+**A retained generation was left wherever the queue stopped.** `stepBuild` settles a parent so its
+children can be cut from where it actually lies — the only reader that pose has — and then left it
+settled. So a generation that is *not on screen* held a pose that depended on when the queue got
+round to it. Round 9 deleted exactly this in `blank()` for objects that draw nothing and missed the
+same claim for a drawn object's other generations. **Nothing could see it** — the canvas is
+pixel-identical at every stop either way. It is still a cache whose contents depend on how the
+visitor arrived, which is what 8b exists to delete. The parent goes back to its birth unless it is
+the one on screen.
+
+### Verified — and what is not
+
+The fixed build and round 9 as committed, walked to six positions, **waiting on `queue.length` and
+not only on `pending()`** — the first version of this harness did not, caught the page mid-assembly,
+and reported a page that had not finished as a page that disagreed. Round 9's own quiescence lesson,
+arriving on the harness written to check round 9's successor.
+
+- **6,852 cuts identical.** No generation, drawn or retained, differs in piece count, size or canvas
+  bytes. This is the claim the whole round rests on.
+- **565 drawn fragments identical**, and the canvas and the label layer identical at all six stops.
+- **113 retained generations at birth.** The 7 that are not are structural, not scheduling: six are a
+  dusted object's last generation, which `ensureSpecks` settles on purpose because the specks are
+  made from that pose, and one is a single carried-over piece that IS the same object as a piece in
+  the drawn generation.
+
+**The gate suite has NOT been run** — `sweep10` + `--slow`, `sweep11i`, `teeth04r9` are ~1–2 hours of
+a busy machine and are deferred to a quiet one at Dustin's instruction. `frame_budget` is measured
+green by its own method; the other 42 are unrun since the change.
