@@ -41,6 +41,20 @@ node bench04r8.mjs                        # the replay cost on the frame the vis
                                           # source before it reports, and prices three schedules.
 ```
 
+Ticket 04 round 10's three, also read-only. `ab` and `same` need a second build served beside the
+shipped one as `_h_*.js` / `_r9_*.js` copies — `git show <commit>:prototypes/webgl/gravity.js`, with
+the imports rewritten if the round also changed `burial.js` or `decay.js`. **Delete the copies
+afterwards.**
+
+```
+node ab04r10.mjs [--cpu=N] [--rounds=N]   # interleaved A/B against another build, one page at a
+                                          # time. sweep10's frame_budget pass verbatim.
+node where04r10.mjs                       # splits the frame durations by what happened on the
+                                          # frame — a landing, a late cut, neither.
+node same04r10.mjs                        # every cut and every drawn fragment against another
+                                          # build, at six stops. Waits on queue.length.
+```
+
 `--slow` holds every `img/` and `thumb/` request 40–340ms at random. It is not decoration: three of
 round 10's gates were green with their own code deleted because localhost is never late, and
 round 12 found a fourth that never exercised the delay it was named for.
@@ -78,6 +92,27 @@ round 12 found a fourth that never exercised the delay it was named for.
 - **Measure the shipped build on the same machine in the same window before believing a
   regression.** Round 9's frame budget looked like noise until HEAD was served side by side from
   `_h_*.js` copies and measured at 17.9ms against 26.1ms. Delete the copies afterwards.
+
+## What round 10 added to the list
+
+- **Two tabs are not an A/B.** In headless chromium a backgrounded page still reports
+  `visibilityState === 'visible'` and still ticks rAF — measured, 60 frames on the back tab in
+  1337ms against the front tab's 1293. An A/B that leaves the other build loaded times each arm
+  against the other one painting. One page at a time; apply load deliberately with CPU throttling.
+- **`pending() === 0` is not quiescence.** It says the photographs are here. It says nothing about
+  the cutting queue, and a build that carries more queued work is the one that gets caught
+  mid-assembly — so it reads as the build that disagrees. Wait on `queue.length` too. Round 9 knew
+  this and the harness written to check round 9's successor did not.
+- **Label a frame from the tables, not from the page.** An object lands on the first frame whose y
+  crosses `START[i] + FALL`, which the harness can compute itself — no instrumentation, nothing to
+  perturb the thing being timed. That is what showed landings holding the 95th percentile.
+- **A pipe hides a hang.** `node x.mjs | tail -30` prints nothing until the process exits, so a run
+  that hung on `browser.close()` looked like a run that was still working, for ten minutes.
+  `browser.close()` does hang here with the piece's rAF loop live — race it and `process.exit`.
+- **Sweep the orphans before timing, and check what you are killing.** A killed playwright run
+  leaves a headless chrome behind. `chrome-devtools-mcp` also keeps one alive that is NOT an orphan,
+  and the static server is a `python -m http.server` that a broad `node.exe` sweep will not catch
+  but a broad kill of anything else might.
 
 ## Never hand-patch a source file to test a gate
 
