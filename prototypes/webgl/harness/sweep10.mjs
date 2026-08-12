@@ -14,10 +14,32 @@ const results = [];
 const ok = (n, pass, note) => { results.push({ n, pass, note }); console.log(`${pass ? 'PASS' : 'FAIL'}  ${n}  ${note ?? ''}`); };
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+let page;
 const errors = [];
-page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-page.on('pageerror', e => errors.push(String(e)));
+
+/* A PHASE GETS A NEW PAGE, NOT A NAVIGATION — sweep11i has always done this and this file had
+   not, which is the whole difference between a suite that finishes and one that does not. After
+   the 2,133-stop walk the piece's document will not go away: `page.goto` to the same URL took
+   13.6s against 2.1s cold, and once the run is ten minutes old even `about:blank` blows a 30s
+   timeout. It killed this sweep at the same line four times. The README already had the other
+   half of it — `browser.close()` hangs here with the piece's rAF loop live — and the fix is the
+   same shape: stop asking the old document to stand down, and open a new one.
+   `errors` accumulates across pages on purpose; `no_console_errors` is a claim about the RUN. */
+async function newPage() {
+  /* THE VIEWPORT SURVIVES THE SWAP, and it has to. `fresh()` used to be a navigation on the same
+     page, so a phase that set 390x844 and then reloaded stayed at 390x844 — and three phases do
+     exactly that. A new page defaulting to 1440x900 would have run the phone gates at desktop
+     width while still calling them the phone gates, which is a false green, not a red. */
+  const view = page ? page.viewportSize() : { width: 1440, height: 900 };
+  if (page) await Promise.race([page.close().catch(() => {}), new Promise(r => setTimeout(r, 5000))]);
+  page = await browser.newPage({ viewport: view, deviceScaleFactor: 1 });
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', e => errors.push(String(e)));
+  if (SLOW) await page.route('**/img/*.webp', async route => {
+    await new Promise(r => setTimeout(r, 40 + Math.floor(Math.random() * 300)));
+    await route.continue();
+  });
+}
 
 /* --slow: hold every sprite response for a random 40–340ms. ROUND 10.
 
@@ -26,11 +48,7 @@ page.on('pageerror', e => errors.push(String(e)));
    gates stayed green with their own code deleted until this existed. A phone on a train is not
    127.0.0.1. The delay is RANDOM per request on purpose: a fixed one preserves request order,
    and out-of-order arrival is the failure mode being tested. Run both ways. */
-const SLOW = process.argv.includes('--slow');
-if (SLOW) await page.route('**/img/*.webp', async route => {
-  await new Promise(r => setTimeout(r, 40 + Math.floor(Math.random() * 300)));
-  await route.continue();
-});
+const SLOW = process.argv.includes('--slow');   // applied in newPage(), once per page
 
 /* ROUND 10. `peakHeld` is per page load and every phase below reloads, so the reading is taken
    on the way OUT of each page rather than at the end of the run — otherwise the number reported
@@ -38,6 +56,7 @@ if (SLOW) await page.route('**/img/*.webp', async route => {
    page this sweep opens, which is the honest reading of "the most it ever held". */
 const held = { peakPx: 0, lastN: 0, lastPx: 0, blind: 0, stops: 0 };
 const absorb = async () => {
+  if (!page) return;                            // the first phase has no page to read on the way out
   const r = await page.evaluate(() => {
     if (!window.__hh || !window.__hh.held) return null;
     const h = window.__hh.held();
@@ -52,6 +71,7 @@ const absorb = async () => {
 
 const fresh = async (url = URL) => {
   await absorb();
+  await newPage();
   await page.goto(url, { waitUntil: 'load' });
   await page.waitForFunction(() => window.__hh && window.__hh.drops.length, null, { timeout: 60000 });
   await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
@@ -1017,5 +1037,7 @@ for (let i = 0; i < N; i += 24) console.log(`  item ${String(i).padStart(3)}  y=
 const failed = results.filter(r => !r.pass);
 console.log(`\n${results.length - failed.length}/${results.length} green` + (failed.length ? `  —  FAILED: ${failed.map(f => f.n).join(', ')}` : ''));
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ results }, null, 1));
-await browser.close();
+/* raced, for the README's reason: close() hangs with the piece's rAF loop live, and a run that
+   has already printed its table must not be able to die on the way out */
+await Promise.race([browser.close().catch(() => {}), new Promise(r => setTimeout(r, 5000))]);
 process.exit(failed.length ? 1 : 0);

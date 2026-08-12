@@ -11,7 +11,15 @@ perturbing protects the cheap half.
 
 ## Running it
 
-Serve `prototypes/` on 8812; the only URL is `/webgl/index.html`.
+Serve `prototypes/` on 8812 **with `serve.py`, not `python -m http.server`** — the built-in is
+HTTP/1.0 with a listen backlog of 5, and a sweep makes tens of thousands of requests:
+
+```
+python serve.py 8812 --dir .            # from prototypes/, output redirected to a file
+```
+
+Redirect its output. A blocked log pipe has hung the server and killed sweep runs.
+The only URL is `/webgl/index.html`.
 
 ```
 node sweep10.mjs  [out.json] [--slow]     # the piece — 43 gates
@@ -123,6 +131,26 @@ round 12 found a fourth that never exercised the delay it was named for.
   leaves a headless chrome behind. `chrome-devtools-mcp` also keeps one alive that is NOT an orphan,
   and the static server is a `python -m http.server` that a broad `node.exe` sweep will not catch
   but a broad kill of anything else might.
+
+## What ticket 15 added to the list
+
+- **A phase gets a NEW PAGE, not a navigation.** `sweep10` reused one page for its whole run and
+  `sweep11i` has always opened a new one, and that is the entire difference between a suite that
+  finishes and one that does not. After the 2,133-stop walk the piece's document will not go away:
+  `page.goto` to the same URL measured **13.6s against 2.1s cold**, and once the run is ten minutes
+  old even **`about:blank` blows a 30s timeout**. It killed `sweep10` at the same line four times in
+  a row, and it looks exactly like a hung server — it is not. The server is a red herring twice
+  over: `serve.py` above is a real fix for a real limit and it did **not** fix this.
+- **The viewport has to survive that swap.** Three phases set 390×844 and then call `fresh()`. A new
+  page defaulting to 1440×900 would run the phone gates at desktop width while still calling them
+  the phone gates — **a false green, not a red.** `newPage()` reads `page.viewportSize()` off the
+  outgoing page.
+- **A gate that is on record as a knife-edge is worth re-measuring before it is believed, in both
+  directions.** `no_text_collision_390` went red at 236 items and its own comment says one overlap
+  taken a single rAF apart is machine timing. Two independent passes returned **byte-identical
+  overlaps — same stops, same pairs, same pixel values** — so it is deterministic and real. The
+  probe that settled it is not in the repo: it is fifty lines that replicate the one phase and
+  print WHICH words overlap, which is what `worst` in the gate captures and never prints.
 
 ## Never hand-patch a source file to test a gate
 
