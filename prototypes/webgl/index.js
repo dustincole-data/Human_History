@@ -409,13 +409,25 @@ export function build(top) {
   h.className = 'irollh';
   h.textContent = 'Everything that fell, and where the picture came from';   // 07: the voice
   roll.appendChild(h);
+  /* THE ONE LINK PER ENTRY, and it is a licence term rather than a courtesy — 07 item 7.
+     120 of these are CC BY or CC BY-SA, whose attribution is four parts (title, author, source,
+     licence) and wants a URI for the last two. CC BY 4.0 §3(a)(2) says the conditions may be
+     satisfied by linking a resource that carries the required information, and the file page IS
+     that resource — so ONE link on the source name does the whole job, rather than two links per
+     row and 472 tab stops on a surface that already has 236 focusable cells.
+
+     THE PIECE CANNOT CARRY IT and does not try: a link riding a word that is about to be thrown
+     across the soil is unreachable, and 06 built the citation as words for that reason. The roll
+     is where the visitor has stopped, which is the same argument 14 used for the outbound link. */
   const ol = document.createElement('ol');
   for (const it of ITEMS) {
     const li = document.createElement('li');
     const n = document.createElement('b'); n.textContent = it.n;
     const y = document.createElement('i'); y.textContent = it.disp;
     const s = document.createElement('span');
-    s.textContent = `${it.src} · ${it.lic} · ${shortCred(it.cred)}`;
+    const a = document.createElement('a');
+    a.href = it.url; a.rel = 'noopener'; a.target = '_blank'; a.textContent = it.src;
+    s.append(a, ` · ${it.lic} · ${shortCred(it.cred)}`);
     li.append(n, y, s);
     ol.appendChild(li);
   }
@@ -450,6 +462,43 @@ export function build(top) {
   out.textContent = 'All of this fits in its last sliver.';
   note.appendChild(out);
   colo.appendChild(note);
+
+  /* ---- 07 items 3 and 7: the two hedges the set owes, said once for all of it ----
+
+     THE MASK. Every photograph on the site is cut out of a larger one, and 98 of them are CC BY
+     or CC BY-SA, which require an indication that the material was modified. It is one sentence
+     for 236 items rather than a clause on each, because the modification is identical every time
+     — and it is the same true sentence the piece is built on (11: nothing has an edge but the
+     thing itself).
+
+     THE DATES. 07 item 3 asked where a hedging SENTENCE is genuinely required instead of
+     notation, and this is the only place: the hedge that is owed is not about any one date, it
+     is that most of them have no holding institution behind them at all. Commons dates the
+     PHOTOGRAPH, so those entries rest on this record's editorial list. Said without a count,
+     because a count in the copy makes adding an object a copy edit as well as a data edit. */
+  const fine = document.createElement('p');
+  fine.className = 'fine';
+  fine.append('Every photograph here is masked to its object and otherwise unchanged. ' +
+              'Dates come from the collection that holds the object; where no collection holds ' +
+              'it, the date is this record’s own. A photograph that carries a licence carries ' +
+              'one of these: ');
+  /* only the ones with a deed. Public domain is not a licence you are "under", and listing it
+     beside twelve that are is the kind of small wrongness the credits are the last place for. */
+  const lics = [];
+  let pd = false;
+  for (const it of ITEMS) {
+    if (!it.licurl) { pd = true; continue; }
+    if (!lics.some(l => l[0] === it.lic)) lics.push([it.lic, it.licurl]);
+  }
+  lics.sort((a, b) => a[0].localeCompare(b[0]));
+  lics.forEach(([lab, href], i) => {
+    if (i) fine.append(i === lics.length - 1 ? ' and ' : ', ');
+    const a = document.createElement('a');
+    a.href = href; a.rel = 'noopener'; a.target = '_blank'; a.textContent = lab;
+    fine.appendChild(a);
+  });
+  fine.append(pd ? '. The rest are public domain.' : '.');
+  colo.appendChild(fine);
   roll.appendChild(colo);
 
   el.appendChild(roll);

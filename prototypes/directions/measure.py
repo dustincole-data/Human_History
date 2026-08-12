@@ -37,6 +37,12 @@ def rows_live():
     src = json.load(open("sourced.json", encoding="utf-8"))
     out = []
     for r in LEGACY:
+        # build_data.py drops a legacy row like any other and this loop never did, so every table
+        # in ticket 05 has been measured over ONE MORE ITEM THAN SHIPS since `camera` was cut for
+        # the Western cap — and the phantom row is itself Western, which is the one number the cap
+        # is about. Fifth time in this project the instrument was wrong and the page was not.
+        if r["k"] in DROP:
+            continue
         b, t = catalog.EXISTING.get(r["k"], ("?", "C"))
         out.append(dict(k=r["k"], y=r["y"], b=b, tier=t, frag=src.get(r["k"], {}).get("frag"),
                         gap=None, lic=r["lic"], cred=r["cred"], page=r["url"]))
@@ -127,6 +133,37 @@ if "--live" in sys.argv:
             continue
         seen |= {r["k"], o["k"]}; shown += 1
         print(f"    {g:4d}y   {r['k']:14s} ({r['b']}) : {o['k']:14s} ({o['b']})")
+
+    # -----------------------------------------------------------------------------------------
+    # TICKET 07 ITEM 2 — does an arrival need a description line? The slot 05 left empty is
+    # closed on this number rather than on taste: R1 forced every entry to be named for the
+    # OBJECT rather than for the event it belongs to, so the names were already written as
+    # descriptions and a description line would restate them.
+    #
+    # A name DESCRIBES if it contains a common noun — anything lowercase past the first word, or
+    # a single word that is itself the noun ("Netsuke", "Astrolabe", "Crossbow"). What is left
+    # after that is a proper name with nothing in it for a stranger, and BRANDS is that list,
+    # eyeballed once and asserted here so the script cannot quietly grow it.
+    # Read off data.js, which is the set that actually ships, rather than off this file's rows —
+    # the names are the generator's output (RENAME rewrites 27 of them) and this claim is about
+    # what the visitor reads.
+    import re as _re
+    _js = open("data.js", encoding="utf-8").read()
+    named = _re.findall(r'\{k:"[^"]+", y:-?\d+, disp:"[^"]*", n:"([^"]*)".*?t:"([ABC])"', _js)
+    BRANDS = {"Hyundai Pony", "Tata Nano", "Raspberry Pi"}
+
+    def describes(n):
+        ws = n.replace("(", "").replace(")", "").replace(",", "").split()
+        return len(ws) == 1 or any(w[:1].islower() and len(w) > 2 for w in ws[1:])
+
+    print("\n07 ITEM 2  DO THE NAMES ALREADY DESCRIBE?")
+    for tier in "ABC":
+        sub = [n for n, t in named if t == tier]
+        ok = [n for n in sub if describes(n) and n not in BRANDS]
+        print(f"    tier {tier}  {len(ok):3d} / {len(sub):3d}  "
+              f"({100*len(ok)/len(sub):5.1f}%) carry the noun that says what it is")
+    bare = sorted(n for n, t in named if not describes(n) or n in BRANDS)
+    print(f"    names with no common noun in them: {len(bare)}   {', '.join(bare)}")
 
     print("\nCITATION")
     miss = [r["k"] for r in rows if not r.get("lic") or not r.get("cred") or not r.get("page")]

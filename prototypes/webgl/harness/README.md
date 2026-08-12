@@ -36,6 +36,16 @@ Playwright is resolved from `Projects/Deep_Time/package.json`; there is no insta
 `teeth11.mjs` shells `node sweep11i.mjs` from the working directory, so the two stay together.
 
 ```
+Ticket 08's phone probe. Read-only, and it is **not** the ship gate — the ship gate is a real
+device. It settles the two scars a headless browser can settle (the URL bar's effect on the runway
+and on `fit()`), splits the 2.5.8 counts by kind, and enumerates the `:hover` rules a finger can
+reach so the real-device pass has a checklist instead of a hunt.
+
+```
+node   phone08.mjs   [out.json]           # 390x844 @ dpr 3, touch. 8 cases.
+```
+
+```
 node bench04r8.mjs                        # the replay cost on the frame the visitor reverses.
                                           # Read-only. Checks MS_PER_PX and SUB against the served
                                           # source before it reports, and prices three schedules.

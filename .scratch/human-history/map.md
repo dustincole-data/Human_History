@@ -76,8 +76,10 @@ Five asks, filed where they belong rather than as a loose list. **One of them ch
   round 9.** Ruled **the LIGHT**, not a new dated ground: 13 stays closed and the earth is gated
   byte-identical across every era. What is dated is *reach* — how far the light of the age got —
   as a smooth function of the year rather than a step per lamp, so no era boundary is asserted.
-- **The set must reach 2026** -> [05](issues/05-arrival-set.md), reopened *scoped to that tail
-  only*. Newest entry today is 2022.
+- ~~**The set must reach 2026**~~ **-> done, [05](issues/05-arrival-set.md) round 2.** It does: the
+  last object is a **2026 Olympic torch**, and [14](issues/14-the-ending-and-the-frame.md)'s ending
+  inherits it without being asked to. Seven admitted from twenty-three candidates, the set is
+  **236**, and the 78% loss rate in the tail is itself the finding.
 - ~~**The name of the project**~~ **-> done, [07](issues/07-copy-voice-and-name.md) round 1.** It is
   **EVERYTHING BREAKS**, at `everythingbreaks.dustincoledata.com` (free; all ten shipped subdomains
   checked). Seven names in three families were put in front of Dustin and he picked. The repo keeps
@@ -316,8 +318,14 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 
 ## Not yet specified
 
-- **The build phase.** Everything after [09 — Spec assembly](issues/09-spec-assembly.md): scaffold, data pipeline, image acquisition and processing, layout, the collision/contrast/memory gates, deploy, subdomain, project card. Graduates into tickets once the spec exists — charting it now would be guessing at a shape [04](issues/04-scroll-mechanic.md) and [06](issues/06-visual-treatment.md) haven't decided.
-- **The share artifact and social card.** Deep Time rendered its finale fan as a build-time still. [01](issues/01-the-fun-thesis.md) settled that there is no finale to render and that the sendable unit is a planted callout line, not an image — so the card is probably a treated arrival or an index still. Not sharp enough to ticket until [06](issues/06-visual-treatment.md) sets the visual system.
+- ~~**The build phase.**~~ **Built, and its last mile is now [15 — Deploy, the subdomain and the
+  card](issues/15-deploy-and-the-card.md)**, scoped 2026-08-11 on Dustin's instruction to scope it
+  before building. Seven decisions, one structural (**the site root** — the page lives two
+  directories down and reads its data out of a sibling directory, and whichever layout wins, the
+  harness's URL and the deployed URL have to become the same shape or 43 green gates stop meaning
+  the site is green). Exactly one thing in it is genuinely undecided: **the social image**.
+- **The share artifact and social card** — now the only open decision inside
+  [15](issues/15-deploy-and-the-card.md). Deep Time rendered its finale fan as a build-time still. [01](issues/01-the-fun-thesis.md) settled that there is no finale to render and that the sendable unit is a planted callout line, not an image — so the card is probably a treated arrival or an index still. Not sharp enough to ticket until [06](issues/06-visual-treatment.md) sets the visual system.
 - ~~**The prologue↔body seam.**~~ **Closed by [04](issues/04-scroll-mechanic.md) round 7** — structural, and produced by the same rule that delivers the contemporaries. No transition to design, no ticket needed.
 
 ## Out of scope

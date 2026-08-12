@@ -1,7 +1,8 @@
 # 05 — The arrival set & verified dates
 
 Type: research
-Status: open (reopened, scoped to the 2020-2026 tail)
+Status: CLOSED 2026-08-11 — 236 items, reaching 2026. First close 2026-08-08 (230); the
+        2020-2026 tail and three of the seven never-founds closed the reopen.
 Assignee: dustin
 Resolved: 2026-08-08 for the 230-item set
 Blocked by: 02, 04
@@ -339,3 +340,120 @@ rulings stand, the coverage tables stand. What is owed:
 Also still open from the first pass, and cheap: the **seven never-found** rows (`braille`,
 `maosuit`, `borobudur`, `batik`, `goldweight`, `prayerwheel`, `kimono`) are still in `catalog.py`
 and most would come back with a second query.
+
+---
+
+## Closed 2026-08-11 — **236 items, and the set reaches 2026**
+
+Twenty-three candidates fetched across four passes, **seven admitted**: five inside 2023–2026 and
+two of the never-founds. One entry left the set on a licence. **The number that set this list
+before it was written is the one that closed it**, which is R4 working the way it worked the first
+time.
+
+### The cap did the selecting, and it was arithmetic before it was taste
+
+The 230 measured **Western (EUR + NAM) = 77 items**, so a tail of `n` items may carry `w` Western
+where `(77 + w) / (230 + n) ≤ 0.34`. That is `w ≤ 2` at `n = 8` and `w ≤ 3` at `n = 10`, and it was
+written into `catalog.py` above the new rows rather than discovered afterwards. Six Western
+candidates were fetched anyway — they are the strongest objects of the decade — and the surplus was
+to be cut at the end, weakest first, exactly as the first pass cut four rather than widening the
+line.
+
+**It also cut an object nothing else would have.** `su7` (Xiaomi SU7 Ultra, 2025) came back clean,
+in focus and high-`frag`, and it is the **third electric car in four years and the second Chinese
+one**. `byd` already carries that. It went on redundancy, not on the image, and EAS — the set's
+largest overshoot — is one lighter for it.
+
+### What ships
+
+| key | | year | region | tier |
+|---|---|---|---|---|
+| `goldweight` | Akan gold weight | c. 1700 | AFR | C |
+| `batik2` | Javanese batik cloth | c. 1750 | SEA | B |
+| `cybertruck` | Stainless-steel pickup | 2023 | NAM | A |
+| `visionpro` | Apple Vision Pro | 2024 | NAM | A |
+| `unitree` | Humanoid robot | 2024 | EAS | B |
+| `switch2` | Joy-Con 2 controllers | 2025 | EAS | B |
+| `torch2` | Olympic and Paralympic torches | 2026 | EUR | B |
+
+**The last object is now a torch**, which [14](14-the-ending-and-the-frame.md)'s ending inherits
+without being asked to: the newest thing anyone made falls, and nothing happens to it.
+`goldweight` and `batik2` are two of the seven never-founds, retried because they sit in the two
+buckets furthest **under** target (AFR −1.9, SEA −1.8). **The other four are not retried and that
+is a decision, not a backlog** — `maosuit`, `prayerwheel` and `kimono` are EAS, the set's biggest
+overshoot, and `braille` is EUR under a cap the tail is already spending. Recorded in
+`catalog.NOT_RETRIED`.
+
+### The measurement, regenerated
+
+| R4 · region | AFR | NIL | WCA | SAS | EAS | SEA | OCE | AME | EUR | NAM | LAM |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| target | 8 | 7 | 11 | 8 | 15 | 4 | 3 | 8 | 24 | 10 | 2 |
+| **got** | 6.4 | **3.4** | 11.0 | 8.1 | **23.3** | 2.5 | 3.0 | 6.8 | **20.8** | 12.7 | 2.1 |
+
+**Western 33.5% against the 34% cap. Held.** Three misses, and all three are the first pass's
+misses moving rather than new ones: **EAS +8.3** (was +7.9 — the 2020s record is East Asian
+consumer hardware and no query changes that), **NIL −3.6**, and **EUR −3.2**, which crossed the 3pp
+line because the denominator grew by six while EUR gained one.
+
+| R5 · era | pre-3000 | 3000–500 BCE | 500 BCE–500 | 500–1500 | 1500–1800 | 1800–1900 | 1900–1960 | 1960– |
+|---|---|---|---|---|---|---|---|---|
+| target | 5 | 9 | 9 | 13 | 16 | 15 | 15 | 18 |
+| **got** | 3.0 | 11.0 | 9.7 | 14.4 | 16.5 | 11.9 | 11.4 | **22.0** |
+| **non-Western** | 86 | 81 | 83 | 79 | 77 | 57 | **30** | 58 |
+
+**Every era band still clears its non-Western floor**, including 1900–1960 at 29.6% against 25%.
+E8 is 22.0% against an 18% target and **that is the reopen, not a defect** — the ticket was
+reopened to add items to exactly that band. R2 mean `frag` **0.769**, `frag < 0.25` and not tier A
+**0**, citation **0 missing**. Sprites re-baked: **67.5 MB decoded for all 236** against the 80 MB
+gate, transfer 6.7 MB; thumbs **26.8 MB** resident, 45.3 MB at 01's 400-item ceiling.
+
+### The finding the reopen asked for: what a licence costs at four years' distance
+
+**Twenty-three candidates, five admitted inside 2023–2026 — a 78% loss against the set's own 36%.**
+The ticket predicted the licence would be the hard part and it was, but not in the way it guessed.
+Supply is fine; **acquisition is what breaks**, in two ways that are both permanent lessons:
+
+1. **A one-word `must` matches a word, not a thing**, and modern names are ordinary English.
+   `starship` returned **Jefferson Starship**, a rock band. `vikram` returned **Vikram Solanki**, a
+   cricketer. `torch` returned a **torch-cut pipe**. `lego` returned an **Indonesian dance**. The
+   second pass fixed every one of them by making the must-word the object's whole name, and that
+   is now written into `catalog.py` where the next pass will read it.
+2. **Nothing from this decade is in an open-access museum**, so every candidate is Commons user
+   photography of an object still being sold — which means the photograph is a **product shot on
+   white** (the matte returns the whole rectangle: `cov 0.99`, twice, for the semaglutide pen), a
+   **screen-on device** (the matte reads the black screen as background and punches holes through
+   it: Switch 2 console, `frag 0.096`), or **the object on the structure holding it** (Starship on
+   its launch tower). None of those is a query fault.
+
+**And there is a gap no query closes: NIL, AME, OCE and LAM have no 2020s entry at all**, and
+neither does AFR — `roamair` and `roam2` both came back empty, the second returning an ampersand on
+a conveyor diagram. Reported rather than papered over with a manufacturer's press image, which is
+what the reopen asked for.
+
+### One entry left on its licence — and the pipeline now checks that before the eye does
+
+`lego` was **GFDL 1.2 and nothing else**. GFDL requires the full licence text to travel with the
+work, which a one-line credit on a shattering photograph cannot do; it is the only entry in the set
+under a copyleft licence the citation cannot satisfy. **Three replacement queries failed** — a 3D
+render (a constraint breach, not merely a wrong result), the dance, and a house model the matte
+shredded — so the object leaves the set rather than the rule bending. The corpus finding is the
+interesting half: **Commons' free-licensed Lego is what people BUILT with it**, because that is
+what a photographer points a camera at.
+
+`source5.py` now rejects a candidate on its licence at acquisition (`LIC_REJECT`: GFDL, NC, ND).
+**The set shipped a GFDL-only photograph for three rounds because acquisition never looked at the
+licence field it was already storing.**
+
+### And the instrument was wrong again — fifth time, first time inside the tables
+
+`measure.py` appends the twelve legacy cut-outs **without checking the drop table**, which
+`build_data.py` has always done. `camera` was cut for the Western cap in the first pass, so from
+that moment **every table in this ticket has been measured over one more item than ships — and the
+phantom row is itself Western**, which is the one number the cap is about. Fixed; the tables above
+are the first ones measured over the set that actually loads. The reported Western share moves from
+33.8% to 33.5%.
+
+**What downstream tickets inherit:** the set is **236**, `data.js` is regenerated (and now carries
+`licurl`), `webgl/img` and `webgl/thumb` are re-baked and swept of orphans, and 04's spacing, 10's
+shelf and 14's ending all take a new last item.

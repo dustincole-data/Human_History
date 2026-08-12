@@ -108,7 +108,11 @@ ITEMS = [
     ("lacquerbox", "Heian lacquer box",                 1000, "c. 1000",     "EAS", "Japan",    "C", "met:lacquer box maki-e Heian Japan|box,cosmetic"),
     ("palafolio",  "Pala manuscript folio",             1100, "c. 1100",     "SAS", "Bengal",   "C", "met:palm leaf manuscript folio Pala India|folio,manuscript,leaf"),
     ("tarabronze", "Bronze Tara",                        800, "c. 800",      "SAS", "Sri Lanka","B", "com:bronze Tara Sri Lanka British Museum|tara|map,temple,painting"),
-    ("borobudur",  "Borobudur relief block",             800, "c. 800",      "SEA", "Java",     "B", "com:Borobudur relief panel ship carving|borobudur|aerial,panorama,map,plan,sunrise"),
+    # SECOND QUERY, 2026-08-11. One of the seven the first pass never found. The must-word was the
+    # bare site name, so every hit was the monument; naming the RELIEF in the title is what the
+    # `intitle:` route needs. Retried because SEA is 1.8pp under target, which is the same reason
+    # the EAS never-founds are deliberately NOT retried — see the note at the foot of this file.
+    ("borobudur",  "Borobudur relief block",             800, "c. 800",      "SEA", "Java",     "B", "com:Borobudur relief panel stone carving|borobudur relief,borobudur ship,karmawibhangga|temple,aerial,panorama,map,plan,sunrise,sunset,stupa,tourist"),
     ("khmerbronze","Khmer bronze deity",                1150, "c. 1150",     "SEA", "Cambodia", "B", "met:Khmer bronze Angkor deity Cambodia|figure,buddha,deity,vishnu"),
     ("kris",       "Javanese kris",                     1400, "c. 1400",     "SEA", "Java",     "C", "met:kris dagger Java hilt|kris,dagger,knife"),
     ("igboukwu",   "Igbo-Ukwu roped pot",                950, "c. 950",      "AFR", "Nigeria",  "B", "com:Igbo-Ukwu bronze roped pot|igbo-ukwu,igbo ukwu|map,site,excavation"),
@@ -156,7 +160,9 @@ ITEMS = [
     ("snuffbottle","Qing snuff bottle",                 1750, "c. 1750",     "EAS", "China",    "C", "met:snuff bottle Qing glass jade|snuff"),
     ("thaibuddha", "Ayutthaya Buddha head",             1600, "c. 1600",     "SEA", "Siam",     "C", "met:Buddha head Ayutthaya Thailand bronze|buddha,head"),
     ("vietblue",   "Vietnamese blue-and-white dish",    1500, "c. 1500",     "SEA", "Vietnam",  "C", "met:Vietnamese blue and white dish|dish,bowl,jar"),
-    ("goldweight", "Akan gold weight",                  1700, "c. 1700",     "AFR", "Ghana",    "C", "art:Akan goldweight brass Ghana|weight,goldweight"),
+    # SECOND QUERY, 2026-08-11. `must` was the bare word "weight", which passes anything from a
+    # gym plate to a postal scale once the search falls through to Commons. AFR is 1.9pp under.
+    ("goldweight", "Akan gold weight",                  1700, "c. 1700",     "AFR", "Ghana",    "C", "art:Akan goldweight Asante brass figurative|goldweight,gold weight,abrammuo|scale,gym,map,person,coin,dust"),
     ("nkisi",      "Kongo nkisi power figure",          1700, "c. 1700",     "AFR", "Kongo",    "B", "met:power figure nkisi nkondi Kongo|power figure,nkisi"),
     ("ethicon",    "Ethiopian painted icon",            1600, "c. 1600",     "AFR", "Ethiopia", "C", "met:Ethiopian icon diptych painted panel|icon,diptych,panel"),
     ("wampum",     "Wampum belt",                       1700, "c. 1700",     "AME", "Haudenosaunee","B","com:wampum belt beads Iroquois museum|wampum|map,treaty text,drawing,portrait"),
@@ -333,7 +339,10 @@ ITEMS = [
     ("tainozemi",  "Taíno zemí",                        1400, "c. 1400",     "AME", "Caribbean","C", "met:Taino zemi stone Caribbean|zemi,figure,stone"),
 
     # ---- E5
-    ("batik",      "Javanese batik cloth",              1750, "c. 1750",     "SEA", "Java",     "B", "met:batik cloth Java Indonesia wax resist|batik,sarong,skirt"),
+    # SECOND QUERY, 2026-08-11. The Met holds one and titles it "Sarong (Kain Lepas)" with no
+    # usable file, which is the exact single-source miss run_spec's fallback was written for; the
+    # first spec never reached Commons because `must` demanded a Met word. SEA is 1.8pp under.
+    ("batik",      "Javanese batik cloth",              1750, "c. 1750",     "SEA", "Java",     "B", "com:batik cloth Javanese textile length|batik|making,wax,factory,map,shop,dress,shirt,pattern only"),
     ("wayang",     "Wayang kulit puppet",               1700, "c. 1700",     "SEA", "Java",     "B", "met:wayang kulit shadow puppet Java|puppet,wayang"),
     ("burmalacquer","Burmese lacquer box",              1750, "c. 1750",     "SEA", "Burma",    "C", "met:Burmese lacquer betel box vessel|box,vessel,lacquer"),
     ("chiwara",    "Chi wara headdress",                1800, "c. 1800",     "AFR", "Mali",     "B", "met:Chi wara headdress Bamana antelope|chi wara,headdress,antelope"),
@@ -392,6 +401,77 @@ ITEMS = [
     ("solarlantern","Solar lantern",                    2010, "c. 2010",     "AFR", "Kenya",    "B", "com:solar lantern portable off-grid lamp|solar lantern,solar lamp|village,child,chart,map,farm,array"),
     ("papunya",    "Papunya board",                     1971, "1971",        "OCE", "Australia","B", "com:Papunya Tula early painting board Western Desert|papunya|gallery,map,artist,canvas"),
     ("embraer",    "Regional jet",                      1996, "1996",        "LAM", "Brazil",   "B", "com:Embraer ERJ 145 aircraft side view|erj,embraer|logo,cockpit,interior,factory,flight,model"),
+
+    # ==========================================================================================
+    # E9 — THE 2020s TAIL. Authored 2026-08-11, after 05 was reopened scoped to it: the set's
+    # newest entry was 2022 and the four years since were empty on a piece whose density target
+    # is 1960 -> now.
+    #
+    # ONE NUMBER SET THIS LIST BEFORE IT WAS WRITTEN, the same way R4 set the first draft.
+    # The finished 230 measured Western (EUR+NAM) at 33.8% = 78 items against a 34% CAP. So a
+    # tail of n items may carry at most w Western, where (78 + w) / (230 + n) <= 0.34:
+    #
+    #       n = 8  ->  w <= 2        n = 10 ->  w <= 3        n = 12 ->  w <= 4
+    #
+    # Six Western candidates are listed anyway — they are the strongest objects of the decade and
+    # the matte will take some of them — and the surplus is CUT AT THE END, weakest first, the
+    # way the first pass cut four rather than widening the line. A cap you widen when you miss it
+    # is not a cap.
+    #
+    # THE HONEST SUPPLY FINDING, stated before the fetch rather than after: this is the one era
+    # where the licence is the constraint and not the collection. Nothing here is in a museum with
+    # an open-access API — every row is Commons user photography of an object still being sold —
+    # and Commons' coverage of very recent objects is concentrated in exactly three places
+    # (East Asian consumer hardware, North American consumer hardware, European instruments).
+    # NIL, AME, OCE and LAM have no 2020s row at all and no query would invent one; that is
+    # reported in the ticket as a supply finding, not papered over with a press photograph.
+    ("bladepack",  "Lithium iron phosphate pack",       2020, "2020",        "EAS", "China",    "C", "com:BYD blade battery LFP pack module cell|blade battery,lfp battery|diagram,chart,car,factory,logo,graph"),
+    ("semaglutide","Semaglutide injector pen",          2021, "2021",        "EUR", "Denmark",  "A", "com:Ozempic semaglutide injection pen|ozempic,semaglutide,wegovy|box,hand,chart,graph,logo,vial,needle only"),
+    ("shahed",     "Delta-wing loitering drone",        2022, "c. 2022",     "WCA", "Iran",     "B", "com:Shahed 136 loitering munition airframe museum|shahed,geran|crater,launch,map,diagram,soldier,smoke"),
+    ("vinfast",    "Vietnamese electric car",           2022, "2022",        "SEA", "Vietnam",  "B", "com:VinFast VF 8 electric car side view|vinfast,vf 8,vf8|logo,interior,factory,charging,show crowd"),
+    ("cybertruck", "Stainless-steel pickup",            2023, "2023",        "NAM", "Texas",    "A", "com:Tesla Cybertruck side view|cybertruck|logo,interior,crowd,factory,charging,show floor"),
+    ("starship",   "Starship upper stage",              2023, "2023",        "NAM", "Texas",    "A", "com:SpaceX Starship vehicle stacked|starship|launch,pad,fire,cloud,tower,diagram,logo,night"),
+    ("vikram",     "Chandrayaan-3 lander",              2023, "2023",        "SAS", "India",    "B", "com:Chandrayaan-3 Vikram lander module|vikram,chandrayaan|launch,rocket,map,diagram,logo,portrait,crowd"),
+    ("fpvdrone",   "FPV quadcopter",                    2023, "c. 2023",     "EUR", "Ukraine",  "B", "com:FPV drone quadcopter frame Ukraine|fpv|goggles,pilot,flight,logo,racing,transmitter"),
+    ("mate60",     "Huawei smartphone",                 2023, "2023",        "EAS", "China",    "B", "com:Huawei Mate 60 Pro smartphone|mate 60,mate60|logo,advert,box,store,screen only"),
+    ("roamair",    "Electric motorcycle",               2023, "c. 2023",     "AFR", "Kenya",    "C", "com:Roam Air electric motorcycle Kenya Nairobi|roam air,electric motorcycle kenya|charging,rider,logo,crowd,factory"),
+    ("visionpro",  "Apple Vision Pro",                  2024, "2024",        "NAM", "California","A","com:Apple Vision Pro headset|vision pro|wearing,logo,store,box,advert,queue"),
+    ("su7",        "Xiaomi electric car",               2024, "2024",        "EAS", "China",    "B", "com:Xiaomi SU7 electric car side view|su7|logo,interior,factory,crowd,charging"),
+    ("unitree",    "Humanoid robot",                    2024, "2024",        "EAS", "China",    "B", "com:Unitree humanoid robot G1 H1 full body|unitree,humanoid robot|logo,expo,quadruped,dog,diagram,stage"),
+    ("switch2",    "Nintendo Switch 2",                 2025, "2025",        "EAS", "Japan",    "A", "com:Nintendo Switch 2 console|switch 2,switch-2|logo,game,advert,box,store,queue"),
+    ("torch2026",  "Milano Cortina Olympic torch",      2026, "2026",        "EUR", "Italy",    "B", "com:Milano Cortina 2026 Olympic torch|torch|relay,runner,crowd,flame,stadium,logo,cauldron"),
+
+    # ---- SECOND QUERY on the same objects. Six of the fifteen above matched a WORD and not a
+    # thing — `starship` returned Jefferson Starship, `vikram` returned a cricketer, `torch`
+    # returned a torch-cut pipe — which is the failure mode `title_score` and the must-filter were
+    # written for and which a one-word `must` walks straight into. The fix is the same one the
+    # first pass found for `intitle:`: make the must-word the object's WHOLE NAME. Keyed `<key>2`
+    # because the first attempt is evidence, and the project already keys a retry that way
+    # (gobekli2, moai2, sputnik2, celglobe2). The first attempts are dropped by name in
+    # build_data.py rather than deleted.
+    ("shahed2",    "Delta-wing loitering drone",        2022, "c. 2022",     "WCA", "Iran",     "B", "com:Shahed-136 airframe delta wing exhibition|shahed-136,shahed 136,geran-2|engine,crater,launch,map,diagram,smoke,wreck"),
+    ("starship2",  "Starship upper stage",              2023, "2023",        "NAM", "Texas",    "A", "com:SpaceX Starship prototype vehicle|spacex starship,starship sn,starship prototype|jefferson,launch,pad,fire,cloud,tower,night,logo,map,crowd"),
+    ("chandrayaan","Chandrayaan-3 lander",              2023, "2023",        "SAS", "India",    "B", "com:Chandrayaan-3 lander module spacecraft|chandrayaan|launch,rocket,map,diagram,logo,portrait,crowd,stamp,poster,patch"),
+    ("ozempic",    "Semaglutide injector pen",          2021, "2021",        "EUR", "Denmark",  "A", "com:Ozempic Wegovy semaglutide injection pen device|ozempic,wegovy,semaglutide|box,chart,graph,logo,vial,needle,hand,pharmacy,shortage"),
+    ("roam2",      "Electric motorcycle",               2023, "c. 2023",     "AFR", "Kenya",    "C", "com:electric motorcycle Kenya Nairobi boda Roam Ampersand|roam air,ampersand,electric motorcycle kenya|charging,rider,crowd,factory,logo,map,street"),
+    ("torch2",     "Olympic torch",                     2026, "2026",        "EUR", "Italy",    "B", "com:Milano Cortina 2026 Olympic torch|milano cortina,olympic torch|relay,runner,crowd,flame,stadium,cauldron,logo,poster,mascot,ceremony"),
+    ("medal2026",  "Olympic medal",                     2026, "2026",        "EUR", "Italy",    "B", "com:Milano Cortina 2026 Olympic medal|olympic medal,milano cortina|athlete,podium,ceremony,neck,crowd,logo,poster"),
+    ("batik2",     "Javanese batik cloth",              1750, "c. 1750",     "SEA", "Java",     "B", "com:kain batik Javanese cloth textile length|kain batik,batik cloth,batik tulis|making,wax,factory,map,shop,dress,shirt,person"),
+    ("vinfast2",   "Vietnamese electric SUV",           2022, "2022",        "SEA", "Vietnam",  "B", "com:VinFast VF 8 electric SUV side view|vf 8,vf8,vf 9,vf9|fadil,logo,interior,factory,charging,show crowd"),
+    ("switch2b",   "Nintendo Switch 2",                 2025, "2025",        "EAS", "Japan",    "A", "com:Nintendo Switch 2 console dock|switch 2 console,nintendo-switch-2,switch 2 dock|joy-con,logo,game,advert,box,store,queue"),
+
+    # RE-SOURCE ATTEMPTED AND FAILED, 2026-08-11, ticket 07 item 7. The original `lego` is
+    # licensed GFDL 1.2 and nothing else — its author licenses that way deliberately — and GFDL
+    # requires the full licence text to travel with the work, which a one-line credit on a
+    # shattering photograph cannot do. It is the only entry in the set under a copyleft licence a
+    # credit cannot satisfy, so it was replaced rather than special-cased. Three queries, three
+    # failures, all recorded in build_data.py's drop table: `lego` matched an Indonesian dance
+    # (Tari Lego-lego); the highest-scoring free file, "LEGO brick.png", is a 3D RENDER, which is
+    # a constraint breach rather than a wrong result; and the museum photograph is a house model
+    # the matte shredded. BOTH KEYS DROP. The finding is about the corpus and not about the
+    # query: Commons' free-licensed Lego is renders, shop displays and installations, because the
+    # one thing a photographer points a camera at is what somebody BUILT out of the bricks.
+    ("lego2",      "Lego bricks",                       1958, "1958",        "EUR", "Denmark",  "A", "com:Lego brick plastic toy studs|lego bricks|brick.png,geograph,event,comic,washing,concrete,giant,pile,store,duplo,best-lock,frozen,banner,cathedral,improvised,truck,logo,minifig,mosaic"),
 ]
 
 
@@ -462,4 +542,19 @@ CUT = {
  "solarpanel":"a flat rectangle — outline-only, and it is not tier A, so R2 excludes it",
  "teslas":"fifth car in the set and the newest, weakest silhouette",
  "ipad":"iphone is already in; a second Apple slab adds nothing",
+}
+
+# ---------------------------------------------------------------------------------------------
+# THE FOUR NEVER-FOUNDS THAT STAY UNFOUND, 2026-08-11. Seven rows came back "no candidate" on the
+# first pass and the ticket left all seven open as cheap. Three were retried with a second query
+# above (borobudur, batik, goldweight) because they sit in the two buckets furthest UNDER target —
+# SEA -1.8 and AFR -1.9. The other four are not retried, and that is a decision rather than a
+# backlog: `maosuit`, `prayerwheel` and `kimono` are EAS, which is the set's largest overshoot at
+# +7.9pp, and `braille` is EUR under a Western cap the 2020s tail is already spending. Finding
+# them would make two measured misses worse. They stay in the list so the record is the list.
+NOT_RETRIED = {
+ "maosuit":    "EAS is +7.9pp over target; a fourth East Asian garment makes the set's biggest miss bigger",
+ "prayerwheel":"same",
+ "kimono":     "same",
+ "braille":    "EUR, and the 2020s tail is already spending the last of the 34% Western cap",
 }

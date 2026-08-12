@@ -1,8 +1,10 @@
 # 07 — Copy, voice & the site's name
 
 Type: grilling
-Status: PARTLY CLOSED — the name and the voice are ruled and built, 2026-08-10. Items 2, 3 and 7
-        (the arrival line, the notation set, the attribution templates) are open.
+Status: CLOSED 2026-08-11. The name and the voice ruled and built 2026-08-10; items 2, 3 and 7
+        (the arrival line, the notation set, the attribution templates) closed in round 2.
+        ONE THING IS HANDED OUT, NOT LEFT OPEN: whether the cut-outs are Adapted Material under
+        CC BY-SA is a decision about how the whole site is licensed, and it is Dustin's.
 Blocked by: 05
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -194,3 +196,138 @@ Items **2** (does an arrival carry more than a name and a date — ruled *no* fo
 shelf's opened cell is unwritten), **3** (the notation set: 141 of 230 dates are hedged and the
 notation is inherited from the institutions rather than agreed), and **7** (the exact rendered
 credit string per licence type). None of them blocks anything now shipping.
+
+---
+
+## Round 2 — items 2, 3 and 7. **CLOSED 2026-08-11**, and item 7 was a licence breach
+
+All three were answerable only against the built set, and the set moved under them the same day
+([05](05-arrival-set.md) closed at 236). **Two of the three turned out to be defects rather than
+decisions**, which is why they were audited before they were written.
+
+### Item 3 — the notation set: three forms, one suffix rule
+
+05's R6 said `disp` is the date **as the holding institution publishes it**, so the institution's
+own hedge is carried through rather than re-hedged. That was right for the RECORD and wrong for the
+PAGE. Measured across the built set, R6 was printing **seventeen different shapes**, four of them
+prose — *"Qing dynasty, Qianlong reign"* · *"first half of the 15th century"* · *"19th century"* ·
+*"1990s"* — which is the one thing the map forbids outright (**doubt lives in the notation, never in
+prose**). It was also printing the same fact two ways: **five early-CE objects say `c. 625` while
+sixteen of their neighbours say `c. 300 CE`**, and on the shelf those sit four cells apart.
+
+So the institution's wording stays in the record (`sourced.json.instdate`, and `RENAME` keeps it
+verbatim) and the page prints one of three forms:
+
+| | |
+|---|---|
+| `1776` | the record fixes the year |
+| `c. 1750` | it does not |
+| `1590–1600` | the institution gives a range — en dash, both ends, never truncated |
+
+**The suffix rule: BCE always, CE only under the year 1000.** That is the only place the number
+alone is ambiguous; above 1000 the suffix is noise on 190 entries, and this piece pays for every
+word twice — once in the collision contract and once in the shatter. **A range is already a hedge,
+so `c.` comes off one**: *"c. 1802–1640 BCE"* prints the doubt twice and says less than
+*"1802–1640 BCE"* does. **Seventeen shapes → seven**, all inside the set, asserted by a regex in
+`build_data.py` that prints `NOTATION MISS` rather than shipping prose again.
+
+**And a field was wrong while nothing read it.** `dc` — *is this date hedged* — was derived with an
+ASCII hyphen (`"-" not in disp[1:]`) while every range in the set is written with an **en dash**, so
+ten hedged dates were flagged unhedged, including `3300–2650 BCE`, the widest hedge on the page.
+Now derived off the normalised form: **155 of 236 hedged**, not 143.
+
+**Where a hedging sentence is genuinely required instead** — the other half of item 3 — the answer
+is **nowhere on an object**, and that half *is* structural: a sentence cannot shatter (06: the word
+is the unit) and identity doubt goes in the NAME by the map's rule. The one hedge that is owed is
+not about any single date: **172 of 236 dates rest on the editorial list rather than on a holding
+institution**, because Commons dates the PHOTOGRAPH. That is a provenance hedge over the whole set
+and it is now one sentence in the colophon — **without the count**, because a number in the copy
+makes adding an object a copy edit as well as a data edit, which is the same reason round 1 killed
+the counts voice.
+
+### Item 7 — the attribution template, and the two things it was getting wrong
+
+The rendered string is the same three parts everywhere — **SOURCE · LICENCE · CREDIT** — because 06
+built it as words that come apart and a second shape would be a second grammar. What item 7 had to
+settle is what goes *in* each part, and the audit found the set was not meeting its own licences:
+
+1. **Fifteen licence strings for six classes**, straight out of each API's own field, including the
+   same licence spelled two ways — `Public domain` 15 times and `public domain` 4 times.
+2. **Three entries carried a CC BY or CC BY-SA licence and the credit `unknown`.** Checked against
+   the Commons API rather than assumed: `mehrgarh`, `snowgoggles` and `djembe` all return
+   **`AttributionRequired: true` with an empty `Artist`**. That is not a stylistic gap, it is the
+   one term of the licence the site was not meeting. Where the file names no artist the attributable
+   party is the uploader, and the string now says which it is — *"uploaded by Fæ"* — rather than
+   pretending to know. A fourth, `stickchart`, printed **"Unknown authorUnknown author"**: its
+   Artist field carries a `display:none` span and stripping the tags doubled the words.
+3. **Nothing linked anywhere.** 120 of 236 entries are CC BY or CC BY-SA, whose attribution is four
+   parts — title, author, source, licence — and the last two want a URI. **The piece cannot carry
+   one and does not try**: a link riding a word that is about to be thrown across the soil is
+   unreachable. **The credits roll carries it**, one link per entry on the source name, because CC
+   BY 4.0 §3(a)(2) lets the conditions be met by linking a resource that holds the required
+   information and the file page *is* that resource — so one link does the whole job rather than two
+   per row and 472 tab stops on a surface that already has 236 focusable cells. The licence deeds
+   are linked once, in the colophon. Same argument 14 used for the outbound link: a visitor at the
+   roll has already stopped.
+
+The templates, then:
+
+| licence class | rendered |
+|---|---|
+| public domain · CC0 | `Source · Licence · Credit` — the credit is courtesy, not a term |
+| CC BY · CC BY-SA (any version or port) | `Source(→ file page) · Licence(→ deed) · Author as the file names them` |
+| GFDL | **cannot be met by a one-line credit** — the licence text has to travel with the work |
+
+**That last row cost the set an object.** `lego` was GFDL 1.2 and nothing else; three replacement
+queries returned a 3D render, an Indonesian dance and a house model the matte shredded, so it left
+the set rather than the rule bending. `source5.py` now rejects a candidate **on its licence at
+acquisition** (`LIC_REJECT`: GFDL, NC, ND) — the set shipped a GFDL-only photograph for three rounds
+because acquisition never looked at the licence field it was already storing. Full record in
+[05](05-arrival-set.md).
+
+**One thing item 7 does NOT settle, and it is Dustin's, not a ticket's: ShareAlike.** 71 entries are
+CC BY-SA, every photograph on the site is **masked** to its object, and a mask is at minimum a
+modification. The *indicate-modification* term is met — one sentence in the colophon, *"Every
+photograph here is masked to its object and otherwise unchanged"*, covering all 236 rather than a
+clause on each. Whether the cut-outs are **Adapted Material**, and therefore whether the site owes a
+compatible licence on its own output, is a decision about how the whole site is licensed. Named
+here, unresolved, blocking nothing.
+
+### Item 2 — no description line, anywhere, and R1 is the reason
+
+05 left the slot empty for this ticket. **It stays empty on the piece *and* on the shelf**, and the
+reason is a number rather than a preference: **R1 forced every entry to be named for the OBJECT**
+rather than for the event it belongs to, so the names were written as descriptions before 07 could
+write one. Measured in `measure.py` so it can be re-derived rather than believed:
+
+| | names carrying the common noun that says what it is |
+|---|---|
+| tier C — *needs its label* | **68 / 68 — 100%** |
+| tier B — *reads as a category* | 64 / 71 — 90.1% |
+| tier A — *named on sight* | 60 / 97 — 61.9% |
+
+**The tier that needs a label already has one in every single case.** The 44 names with no common
+noun in them are 37 tier-A proper nouns a stranger already knows (*Rosetta Stone · Wright Flyer ·
+Boeing 747 · Rubik's Cube*), which is the definition of tier A, plus three brands — *Hyundai Pony ·
+Tata Nano · Raspberry Pi* — and those three are the honest residual: they get nothing extra. A
+description line would restate the name for the tier that needs it and add nothing for the tier
+that does not.
+
+**So the opened cell is `name · date` and the citation, and that is final.** It was already built
+that way; what this round adds is the reason it is not a defect.
+
+**The counter-argument, recorded rather than buried, because it is Dustin's call.** The shelf's real
+payoff is that opening a cell lights everything standing within eighty years of it — 01's mechanism
+at index density — and **nothing on that surface says so.** The intro states the rule
+(*"Whatever is still lying there was standing at the same time"*) but that is 150,000px earlier and
+long gone. The ruling here is that the rule was already taught and a legend is neither fun nor
+various, which is what 01 and 12 judge by. **What is NOT the reason is "it does not fit":** measured
+at both viewports, the opened cluster leaves **8.875px** free in the earth band and a third line
+needs about 15, so it is **~6px short** — and closing that costs about 7px a row, roughly 140px on a
+150,392px scroll. Cheap. If Dustin wants the legend, the geometry is not what is stopping it.
+
+### Verified
+
+Page loads clean at 236: **236 roll entries, 236 source links, 0 malformed hrefs, 0 console errors**,
+the colophon's licence list rendering twelve linked deeds plus *"The rest are public domain"*. The
+full gate suites are re-run against the new set below.

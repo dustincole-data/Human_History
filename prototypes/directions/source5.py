@@ -44,6 +44,14 @@ GLOBAL_REJECT = ("woman ", "women ", "man ", "men ", "people", "soldier", "crowd
                  "reproduction", "reconstruction", "cosplay", "re-enact", "reenact")
 
 
+# TICKET 07 ITEM 7 — a licence the site's credit line cannot satisfy is not supply, and the place
+# to find that out is here rather than at render time. GFDL requires the full licence text to
+# travel with the work, which a one-line credit on a shattering photograph cannot do; NC and ND
+# are not free licences at all. The set shipped one GFDL-1.2-only photograph for three rounds
+# because acquisition never looked at the licence field it was already storing.
+LIC_REJECT = ("gfdl", "gnu free", "-nc", "-nd", "noncommercial", "no derivative", "fair use")
+
+
 def title_score(t, words):
     """Rank Commons titles the way a picture editor would: short, on-topic, already cut out.
 
@@ -100,8 +108,11 @@ def commons(term, must, reject):
         if not ii.get("thumburl"):
             continue
         em = ii.get("extmetadata", {})
+        lic = strip((em.get("LicenseShortName") or {}).get("value")) or "public domain"
+        if any(x in lic.lower() for x in LIC_REJECT):
+            continue
         return dict(url=ii["thumburl"], src="Wikimedia Commons",
-                    lic=strip((em.get("LicenseShortName") or {}).get("value")) or "public domain",
+                    lic=lic,
                     credit=strip((em.get("Artist") or {}).get("value")) or "unknown",
                     page=ii.get("descriptionurl"), found=pg["title"].replace("File:", ""),
                     instdate=strip((em.get("DateTimeOriginal") or {}).get("value"))[:40])
