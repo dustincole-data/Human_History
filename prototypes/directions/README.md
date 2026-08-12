@@ -4,7 +4,7 @@
 > rejected 2026-08-08 ("really old sites") and their pages were deleted in round 8 of
 > [06](../../.scratch/human-history/issues/06-visual-treatment.md), along with the four motion
 > demos next door — when a direction is picked, the losers go in the same commit. The one live
-> page is `../webgl/index.html`. There are no flags and no switcher.
+> page is `../../site/index.html`, which is the deploy root — ticket 15 decision 1. There are no flags and no switcher.
 
 What is left here is ticket [05](../../.scratch/human-history/issues/05-arrival-set.md)'s
 pipeline, which the live page reads:
@@ -22,8 +22,8 @@ pipeline, which the live page reads:
 Run the page:
 
 ```
-cd prototypes
-python -m http.server 8812
+cd site
+python ../prototypes/webgl/harness/serve.py 8812 --dir .
 ```
 
-Then <http://localhost:8812/webgl/index.html>.
+Then <http://localhost:8812/index.html> — the same shape the deployed site serves at `/`.

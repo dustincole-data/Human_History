@@ -4,7 +4,8 @@ Hand-maintaining the item list stopped being safe once it passed three dozen. so
 the record the sourcing passes actually wrote; this turns it into the file the demos read, and
 applies the by-eye verdicts from the contact sheet (drops and renames) in one visible place.
 """
-import io, json, os, re
+import io
+import os, json, os, re
 
 # thrown out on the contact sheet — wrong object, unreadable cut, or a constraint breach
 DROP = {
@@ -428,5 +429,8 @@ window.MOVEMENTS = [
   {id:'now',     from:1961,  to:9999, per:5, title:'all of it at once'}
 ];
 """)
-    io.open("data.js", "w", encoding="utf-8").write(out.getvalue())
+    # ticket 15 decision 1: data.js lives with the site it is read by, not with the
+    # pipeline that writes it. `../../site/data.js` from this directory.
+    dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "site", "data.js")
+    io.open(dest, "w", encoding="utf-8").write(out.getvalue())
     print(f"data.js: {len(rows)} items  ({len(DROP)} dropped, {len(RENAME)} renamed)")

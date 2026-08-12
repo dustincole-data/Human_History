@@ -148,7 +148,8 @@ if "--live" in sys.argv:
     # the names are the generator's output (RENAME rewrites 27 of them) and this claim is about
     # what the visitor reads.
     import re as _re
-    _js = open("data.js", encoding="utf-8").read()
+    _js = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "..", "..", "site", "data.js"), encoding="utf-8").read()
     named = _re.findall(r'\{k:"[^"]+", y:-?\d+, disp:"[^"]*", n:"([^"]*)".*?t:"([ABC])"', _js)
     BRANDS = {"Hyundai Pony", "Tata Nano", "Raspberry Pi"}
 

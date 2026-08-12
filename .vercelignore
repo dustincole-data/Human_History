@@ -1,0 +1,5 @@
+# Ticket 15 item 2. `prototypes/` is the project's evidence, not the site: 43 MB of masters,
+# contact sheets and pipeline, and eight verify*/ folders of frames every ticket's claims rest on.
+# It stays in the repo and never reaches the deploy. `site/` is the whole site, ~11.5 MB.
+/prototypes
+/.scratch

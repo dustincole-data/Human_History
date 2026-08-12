@@ -1,12 +1,12 @@
 """Bake the page's sprites from the master cut-outs — ticket 03, the texture window.
 
-    python bake_sprites.py            # write ../webgl/img
+    python bake_sprites.py            # write ../../site/img
     python bake_sprites.py --check    # measure only, touch nothing
 
 `img/` here is the master: the licensed original, matted by source5.py, and the thing every
 claim about the record is made against. It is never overwritten by this script.
 
-`../webgl/img/` is a DERIVED asset — the sprite the live page fetches — and until now it was a
+`../../site/img/` is a DERIVED asset — the sprite the live page fetches — and until now it was a
 byte-identical copy of the master, which is 301 MB decoded for 230 items against an 80 MB gate.
 
 The cap is not a taste call. gravity.js draws every sprite at exactly `hh = 132` CSS px tall at
@@ -29,7 +29,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MASTER = os.path.join(HERE, "img")
-OUT = os.path.abspath(os.path.join(HERE, "..", "webgl", "img"))
+OUT = os.path.abspath(os.path.join(HERE, "..", "..", "site", "img"))
 DATA = os.path.join(HERE, "data.js")
 
 DRAW_PX = 132       # gravity.js prep(): hh

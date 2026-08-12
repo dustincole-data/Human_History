@@ -9,9 +9,9 @@ import { execSync } from 'child_process';
 
 const REPO = 'C:/Users/dusti/Projects/Human_History';
 const F = {
-  idx: REPO + '/prototypes/webgl/index.js',
-  grav: REPO + '/prototypes/webgl/gravity.js',
-  html: REPO + '/prototypes/webgl/index.html'
+  idx: REPO + '/site/index.js',
+  grav: REPO + '/site/gravity.js',
+  html: REPO + '/site/index.html'
 };
 const good = Object.fromEntries(Object.entries(F).map(([k, p]) => [k, fs.readFileSync(p)]));
 const text = Object.fromEntries(Object.entries(good).map(([k, b]) => [k, b.toString('utf8')]));
@@ -52,10 +52,10 @@ const CASES = {
     expect: ['thumb_never_exceeds_its_draw'],
     keep: null,
     apply() {
-      this.keep = fs.readFileSync(REPO + '/prototypes/webgl/thumb/kesi.webp');
-      fs.copyFileSync(REPO + '/prototypes/directions/img/kesi.webp', REPO + '/prototypes/webgl/thumb/kesi.webp');
+      this.keep = fs.readFileSync(REPO + '/site/thumb/kesi.webp');
+      fs.copyFileSync(REPO + '/prototypes/directions/img/kesi.webp', REPO + '/site/thumb/kesi.webp');
     },
-    undo() { fs.writeFileSync(REPO + '/prototypes/webgl/thumb/kesi.webp', this.keep); },
+    undo() { fs.writeFileSync(REPO + '/site/thumb/kesi.webp', this.keep); },
   },
   /* the piece stops letting go of its photographs, so they are still resident on the shelf */
   sprites_follow_you_in: {

@@ -4,7 +4,7 @@ import fs from 'fs';
 const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
-const URL = 'http://127.0.0.1:8812/webgl/index.html';
+const URL = 'http://127.0.0.1:8812/index.html';
 const OUT = 'C:/Users/dusti/Projects/Human_History/prototypes/webgl/verify04r8';
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });

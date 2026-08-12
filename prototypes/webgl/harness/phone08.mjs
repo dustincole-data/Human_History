@@ -31,7 +31,7 @@ import fs from 'fs';
 // same resolution as the sweeps: there is no install here (harness/README.md)
 const { chromium } = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json')('playwright');
 
-const URL = 'http://localhost:8812/webgl/index.html';
+const URL = 'http://localhost:8812/index.html';
 const PHONE = { width: 390, height: 844 };      // iPhone 14/15 CSS viewport
 const COLLAPSED = 745;                          // the same phone with the URL bar hidden
 const out = [];

@@ -27,7 +27,7 @@ import { createRequire } from 'module';
 const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
-const URL = 'http://127.0.0.1:8812/webgl/index.html';
+const URL = 'http://127.0.0.1:8812/index.html';
 
 /* gravity.js's own constants. Not exported on `__hh`, so they are restated here and CHECKED
    against the served source before anything is measured — a benchmark run against the wrong

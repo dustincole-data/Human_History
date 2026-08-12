@@ -21,7 +21,7 @@ const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 import crypto from 'crypto';
 
-const B = 'http://127.0.0.1:8812/webgl/';
+const B = 'http://127.0.0.1:8812/';
 const STOPS = [900, 2400, 5200, 9800, 21000, 46000];
 const F = ['x', 'y', 'rot', 'w', 'h', 'sink', 'rest', 'cvLen', 'cvTail'];
 

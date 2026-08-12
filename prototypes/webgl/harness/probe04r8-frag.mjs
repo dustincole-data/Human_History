@@ -7,7 +7,7 @@ import { createRequire } from 'module';
 const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
-const URL = 'http://127.0.0.1:8812/webgl/index.html';
+const URL = 'http://127.0.0.1:8812/index.html';
 const MB = 1024 * 1024;
 
 const browser = await chromium.launch();

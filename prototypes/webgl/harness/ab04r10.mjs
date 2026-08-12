@@ -16,7 +16,7 @@ import { createRequire } from 'module';
 const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
-const BASE = 'http://127.0.0.1:8812/webgl/';
+const BASE = 'http://127.0.0.1:8812/';
 const arg = (k, d) => Number((process.argv.find(a => a.startsWith(`--${k}=`)) || '').split('=')[1] || d);
 const CPU = arg('cpu', 1);
 const ROUNDS = arg('rounds', 3);

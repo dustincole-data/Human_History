@@ -13,8 +13,8 @@ import { execSync } from 'child_process';
 
 const REPO = 'C:/Users/dusti/Projects/Human_History';
 const F = {
-  grav: REPO + '/prototypes/webgl/gravity.js',
-  html: REPO + '/prototypes/webgl/index.html'
+  grav: REPO + '/site/gravity.js',
+  html: REPO + '/site/index.html'
 };
 const good = Object.fromEntries(Object.entries(F).map(([k, p]) => [k, fs.readFileSync(p)]));
 const text = Object.fromEntries(Object.entries(good).map(([k, b]) => [k, b.toString('utf8')]));

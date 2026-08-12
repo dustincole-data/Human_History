@@ -87,7 +87,12 @@ import * as INDEX from './index.js';
    is the line the rest of the copy was brought into line with.
 
    It does not print the site's own name. `Everything that lands breaks` was the draft, and with the
-   title reading EVERYTHING BREAKS it was the same phrase twice on one screen. */
+   title reading EVERYTHING BREAKS it was the same phrase twice on one screen.
+
+   RENAMED TIME TAKES ALL by Dustin, 2026-08-12, which supersedes 07's pick. The rule above is
+   unchanged and the copy is untouched — but note the echo has come back through the other door:
+   this paragraph ends `until the ground has taken all of it`, which is the new title said twice.
+   Flagged rather than edited, because the copy is 07's and the rename is his. */
 setIntro(
   'Things drop when you scroll and hang when you stop. What lands comes apart, and the pieces ' +
   'come apart, until the ground has taken all of it. Whatever is still lying there was standing ' +

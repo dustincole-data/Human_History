@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 
 const OUT = 'C:/Users/dusti/Projects/Human_History/prototypes/webgl/verify14';
 fs.mkdirSync(OUT, { recursive: true });
-const URL = 'http://127.0.0.1:8812/webgl/index.html';
+const URL = 'http://127.0.0.1:8812/index.html';
 const browser = await chromium.launch();
 
 for (const [tag, w, h] of [['w', 1440, 900], ['m', 390, 844]]) {

@@ -14,7 +14,7 @@ const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
 const BASE = 'http://127.0.0.1:8812';
-const URL = BASE + '/webgl/index.html';
+const URL = BASE + '/index.html';
 const OUT = process.argv.find(a => a.endsWith('.json')) || null;
 const SLOW = process.argv.includes('--slow');
 const results = [];
