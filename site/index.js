@@ -98,7 +98,7 @@
    This is the one screen that may hold every image at once, and decoded cost is `w x h x 4` off
    INTRINSIC dimensions — CSS SCALING DOES NOT REDUCE IT. So the index may not point at the
    scroll's sprites and shrink them in a stylesheet: it is A SECOND BAKE. `bake_index.py` writes
-   ../webgl/thumb/ capped at THUMB_H x DPR_CAP = 160 device px, and all 230 resident measure
+   thumb/ capped at THUMB_H x DPR_CAP = 160 device px, and all 230 resident measure
    26.2 MB against the 80 MB gate (45.6 MB at 01's 400-item ceiling). The next step up, 96 CSS
    px, is 66.8 MB at 400 items and leaves nothing for the scroll's own peak. */
 
@@ -476,6 +476,20 @@ export function build(top) {
      is that most of them have no holding institution behind them at all. Commons dates the
      PHOTOGRAPH, so those entries rest on this record's editorial list. Said without a count,
      because a count in the copy makes adding an object a copy edit as well as a data edit. */
+  /* ---- SHAREALIKE, ruled by Dustin 2026-08-12 — ticket 15 ----
+
+     72 of the 236 photographs are CC BY-SA, across seven versions. Masking a background out is a
+     modification requiring permission, so each cut-out is Adapted Material and ShareAlike attaches
+     to it. What it attaches to is the ruling: THE CUT-OUT, under its own source's licence — not
+     the code, not the record, not the site.
+
+     That is CC's own position — ShareAlike reaches the adaptation, not a collection of separately
+     licensed works — and it is the only formulation that is exactly right across all seven
+     versions here. A single site-wide CC BY-SA 4.0 would be WRONG for the one CC BY-SA 1.0 entry,
+     whose licence has no later-version clause to relicense through.
+
+     Said once, in the same place and for the same reason as the mask sentence: the relationship is
+     identical for every one of them, so a clause per row would be 236 copies of one fact. */
   const fine = document.createElement('p');
   fine.className = 'fine';
   fine.append('Every photograph here is masked to its object and otherwise unchanged. ' +
@@ -498,6 +512,10 @@ export function build(top) {
     fine.appendChild(a);
   });
   fine.append(pd ? '. The rest are public domain.' : '.');
+  /* the ShareAlike sentence. Present tense, states a rule of the world, no "you" — 07's voice,
+     and it says what a reader would need in order to reuse one of these cut-outs. */
+  fine.append(' A cut-out made from a ShareAlike photograph is shared under that ' +
+              'photograph’s own licence.');
   colo.appendChild(fine);
   roll.appendChild(colo);
 
