@@ -285,6 +285,18 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   knife-edge 15 recorded at 33). **`frame_budget` red in six of nine cases, always under load,
   against 19.7/21.4ms idle on the same build — which is [15](issues/15-deploy-and-the-card.md)'s
   unattributed production red reproduced with no CDN in it.**
+  **The piece is now VERIFIED AGAINST PRODUCTION** — 15 left it not: the sweep finishes there,
+  `frame_budget` is **green on the real CDN (p95 20.2-20.6ms, worst 26.5ms)** against localhost's
+  **20.5ms / 33.1ms** taken minutes later on the same idle laptop, so 15's red (25.7 / 47.1) was the
+  machine and localhost is if anything the *worse* origin. The round-9 sky-probe crash did not recur
+  either. **An eighth instrument fault, findable only over a real network**: `contact_is_a_position`
+  takes three readings that each assume the probe object is present, and it is not until its
+  photograph arrives — *no pixels, no fall* is the page being right. Guarding one read moved the
+  failure to the next, which is how the fault was found to be the pattern; all three now share one
+  bounded `waitFor`, and it passes against production reading identically to localhost.
+  **One open, named not chased: `stars_go_out`** reads 1,624 stars at one era on production against
+  177 on localhost — round 9's photograph-read-as-sky arriving a third time, through latency. No
+  ruling depends on it, every other sky gate passes there, and localhost is 43/43.
 - [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
   the furniture was outside every collision gate.** Resolved by building the options rather than
   picking: seven names in three families, all DNS-checked, and three voices written on the real

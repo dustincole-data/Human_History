@@ -591,6 +591,73 @@ with 8 stops putting a word inside 24px. It passes, and it has no room.
   production red (p95 25.7ms, worst 47.1ms) was measured on a machine running several other
   sessions, and load reproduces that number here without a CDN anywhere in it.
 
+### Against production — the sweep FINISHED there, and `frame_budget` is settled
+
+[15](15-deploy-and-the-card.md) left the piece unverified against production: `sweep10` did not
+finish there, `frame_budget` was red and unattributed, the round-9 sky probe crashed on
+`era 196`, and **7 of 43 gates had never run against the deployed origin at all.**
+
+**The sweep now finishes against production**, and both of 15's mysteries were the machine.
+
+#### `frame_budget` — the back-to-back, on an idle laptop
+
+| origin | warm median | p95 floor | worst pass |
+|---|---|---|---|
+| `time-takes-all.vercel.app` (real CDN) | 16.5 ms | **20.6 ms** | 26.5 ms |
+| `127.0.0.1`, minutes later, same build | 16.6 ms | **20.5 ms** | 33.1 ms |
+
+**Indistinguishable — and localhost was the worse of the two on the worst pass.** 15 measured
+**p95 25.7 ms and a worst of 47.1 ms** against the same CDN and recorded, correctly, that the
+machine had been running several other sessions and that load was a live alternative explanation.
+It was load.
+
+**The teeth say the same thing independently**, which is what makes this an attribution rather than
+a second reading: `frame_budget` went red in **six of nine perturbation cases** — warm p95 25.1,
+29.3, 32.3, 35.7, 44.7, 46.8 ms — every one of them measured while a sweep suite was running, and
+green at 19.7–21.4 ms idle on the same build. **The CDN never moved this number; the machine moves
+it by 25 ms.**
+
+The round-9 sky probe crash (`era 196: never found an empty sky`) is the same story: it did not
+recur against production on a quiet machine, and it *did* recur three times during the teeth suite.
+`settle()` gives up when the machine is loaded, not when the network is far away.
+
+#### An EIGHTH instrument fault, and only a real network could ever have found it
+
+`contact_is_a_position` went red against production and nowhere else — **on the first sweep that
+ever finished there.** It takes three readings of the probe object (landed at `LAND+30`, airborne
+200px back up, and airborne at the same pixel on a page that has never been past it) and every one
+of them assumed the object was present to be read. **It is not, until its photograph arrives.**
+"No pixels, no fall" ([03](03-engine-reuse-or-clean-build.md)) is the page behaving correctly; on
+127.0.0.1 the photograph is always there inside four ticks, so the assumption had never cost
+anything.
+
+`fall_is_a_pure_function`, **twenty lines above it in the same file**, learned this exact lesson in
+round 9 and was given a bounded wait. This gate has the same shape and was never exposed.
+
+**Guarding one read moved the failure to the next one** — the first fix waited for `virgin` and the
+re-run failed on `backUp` instead, which is the honest way to discover that the fault was the
+pattern and not the line. All three now go through one bounded `waitFor`, and it is bounded for the
+reason round 9 wrote down: **a photograph that never arrives is still a red, not a hang.**
+
+This is what 15 said the production run was *for*. Its own words: three of round 10's gates were
+green with their own code deleted because localhost is never late.
+
+#### Still open, and named rather than chased
+
+- **`stars_go_out` read 1,624 stars at one era against production** where the same era reads 177 on
+  localhost. It **passed on the first production sweep and then failed identically (1,624) on the
+  next two** — so it is not noise, and it is not a property of the CDN either; the most likely
+  difference between the first run and the rest is a warm edge cache changing when sprites arrive.
+  This is **round 9's finding arriving for the third time** — a sky probe counting a photograph's
+  bright pixels as stars — now through the latency door: `settle()` returns a frame it believes has
+  nothing in the air, and over a real network something is still being painted into it. Round 9
+  fixed this by taking every sky reading with nothing in the air; that precaution is correct and is
+  **not sufficient when the arrival of pixels is not synchronous with the scroll position.**
+  **The page is not implicated** — `ground_never_dates`, `backdrop_is_dated` and `hud_contrast` all
+  pass against production in the same run — and no ruling depends on it. It is a harness fault,
+  it belongs to whoever next touches the sky probes, and it is written down rather than patched at
+  the end of a long session.
+
 ### The CNAME landed
 
 `timetakesall.dustincoledata.com` resolved during this round — Dustin's one open step from

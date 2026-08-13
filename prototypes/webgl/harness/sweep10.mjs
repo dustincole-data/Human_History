@@ -174,13 +174,31 @@ ok('unmade_above_start', (await snap()).air === 0, 'nothing airborne above its s
    be: the object 200px back up the page must be in the air AT THE SAME HEIGHT as it is for a
    visitor who never went past it at all. A rewind that merely puts something back in the air is
    not the ruling; a rewind that puts it back where the tables say is. */
+/* "NO PIXELS, NO FALL" REACHES ALL THREE OF THIS GATE'S READS — and ONLY A REAL NETWORK SHOWS IT.
+   Every reading below needs the probe's photograph present before the object can be anywhere at
+   all, and on 127.0.0.1 it is there inside four ticks every time. Against the deployed CDN it is
+   not: the first sweep that ever FINISHED against production returned `virgin` undefined, and
+   guarding only that one moved the same failure up to `backUp`.
+
+   `fall_is_a_pure_function` twenty lines above learned exactly this in round 9 and was fixed; these
+   three have the same shape and were never exposed, because they had never met latency. `waitFor`
+   is that fix generalised, and it is BOUNDED on purpose, exactly as that one is: a photograph that
+   never arrives is still a red, not a hang. */
+const waitFor = async want => {
+  for (let i = 0; i < 60; i++) {
+    const it = (await snap()).items.find(x => x.i === probe);
+    if (it && want(it)) return it;
+    await tick(3);
+  }
+  return (await snap()).items.find(x => x.i === probe);
+};
 await to(T.LAND[probe] + 30, 5);
-const hit = (await snap()).items.find(x => x.i === probe);
+const hit = await waitFor(x => x.down);
 await to(T.LAND[probe] - 200, 4);
-const backUp = (await snap()).items.find(x => x.i === probe);
+const backUp = await waitFor(x => x.air);
 await fresh();
 await to(T.LAND[probe] - 200, 8);            // the same pixel, never having been past it
-const virgin = (await snap()).items.find(x => x.i === probe);
+const virgin = await waitFor(x => x.air);
 ok('contact_is_a_position',
    !!hit && hit.down && !hit.air &&
    !!backUp && backUp.air && !backUp.down &&

@@ -256,7 +256,17 @@ the hang.
   **8 of 8** were credit-word against credit-word — this ticket recorded them as *"almost all"*, and
   a probe that names the colliding words settled it — and the same 321 stops now return 0.
 - **The title echo in the intro's last clause** (above) — copy, so Dustin's.
-- **`frame_budget` against the real origin, and the sky-probe crash at era 196** — one quiet re-run,
-  localhost and deployed back to back on an idle machine, decides whether the CDN moved the frame
-  budget or the machine did. **Seven of `sweep10`'s 43 gates have never run against production.**
+- ~~**`frame_budget` against the real origin, and the sky-probe crash at era 196**~~ **— SETTLED by
+  [06](06-visual-treatment.md) round 10, and it was the MACHINE.** The quiet back-to-back this
+  ticket asked for: production **p95 20.6ms / worst 26.5ms**, localhost minutes later **p95 20.5ms /
+  worst 33.1ms** — indistinguishable, with localhost the worse of the two on the worst pass, against
+  this ticket's 25.7 / 47.1. The teeth agree independently: `frame_budget` reddened in **six of nine**
+  perturbation cases, always under load, never idle. The sky-probe crash did not recur on a quiet
+  machine and recurred three times during the teeth suite — `settle()` gives up when the machine is
+  loaded, not when the network is far. **The sweep now finishes against production and all 43 gates
+  have run there**, which cost an eighth instrument fault to achieve: `contact_is_a_position` assumed
+  the probe object was present before its photograph arrived, and only a real network could show it.
+- **`stars_go_out` against production** — 1,624 stars at one era there against 177 on localhost.
+  Round 9's photograph-read-as-sky, third occurrence, through the latency door. Harness, not page;
+  no ruling rests on it. Belongs to whoever next touches the sky probes.
 - **The real-device phone pass** — now just opening a link, which is what deploying first was for.
