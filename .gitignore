@@ -14,6 +14,10 @@ prototypes/webgl/harness/*.log
 # directory it is serving. `site/` is the deploy root, so an un-ignored httpd.log is a file that
 # gets uploaded and publicly served. Found in 06 round 10.
 site/httpd.log
+# 02's originals — the files the masters were cut FROM. ~230 MB of museum JPEGs, re-fetchable at
+# any time from sourced.json + orig/resolved.json, read only by the review surface. A local
+# working set, not repo content, and the only thing here big enough to matter if it slipped in.
+prototypes/directions/orig/
 
 .vercel
 .env*

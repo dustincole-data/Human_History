@@ -114,26 +114,35 @@ const zimg = await page.$eval('#zimg', e => [e.complete, e.naturalWidth]);
 ok('zoom image decodes', zimg[0] && zimg[1] > 0, JSON.stringify(zimg));
 // asserted on the RENDERED BOX, not the class — the class was right while the pane was
 // visible anyway, because `#zstage > div` outranked the id's own display:none.
-const [ow, cw, sw] = await page.evaluate(() => [
-  document.querySelector('#zorigwrap').offsetWidth,
-  document.querySelector('#zcutwrap').offsetWidth,
-  document.querySelector('#zstage').offsetWidth]);
-ok('no originals pane without an originals pass', ow === 0 && cw === sw, `orig ${ow}px, cut ${cw}/${sw}`);
+// `refetch02.py` has run, so this reads the REAL original rather than the cut-out pointed at
+// itself: a pane that splits while decoding nothing is the failure only a fetch pass can cause,
+// and it is invisible to a width assertion.
+await page.waitForTimeout(500);
+const [ow, cw, zo] = await page.evaluate(() => {
+  const o = document.querySelector('#zorig');
+  return [o.offsetParent === null ? 0 : document.querySelector('#zorigwrap').offsetWidth,
+          document.querySelector('#zcutwrap').offsetWidth,
+          [o.complete, o.naturalWidth, o.getAttribute('src')]];
+});
+ok('originals pane splits the stage and the original decodes',
+   ow > 100 && Math.abs(ow - cw) < 4 && zo[0] && zo[1] > 0 && /^orig\//.test(zo[2]),
+   `orig ${ow}px vs cut ${cw}px, ${zo[2]} at ${zo[1]}px`);
 // the ground still reaches the zoom, and setting it does not wipe the pane's own state
 await page.keyboard.press('b');
 ok('zoom pane keeps its ground and its state', await page.evaluate(() =>
   document.querySelector('#zcutwrap').className.includes('g-') &&
-  document.querySelector('#zorigwrap').offsetWidth === 0));
-// the pane must be ABLE to appear, or "no originals pane" is a decoration that cannot go red.
-// Points at the cut-out itself, so the split is exercised without an originals pass existing.
-await page.evaluate(() => { view[zi].o = 1; openZoom(zi);
-  document.querySelector('#zorig').src = `img/${view[zi].k}.webp`; });
-await page.waitForTimeout(400);
-const [ow2, cw2] = await page.evaluate(() => [
-  document.querySelector('#zorigwrap').offsetWidth, document.querySelector('#zcutwrap').offsetWidth]);
-ok('originals pane splits the stage when one exists', ow2 > 100 && Math.abs(ow2 - cw2) < 4,
-   `orig ${ow2}px vs cut ${cw2}px`);
+  document.querySelector('#zorigwrap').offsetWidth > 100));
+// all 236 have an original now, so the EMPTY case is the one that has to be faked or the hide
+// rule becomes a decoration — and that rule is the whole reason `#zstage > #zorigwrap` is
+// written at the specificity it is.
 await page.evaluate(() => { view[zi].o = 0; openZoom(zi); });
+await page.waitForTimeout(300);
+const [ow2, cw2, sw2] = await page.evaluate(() => [
+  document.querySelector('#zorigwrap').offsetWidth,
+  document.querySelector('#zcutwrap').offsetWidth,
+  document.querySelector('#zstage').offsetWidth]);
+ok('no originals pane when an item has none', ow2 === 0 && cw2 === sw2, `orig ${ow2}px, cut ${cw2}/${sw2}`);
+await page.evaluate(() => { view[zi].o = 1; openZoom(zi); });
 
 await page.keyboard.press('Escape'); await page.waitForTimeout(200);
 ok('zoom closes', await page.locator('#zoom.open').count() === 0);
