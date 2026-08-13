@@ -74,14 +74,16 @@ const CASES = {
                                 '  const nu = Math.min(1, d.age / NAME_OUT) * 0;']),
   },
 
-  /* THE LABEL STOPS BEING ONE LINE. `lay()` wraps at `min(W * 0.42, 330)`; this widens the wrap to
-     four times the viewport so the label rides down as one long unwrapped row. The gate's bound is
-     computed by the harness from the viewport, so widening the page's own wrap cannot widen the
-     bound it is tested against — which is what round 8's two tautologies got wrong. */
-  label_is_not_one_line: {
-    sweep: 'sweep10', expect: ['label_is_one_line_until_impact'],
-    apply: () => patch('grav', ['  const maxW = Math.min(W * 0.42, 330);',
-                                '  const maxW = W * 4;']),
+  /* THE LABEL IS LEFT BEHIND — pinned to the middle of the screen instead of following the object
+     it belongs to. This case REPLACES `label_is_not_one_line`, which widened `lay()`'s wrap to four
+     viewports and reddened nothing: a name and a date are three to five short words, so the 330px
+     bound never binds and the gate built on it was a decoration. Round 5's scar is the real risk
+     here — a label that stops tracking its object printed across the photograph on every arrival —
+     and the gate was re-aimed onto it BECAUSE this perturbation found the old one toothless. */
+  label_is_left_behind: {
+    sweep: 'sweep10', expect: ['label_rides_with_its_object'],
+    apply: () => patch('grav', ["    const cx = Math.max(W * 0.15, Math.min(W * 0.85, d.px));",
+                                "    const cx = W * 0.5;"]),
   },
 
   /* THE INK LOSES ITS FLOOR, ON THE SURFACE ROUND 10 MOVED IT TO. Round 8 measured the citation
@@ -112,12 +114,23 @@ const CASES = {
     apply: () => patch('grav', ['  if (o > 0.02) taken.push({ x, y: ty - bh / 2, w: bw, h: bh });', '']),
   },
 
-  /* THE GROUND STOPS DROPPING. Not a defect — the round's second change, reverted. It is here to
-     establish the opposite of the others: the ground line is a LOOK and no gate owns it, so this
-     must go red NOWHERE. A case that reddens something would mean a gate is silently pinned to a
-     number Dustin chose, and the round would have shipped a constant it cannot change again. */
+  /* THE GROUND STOPS DROPPING — the round's second change, reverted. Written as a CONTROL: the
+     ground line is a look, so this was expected to redden nothing, and a red would mean a gate had
+     been silently pinned to a number Dustin chose.
+
+     IT REDDENED ONE, AND THE ANSWER IS BETTER THAN THE QUESTION. `signature_keeps_its_corner_clear`
+     does not merely check for overlaps — it also fails when NOTHING ever comes near the corner,
+     because a zero-overlap result over a corner no word can reach proves nothing. At the old
+     0.64/0.71 ground line, with the citation gone, no word comes within 24px of the pill for 258
+     phone stops and the gate declares itself a decoration. At 0.78 the nearest approach is 2.2px
+     and 8 stops put a word inside 24px.
+
+     So the two changes are not independent after all: **ruling 1 emptied the soil band and ruling 2
+     is what puts words back near the signature**, and without the drop, 14's corner gate would have
+     been quietly retired by this round. It is expected red, and it is the reason the expectation is
+     written down rather than the case deleted. */
   the_ground_does_not_drop: {
-    sweep: 'sweep10', expect: [], expectNothing: true,
+    sweep: 'sweep10', expect: ['signature_keeps_its_corner_clear'],
     apply: () => patch('grav', ['const groundY = () => H * 0.78;',
                                 'const groundY = () => H * (W < 720 ? 0.64 : 0.71);']),
   },
@@ -144,10 +157,18 @@ for (const [name, c] of Object.entries(CASES)) {
     try {
       execSync(`node ${c.sweep}.mjs`, { stdio: 'pipe', encoding: 'utf8', timeout: 3000000 });
     } catch (e) {
+      /* A SWEEP THAT THROWS STILL REPORTED ITS GATES. The round-9 sky probe gives up finding a
+         frame with nothing in the air when the machine is loaded — and a teeth suite IS a loaded
+         machine — so the run dies AFTER most gates have printed and there is no `FAILED:` summary
+         to read. Parsing only the summary reported two genuinely-red gates as "did not go red",
+         which is a false MISS: the harness accusing the page of a fault that was its own. The
+         FAIL lines are the primary source and the summary is the shortcut. */
+      const fails = (e.stdout || '').split('\n').filter(l => /^FAIL\s/.test(l));
       const m = (e.stdout || '').match(/FAILED: (.*)$/m);
-      red = m ? m[1].split(', ') : [];
-      if (!m) console.log('  (no FAILED line — sweep threw)\n' + (e.stdout || '').slice(-600) + (e.stderr || '').slice(-400));
-      notes = (e.stdout || '').split('\n').filter(l => /^FAIL\s/.test(l)).map(l => '    ' + l.trim());
+      red = m ? m[1].split(', ') : fails.map(l => l.trim().split(/\s+/)[1]);
+      if (!m) console.log(`  (sweep threw after printing ${fails.length} gate results — reds read ` +
+                          `from the FAIL lines)\n    ${(e.stderr || e.stdout || '').trim().split('\n').slice(-3).join('\n    ')}`);
+      notes = fails.map(l => '    ' + l.trim());
     }
     /* `expectNothing` is the control case and it is asserted the other way round: nothing red, and
        the reported list is what proves it rather than an absence nobody printed. */

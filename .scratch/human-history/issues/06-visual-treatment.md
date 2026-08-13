@@ -370,3 +370,229 @@ same on a phone. The `-sky` crops are the backdrop band, which is where this rou
 - **A handful of credits are bare URLs** (`https://commons.wikimedia.org/wi…`), which read badly
   as scattered words. That is the record, not the treatment —
   [05](05-arrival-set.md)/[07](07-copy-voice-and-name.md).
+
+## Round 10, 2026-08-12 — attribution moves to the END. Most of round 8's build is deleted.
+
+Three changes, put in front of Dustin as options before anything was built — he picked
+GRAVITY/SHATTER and the name that way both times, and these interlock too hard to guess at.
+He picked **a wordless ground · one ground line at 0.78 · NAME_OUT 0.05**.
+
+### Ruling 1 — the citation comes off the piece
+
+The credits roll under the shelf already discharges every licence in the record: **CC BY 4.0
+3(a)(2)** says the conditions may be satisfied by *linking* a resource that carries the required
+information, and the roll links each source to its own file page. Round 8's own comment had
+already conceded the other half — *"a link riding a word that is about to be thrown across the
+soil is unreachable"* — so the piece was carrying the obligation in the one form that could not
+discharge it, while the roll carried it in the form that could.
+
+**Deleted with it:** the three-state spread (whole → three groups → single words), the
+wreckage-span readout, the per-word type-and-ink decay ramp, the cluster row search, `credTokens`,
+`CRED_PX`, `CRED_LO`, `INK_LO`, `INK_HI`, `TILT`, `GAPP`, `brk`, `slopeAt`, the `g`/`p` layouts,
+and the whole ink parameter through `put`/`draw`. **289 lines out of `gravity.js`.**
+
+**Kept, deliberately:** the per-object visually-hidden `sr` span carrying the full citation. The
+roll is where the licence is discharged; that span is the same information reaching someone who
+never sees the roll's layout, and removing it would have been a regression dressed as a deletion.
+Whether 236 spoken citations is the right shape for a screen reader is [08](08-accessibility-and-mobile.md)'s.
+
+**Nothing recognisable was taken away, and this is why the change is cheap rather than brave.**
+What lay on the soil was `source · licence · credit` — the SOURCE, never the object's name. The
+name already died at impact. So no heap lost the thing a visitor could identify it by; what left
+the ground was the attribution, which is now at the end where the visitor has stopped.
+
+### Ruling 2 — the ground drops, to ONE line
+
+`groundY` was `H * (W < 720 ? 0.64 : 0.71)`. It is now `H * 0.78` at every width.
+
+**The split was never a look.** It was round 8 buying a 390px phone 245px of soil to pack six
+citations into — the same round that raised the phone's ground line records exactly that reason.
+Ruling 1 deleted the reason, so the split went with it rather than being re-tuned. What the band
+below the line still has to hold is the contour's own wander (±32px), the tie band (24px) and the
+ending's standing cluster; 186px on a phone and 198px on a desktop clears that with room.
+
+Objects fall **+22% further on a phone** (540 → 658) and **+10% on a desktop** (639 → 702).
+
+### Ruling 3 — the words go quicker, and most of that was ruling 1
+
+`NAME_OUT` 0.07 → 0.05. **The larger half had already happened**: the citation lived the object's
+whole life, 1,400–4,200px of scroll, and the name lives 0.05 of it — 70–210px. Taking the citation
+off cut on-ground text time by ~93% before this constant was touched.
+
+**`SPLITS` and `DUST_AT` are untouched.** The round's input named them as a lever for word
+lifetime, and they are not one any more: they are 13's *object* schedule, and with no text keyed
+to them, moving them would be reopening 13's shatter grammar to change nothing about words.
+
+### Five gates were re-aimed, not four — and the fifth is the one that mattered
+
+| round 8 | round 10 | claims |
+|---|---|---|
+| `credit_lives_with_the_last_fragment` | `attribution_is_only_at_the_end` | no `.c` node **and** no licence string printed on the piece, at 1,071 stops |
+| `credit_never_outlives_it` | `no_orphaned_words` | no word left by an object that is neither up nor down |
+| `credit_is_one_line_until_it_breaks` | `label_is_one_line_until_impact` | 0 of 748 airborne labels wider than the 330px wrap |
+| `credit_spreads_with_its_wreckage` | `the_ground_carries_no_words` | 0 words over the soil past `NAME_OUT`, across 5,288 landed-and-broken readings |
+| `credit_contrast` | `label_contrast` | **worst 7.81:1** over 195 samples at 14 arrivals, firelight → LED |
+
+The ticket's brief said four `credit_*` gates. **There are five**, and `credit_contrast` was the
+one that lost its subject completely — it sampled `d.cred` and nothing else.
+
+**Two of them were rewritten to stop being tautologies rather than ported.**
+`label_is_one_line_until_impact` compares the label's **rendered rects** against a wrap width the
+harness computes **itself** from the viewport, so a build that widened its own wrap cannot widen
+the bound it is tested against — which is precisely how round 8's two tautologies failed.
+`attribution_is_only_at_the_end` reads the record's **licence vocabulary out of the data**, so a
+re-implementation that put the credit back under a different class name cannot slip past a `.c`
+count. Both halves have their own perturbation.
+
+**`label_is_one_line_until_impact` is measured IN THE AIR**, which is the only place the claim
+means anything now: the break throws the words ±95px on purpose, so a span test over a landed
+object would be testing the break, not the line.
+
+`only_the_last_one_survives` follows the same rule — 14's ending keeps **every** word it was built
+with (`wordVis === wordTotal`), there are simply fewer of them.
+
+### The risk the round was opened knowing about, and it did not land
+
+Round 8 solved legibility **single-ended** and could: the citation only ever lay on the baked
+earth, which 13 froze, so there was one worst case and `INK_LO` was picked against it. The label
+rides under a falling object over the **dated sky** and sometimes over the photograph — the two
+surfaces round 8 says explicitly it was not solved against, and which nothing on this project had
+ever measured. That was flagged to Dustin before building as the thing that could turn a cheap
+round into a long one.
+
+**Measured: 7.81:1 against a 4.5 gate**, sampling every ~17th arrival so firelight through LED is
+covered rather than four stops in the crowded body.
+
+**And the worst case is the opposite end from the one that was feared.** It is a *date* word — ink
+`rgb(255,122,26)`, the era's own spot colour — over a **black** firelight sky, not a near-white
+name over a lit LED one. The bright end is comfortable because the label is near-white and round
+9's LED sky tops out at value 132.
+
+**The `text-shadow` is deliberately not counted.** `#labels span` carries
+`0 1px 4px rgba(0,0,0,.95)`, which is a real legibility device and is part of why this text reads
+on any sky — but WCAG's ratio has no term for it, and giving it an allowance here would be marking
+the round's own homework. The number reported is the raw ink-to-pixel ratio.
+
+### `no_text_collision_390` is closed, and the 8 overlaps are attributed rather than assumed
+
+Ticket 15 recorded the red as *"almost all credit words"*. **It was 8 of 8** — every overlap was a
+credit word against another credit word, across three stops in the crowded tail:
+
+```
+y=92500  "Armour through the Ant…" x "Jonathan Cardy" / "Wikimedia Commons" / "Damian B Oh"
+y=97500  "Osama Shukir Muhammed"   x "Richard L. Chilton" / "Public domain" / "Wikimedia Commons"
+         "Richard L. Chilton"      x "Wikimedia Commons"
+y=99000  "Gift of Mr. and Mrs."    x "CC BY-SA 3.0"
+```
+
+The same probe over the same 321 stops now returns **0**, and **the maximum words on screen went
+33 → 7**. The gate did not get easier to pass by luck; what had been competing for the soil band
+was the soil band's own contents.
+
+That 33 → 7 is also the round's one gate-quality worry, so it gets its own perturbation rather
+than a reassurance: *a gate with seven boxes to compare may no longer be able to catch anything.*
+
+### The roll's gate is now load-bearing, and it was checking the wrong thing
+
+`every_item_carries_its_attribution` (sweep11i) checked that each row's **text** carried name,
+date, source and licence. It did not check that the source was a **link** — and the entire legal
+basis for ruling 1 is CC BY 4.0 3(a)(2), which is discharged *by linking*. With the piece's
+citation gone, a roll with complete text and no anchors would be a licence breach that the gate
+called green. **It now requires an http(s) link per row**; 236/236.
+
+### The harness cost, and an old lesson paying for itself
+
+- **A perturbation run was killed mid-sweep by a 10-minute tool timeout and left its patch in
+  `gravity.js`.** The README's rule held: the file was restored by **replacing the exact bytes**,
+  not by `git checkout`, which would have discarded the entire round. Round 14 lost an afternoon
+  learning that; round 10 paid nothing. The teeth then ran backgrounded, and **the round was
+  committed before they started** — the same README rule from the other side, since
+  tracked-and-committed is the only state that survives a careless command.
+- **A disposable smoke probe reported the ending with 0 words** and the page was fine: the probe
+  waited 6 rAF and not on `pending()`, so it read a page whose last photograph had not arrived.
+  Sixth time this project that the instrument was wrong and the page was not — and the first time
+  it cost nothing, because a gate that *does* wait had already said otherwise in the same session.
+- **`site/httpd.log` was one commit from being publicly served.** The harness README tells you to
+  redirect the static server's output into the directory it serves; ticket 15 made `site/` the
+  deploy root. Now gitignored, with the reason written next to it.
+
+### Teeth — nine perturbations, and they found a decoration in this round's own work
+
+| perturbation | expected | result |
+|---|---|---|
+| the citation comes back onto the piece | `attribution_is_only_at_the_end` | **RED**, 2,093 stops |
+| …comes back under a DIFFERENT class | `attribution_is_only_at_the_end` | **RED** — caught by the licence string, `{"y":140,"lic":"CC BY-SA 4.0"}` |
+| the ground keeps its words | `the_ground_carries_no_words` + `name_dies_at_impact` | **RED**, both, 5,282 objects |
+| the label's ink matches the sky | `label_contrast` | **RED** at **1.01:1** |
+| the ending drops one word | `only_the_last_one_survives` | **RED** — `wordVis 3, wordTotal 4` |
+| words stop reserving their ground | `no_text_collision_390` | **RED**, **51 overlaps** |
+| the roll loses its link | `every_item_carries_its_attribution` | **RED**, all 236 rows |
+| the label stops being one line | `label_is_one_line_until_impact` | **NOTHING. The gate was a decoration.** |
+| *(control)* the ground does not drop | nothing | **RED** — and the answer is better than the question |
+
+**The two halves of `attribution_is_only_at_the_end` are separately proven**, which is the whole
+reason it was built with two. Case 1 is caught by the `.c` node count; case 2 puts the credit back
+under `.n` and only the licence-vocabulary read sees it. Either half alone would have shipped a hole.
+
+**`no_text_collision_390` survived the round with teeth**, which was the open worry: the round took
+it from 33 boxes to 7, and a gate with seven things to compare is the prime suspect for a green by
+emptiness. Deleting the word reservation gives it **51 overlaps** at 390 and 56 at 1440. It is a
+guard, not a decoration — and note it is now *more* reliable than ticket 15 recorded it, which found
+the same perturbation a knife-edge that caught the defect on one run in two at 33 boxes.
+
+#### The decoration, found in this round's own re-aim
+
+`label_is_one_line_until_impact` asserted the airborne label was no wider than `lay()`'s
+`min(W * 0.42, 330)` wrap. **Widening the page's own wrap to four viewports reddened nothing.** A
+name and a date are three to five short words: the widest label on the site runs **230px against
+the 330px bound — 100px of headroom** — so the bound cannot bind and the gate could not fail. 748
+airborne labels, none wider, and none that ever could be.
+
+That is round 12's lesson arriving inside the round that quoted it, and it is the second time in
+this project that a gate counted green in a table was structurally incapable of failing.
+
+**Replaced by `label_rides_with_its_object`**, which carries the claim that has teeth: every
+airborne label is centred on **its own object's x** within 4px, arithmetic the harness repeats from
+the object's position rather than reading the page's answer. Round 5's scar is the real risk it
+guards — a label that stopped tracking its object was once clamped 84px off the surface and printed
+across the photograph on every arrival. Its perturbation pins the cluster to the middle of the
+screen. **And the slack half is now REPORTED rather than asserted**: the gate prints the widest
+label against the wrap and the headroom between them, so if the wrap ever stops being what holds
+the label together, the number says so instead of a green.
+
+#### The control case, and the two changes are not independent after all
+
+`the_ground_does_not_drop` reverts ruling 2 and was written to redden **nothing** — the ground line
+is a look, and a red would mean a gate had been silently pinned to a number Dustin chose.
+
+It reddened `signature_keeps_its_corner_clear`, and the reason is the good kind.
+[14](14-the-ending-and-the-frame.md) built that gate to fail **both** ways: on an overlap, and on a
+corner **nothing ever reaches**, because zero overlaps over a corner no word can touch proves
+nothing. At the old 0.64/0.71 ground line, with the citation gone, **no word comes within 24px of
+the pill across 258 phone stops and the gate declares itself a decoration.**
+
+So: **ruling 1 emptied the soil band, and ruling 2 is what puts words back near the signature.**
+Without the ground drop this round would have quietly retired 14's corner gate. The margin is
+genuinely thin and is recorded rather than smoothed — at 0.78 the nearest approach is **2.2px**,
+with 8 stops putting a word inside 24px. It passes, and it has no room.
+
+#### And the harness was wrong twice, in the round's own tooling
+
+- **A crashed sweep reported as "no gate went red".** The round-9 sky probe gives up finding a frame
+  with nothing in the air when the machine is loaded — and a teeth suite *is* a loaded machine — so
+  three runs died **after** printing their gate results, leaving no `FAILED:` summary line to parse.
+  The harness read that as "did not go red" and accused the page of a fault that was its own: all
+  three had in fact reddened exactly their gate. **The FAIL lines are now the primary source and the
+  summary is the shortcut.** Seventh time this project that the instrument was wrong and the page
+  was not, and the first time the instrument's fault was a **false MISS** rather than a false green.
+- **`frame_budget` went red in six of nine cases, and it is the machine.** Warm p95 25.1 / 29.3 /
+  35.7 / 44.7 / 46.8ms while a perturbation suite ran, against **19.7ms and 21.4ms idle on the same
+  build**. That is direct evidence for the question [15](15-deploy-and-the-card.md) left open: its
+  production red (p95 25.7ms, worst 47.1ms) was measured on a machine running several other
+  sessions, and load reproduces that number here without a CDN anywhere in it.
+
+### The CNAME landed
+
+`timetakesall.dustincoledata.com` resolved during this round — Dustin's one open step from
+[15](15-deploy-and-the-card.md). **200 on the real domain, serving this build** (`H * 0.78`,
+`NAME_OUT = 0.05`, zero occurrences of `credTokens`). Push-auto-deploys held for the third time.

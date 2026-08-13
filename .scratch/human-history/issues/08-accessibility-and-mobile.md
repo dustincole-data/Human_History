@@ -112,3 +112,19 @@ Everything above is a Chromium approximation. On an actual iPhone, in this order
 **It needs a URL a phone can open, and there is not one** — the piece is on `localhost:8812`. That
 is why [15](15-deploy-and-the-card.md) says deploy does not wait on this ticket: shipping first turns
 step 1 into opening a link.
+
+## What 06 round 10 took off this ticket's next round, 2026-08-12
+
+**`no_text_collision_390` is closed and it is not 08's any more.** [15](15-deploy-and-the-card.md)
+ruled it here alongside the two URL-bar reds because all three land on the same surfaces, and the
+three fixes it listed were *drop a citation, change the band, or shrink the type*.
+[06](06-visual-treatment.md) round 10 took a fourth route neither ticket had: it took the citation
+off the piece entirely, on the licence argument that the credits roll already discharges CC BY 4.0
+3(a)(2) by linking. The phone's soil band stopped being contested — max words on screen 33 → 7, and
+0 overlaps over the same 321 stops.
+
+**The two URL-bar reds are untouched and are still this ticket's next round.** Nothing in round 10
+went near `setSpacer()`, `fit()` or `indexTop()`. One thing did move under them and should be read
+before that round starts: **the ground line is now `H * 0.78` at every width** rather than
+0.64/0.71, so any fix that stops sizing the canvas from `innerHeight` is working against one
+constant instead of two.

@@ -212,7 +212,7 @@ const groundViol = [], tieCutViol = [], captions = [], groundWords = [], ghosts 
       wholeViol = [], credOnPiece = [], lastViol = [];
 const survivors = new Set();                 // 14: whose name outlives impact. Must be exactly {N-1}
 const aliveCurve = [], tieCurve = [];
-let groundSeen = 0, wholeSeen = 0, nameSeen = 0, lastSeen = 0;
+let groundSeen = 0, wholeSeen = 0, nameSeen = 0, lastSeen = 0, widest = 0;
 const STEP = 140;
 const stops = [];
 for (let y = 0; y < T.TOTAL; y += STEP) stops.push(y);
@@ -276,7 +276,11 @@ for (const y of stops) {
         total: d.atoms.length,
         vis: lit.length,
         span: rs.length ? Math.max(...rs.map(r => r.right)) - Math.min(...rs.map(r => r.left)) : 0,
-        rows: rs.length ? Math.max(...rs.map(r => r.bottom)) - Math.min(...rs.map(r => r.top)) : 0,
+        /* where the label actually got drawn, against where the OBJECT is. Two different
+           subsystems — DOM rects and the canvas physics — so this is not the page agreeing
+           with itself. */
+        cx: rs.length ? (Math.max(...rs.map(r => r.right)) + Math.min(...rs.map(r => r.left))) / 2 : 0,
+        px: d.px,
         nameVis: lit.length, nameTotal: d.atoms.length
       });
     }
@@ -298,7 +302,17 @@ for (const y of stops) {
        the comparison together. */
     if (it.air && it.vis) {
       wholeSeen++;
-      if (it.span > MAXW + 4) wholeViol.push({ y, i: it.i, span: Math.round(it.span), line: MAXW });
+      widest = Math.max(widest, it.span);
+      /* THE LABEL RIDES WITH ITS OBJECT. `place()` puts the airborne cluster at the object's own
+         x, clamped to 15-85% of the width — arithmetic the harness repeats HERE from the object's
+         position rather than reading the page's answer. Round 5's scar is the reason it is worth
+         a gate: the label was once clamped 84px off the surface and printed across the photograph
+         on every arrival, and a label that stops following its object is the same defect. */
+      const want = Math.max(VW * 0.15, Math.min(VW * 0.85, it.px));
+      if (Math.abs(it.cx - want) > 4)
+        wholeViol.push({ y, i: it.i, at: Math.round(it.cx), want: Math.round(want) });
+      if (it.span > MAXW + 4)
+        wholeViol.push({ y, i: it.i, span: Math.round(it.span), line: MAXW });
     }
     if (!it.down || it.gone) continue;
     /* THE GROUND CARRIES NO WORDS. Round 8's claim here was the opposite one — a fragment down and
@@ -393,8 +407,17 @@ ok('attribution_is_only_at_the_end', credOnPiece.length === 0,
        `the credit is in the roll, which sweep11i gates with its link`);
 ok('no_orphaned_words', ghosts.length === 0,
    `${ghosts.length} stops with a word left in the DOM by an object that is neither up nor down`);
-ok('label_is_one_line_until_impact', wholeViol.length === 0,
-   `${wholeViol.length} of ${wholeSeen} airborne labels wider than the ${MAXW}px wrap`);
+/* RENAMED AND RE-AIMED A SECOND TIME, by its own perturbation. `label_is_one_line_until_impact`
+   asserted the label was no wider than `lay()`'s 330px wrap — and `teeth06r10` widening that wrap
+   to four viewports reddened NOTHING, because a name and a date are three to five short words and
+   the widest label on the site never comes close to the bound. A gate that cannot go red is a
+   decoration, so the claim with teeth is the one carried, and the slack one is REPORTED instead of
+   asserted: if the headroom below is large, the wrap is not what keeps the label together. */
+ok('label_rides_with_its_object', wholeViol.length === 0,
+   wholeViol.length ? `${wholeViol.length} of ${wholeSeen}: ${JSON.stringify(wholeViol[0])}`
+     : `${wholeSeen} airborne labels, every one centred on its own object within 4px — and the ` +
+       `widest ran ${Math.round(widest)}px against the ${MAXW}px wrap, ` +
+       `${Math.round(MAXW - widest)}px of headroom, so the wrap is not the thing holding them`);
 ok('the_ground_carries_no_words', groundWords.length === 0,
    groundWords.length
      ? `${groundWords.length} landed objects still printing words past NAME_OUT: ` +

@@ -248,10 +248,13 @@ the hang.
 
 ### Still open
 
-- **The CNAME** (Dustin's, above) — until it lands the real domain does not resolve and the card's
-  href 404s at DNS.
-- **`no_text_collision_390`** → [08](08-accessibility-and-mobile.md)'s next round, with the two
-  URL-bar reds.
+- ~~**The CNAME**~~ **— LANDED 2026-08-12.** `timetakesall.dustincoledata.com` resolves to
+  `8eb94db628297813.vercel-dns-017.com` and returns 200 serving the current build; the card's href
+  no longer 404s at DNS. Confirmed during [06](06-visual-treatment.md) round 10.
+- ~~**`no_text_collision_390`**~~ **— CLOSED by [06](06-visual-treatment.md) round 10**, not by 08.
+  Taking the citation off the piece emptied the band the eight overlaps were competing for. All
+  **8 of 8** were credit-word against credit-word — this ticket recorded them as *"almost all"*, and
+  a probe that names the colliding words settled it — and the same 321 stops now return 0.
 - **The title echo in the intro's last clause** (above) — copy, so Dustin's.
 - **`frame_budget` against the real origin, and the sky-probe crash at era 196** — one quiet re-run,
   localhost and deployed back to back on an idle machine, decides whether the CDN moved the frame

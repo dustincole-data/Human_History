@@ -254,6 +254,37 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   two first visits are byte-identical PNGs, which the unseeded dust and the cut budget had made
   impossible. `sweep10` 43/43, `sweep11i` 26/26.
 
+- [06 — Visual treatment](issues/06-visual-treatment.md) **round 10 — the citation comes OFF the
+  piece, and most of round 8 goes with it.** Ruled by Dustin from options: a **wordless ground**, one
+  ground line at 0.78, `NAME_OUT` 0.05. The licence argument is what makes it free — **CC BY 4.0
+  3(a)(2)** is discharged by *linking*, the roll does that, and round 8's own comment had already
+  conceded the piece could not (*"a link riding a word that is about to be thrown across the soil is
+  unreachable"*). So the piece was carrying the obligation in the one form that cannot discharge it.
+  **289 lines out of `gravity.js`**: the three-state spread, the wreckage-span readout, the ink ramp,
+  the cluster row search and eleven now-orphaned constants. **Nothing recognisable was lost** — what
+  lay on the soil was the SOURCE, never the object's name, and the name already died at impact.
+  **Five gates re-aimed, not four** (the brief undercounted: `credit_contrast` lost its subject
+  entirely), and **two were rewritten to stop being tautologies** — the label's span is now compared
+  against a wrap width the *harness* computes from the viewport, and "is the citation back" is tested
+  against the record's own **licence vocabulary** rather than a class name a re-implementation would
+  change. **The named risk did not land**: legibility moved from frozen earth to the *dated sky*, the
+  surface round 8 said it was not solved against and nothing had ever measured — **7.81:1** against a
+  4.5 gate, and the worst case is a *date* word over a **black** firelight sky rather than a white
+  one over lit LED. The `text-shadow` is deliberately not counted. **`no_text_collision_390` closed**
+  (8 of 8 attributed, 33 -> 7 words on screen), and sweep11i's roll gate is now load-bearing so it
+  checks the **link** as well as the text. 43/43 and 26/26 on localhost.
+  **The teeth found a decoration in the round's own re-aim**: `label_is_one_line_until_impact` could
+  not fail, because a name and a date are 3-5 short words and the widest label runs 230px against a
+  330px wrap — replaced by `label_rides_with_its_object` (every airborne label centred on its own
+  object within 4px), with the slack half now REPORTED instead of asserted. **And the control case
+  proved the two changes are not independent**: reverting the ground line reddens
+  `signature_keeps_its_corner_clear`, because ruling 1 emptied the soil band and **ruling 2 is what
+  puts words back near the signature** — without the drop, 14's corner gate would have been quietly
+  retired. Margin there is 2.2px, recorded rather than smoothed. `no_text_collision_390` survived
+  with teeth (51 overlaps when the reservation is deleted, on 7 boxes — *more* reliable than the
+  knife-edge 15 recorded at 33). **`frame_budget` red in six of nine cases, always under load,
+  against 19.7/21.4ms idle on the same build — which is [15](issues/15-deploy-and-the-card.md)'s
+  unattributed production red reproduced with no CDN in it.**
 - [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
   the furniture was outside every collision gate.** Resolved by building the options rather than
   picking: seven names in three families, all DNS-checked, and three voices written on the real
@@ -316,6 +347,24 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
     direction, and a gate that only ever walks forward has only ever tested forward.** Fourth round
     running where the instrument was wrong and the page was not; first where it was the *direction*.
 
+### New from Dustin, 2026-08-12 — **the credit comes off the piece**
+
+Three asks, taken as options before anything was built, and they interlock —
+-> [06](issues/06-visual-treatment.md) round 10, **all three done**.
+
+- **Attribution moves to the END.** The per-object citation is off the piece; the credits roll
+  discharges every licence on its own (**CC BY 4.0 3(a)(2)** — the conditions are satisfied by
+  *linking* a resource carrying the required information, and the roll links each source to its
+  file page). This **deletes most of round 8's build** and the five gates that measured it were
+  **re-aimed, not dropped**.
+- **The ground drops** to one line at `H * 0.78`. The 0.64/0.71 phone-desktop split was never a
+  look — it was round 8 buying the phone soil to pack six citations into, and ask 1 deleted its
+  reason. Objects fall 22% further on a phone, 10% on a desktop.
+- **The words go quicker**, `NAME_OUT` 0.07 -> 0.05 — though the larger half was ask 1: the citation
+  lived 1,400-4,200px of scroll and the name lives 0.05 of it. `SPLITS`/`DUST_AT` were named as the
+  other lever and are **untouched**: they are 13's object schedule, and with no text keyed to them
+  moving them would reopen 13 to change nothing.
+
 ### The destination was reached, 2026-08-12 — [15](issues/15-deploy-and-the-card.md) round 1
 
 - **Shipped.** `site/` is the deploy root, push auto-deploys (verified, not assumed), the card is
@@ -333,11 +382,14 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   code, not the record, not the site. The only formulation that is right across all seven SA
   versions present, since the one CC BY-SA 1.0 entry has no later-version clause. One colophon
   sentence.
-- **A new red, and it is real: `no_text_collision_390`.** Green at 230, red at 236 — the six new tail
-  items filled the phone's soil band, and the page's designed fallback prints a citation rather than
-  drop it. Byte-identical over two passes, so not the knife-edge the gate is on record as being.
-  **Ruled: ship now, [08](issues/08-accessibility-and-mobile.md)'s next round rules it**, with the
-  two URL-bar reds, on the same surfaces.
+- ~~**A new red, and it is real: `no_text_collision_390`.**~~ **CLOSED by
+  [06](issues/06-visual-treatment.md) round 10**, and not by 08 — taking the citation off the piece
+  emptied the band the eight overlaps were competing for. Green at 230, red at 236 because the six
+  new tail items filled the phone's soil; the round attributed all **8 of 8** as credit-word against
+  credit-word (15 recorded it as *"almost all"*), and the same probe over the same 321 stops now
+  returns 0 with the maximum words on screen down from 33 to 7.
+- ~~**The CNAME.**~~ **Resolved 2026-08-12.** `timetakesall.dustincoledata.com` serves the piece on
+  the real domain.
 - **`no_text_collision_390` is the fifth time the number moved when the SET grew, not when the code
   changed** — and the harness cost four dead runs before it could be read at all: **a phase gets a
   new page, not a navigation.** A false green was caught in that fix before it ran, which is the
