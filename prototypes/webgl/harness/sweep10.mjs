@@ -74,10 +74,30 @@ const absorb = async () => {
   held.lastN = r.n; held.lastPx = r.px;
 };
 
+/* A NEW PAGE WAS NOT ENOUGH. The fault in the header — an old browser will not navigate — is
+   reduced by newPage() and not removed by it. Against production, where every request costs what
+   localhost's costs nothing, the run reached a `goto` with the browser old enough that
+   playwright's DEFAULT 30s budget expired, and died: first at the 390px collision phase with 24
+   gates green, and then, with that one site fixed, at the sprite audit's own page with 28. The
+   origin was not the problem either time — it answered 200 in 130ms, three times, while the run
+   lay dead. So EVERY navigation in this file goes through here: a budget the size of the fault,
+   and one retry on a page thrown away and replaced. If the second attempt fails too, that is a
+   real failure and it is allowed to say so. */
+const arrive = async (make, url) => {
+  for (let attempt = 0; ; attempt++) {
+    const pg = await make();
+    try { await pg.goto(url, { waitUntil: 'load', timeout: 90000 }); return pg; }
+    catch (e) {
+      await pg.close().catch(() => {});
+      if (attempt) throw e;
+      console.log(`  (navigation timed out on a ${Math.round(process.uptime())}s-old browser — new page, one more attempt)`);
+    }
+  }
+};
+
 const fresh = async (url = URL) => {
   await absorb();
-  await newPage();
-  await page.goto(url, { waitUntil: 'load' });
+  await arrive(async () => { await newPage(); return page; }, url);
   await page.waitForFunction(() => window.__hh && window.__hh.drops.length, null, { timeout: 60000 });
   await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
   await page.waitForTimeout(1200);
@@ -733,8 +753,7 @@ const GATE = 80;                                    // MB, the ceiling Deep Time
       claim the bake makes: no photograph is taller than the height it is drawn at. Read off the
       files the page actually fetches, in a page that is closed straight after. */
 const audit = await (async () => {
-  const p2 = await browser.newPage({ viewport: { width: 400, height: 300 } });
-  await p2.goto(URL, { waitUntil: 'load' });
+  const p2 = await arrive(() => browser.newPage({ viewport: { width: 400, height: 300 } }), URL);
   await p2.waitForFunction(() => window.__hh && window.__hh.drops.length, null, { timeout: 60000 });
   const r = await p2.evaluate(async () => {
     const H = window.__hh;
@@ -996,75 +1015,149 @@ await page.setViewportSize({ width: 1440, height: 900 });
    its way down, so a photograph in the sample region is counted as sky — the first cut of these
    gates read 1,775 "stars" at an era whose star field is identical to another era's 1,362, and
    the difference was one falling sprite's edges. The beat between two arrivals is 60–200px of
-   scroll with an empty sky, so it is always reachable from any stop by walking forward. */
-const settle = async (y0) => {
-  await to(y0, 6);
-  for (let k = 0; k < 40 && (await snap()).air > 0; k++) await to(y0 + k * 18, 2);
-  return (await snap()).air === 0;
+   scroll with an empty sky, so it is always reachable from any stop by walking forward.
+
+   AND THAT IS THE FIFTH TIME THAT FAULT ARRIVED, so it is no longer fixed by asking the page.
+   Rounds 9, 10, 12 and 15 each answered "is a photograph in the sky" with `snap().air`, and the
+   page's answer and the counted pixels are TWO DIFFERENT MOMENTS: `snap()` is one round trip,
+   `getImageData` is another, and a sprite that arrives between them is in the rectangle and in
+   nothing the harness looked at. On 127.0.0.1 a photograph is never late so the gap is never
+   spent; against the real CDN it is. Both production symptoms are that one gap, from its two
+   sides — 1,624 stars against localhost's 177 (the sprite arrived after the check), and
+   `era 40: never found an empty sky` (the sprite arrived after the loop had already exited on
+   `air === 0`, so settle's own re-read disagreed with settle's own loop and threw).
+
+   THE READING IS NOW TAKEN IN PIXELS, IN ONE BUFFER, AND A PHOTOGRAPH CANNOT SATISFY IT. One
+   `getImageData` over the upper 45% of the sky answers both questions — whether anything is in
+   it, and how many stars its top third holds — so the emptiness proof and the star count are
+   literally the same bytes and there is no moment between them to lose. The discriminator is
+   SIZE: a star is 1–3px wide, a cut-out drawn at DRAW_H is dozens of px wide in every row it
+   crosses. Measured, at all five eras: longest run of horizontally-contiguous pixels off their
+   own row's median is 0–3px with an empty sky and 58–180px with an object in the air — including
+   one dark object at era 40 whose row percentiles never moved at all, which is why the test is a
+   RUN and not a spread. `DEV 30` sits above the widest smooth variation an empty row showed
+   (p05→p95 29, the skyglow pool), `BAND 0.45` is gate 5's own safe band — shards settle a few
+   dozen px off the soil, nowhere near it — and `RUN_MAX 12` is 4× the empty worst and 4.8× under
+   the airborne best.
+
+   A WALK THAT FINDS NOTHING REPORTS. `never found an empty sky` took two production sweeps down
+   at the line; a probe that cannot read its subject is a failed gate, not a failed run. */
+const SKY_BAND = 0.45, STAR_BAND = 0.33, RUN_MAX = 12, DEV = 30;
+const readSky = () => page.evaluate(async ([BAND, STARB, RUNMAX, DEV]) => {
+  const H = window.__hh, gy = H.groundY();
+  const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+
+  /* Impact dust is drawn OVER the soil and over the low sky, and it is frozen wherever the
+     scrollbar left it. The harness clears the particle set and lets one frame redraw without
+     it: dust is not dated, it is not the earth, and it is the only thing between the two.
+     Nothing respawns it — dust is made at impact and an impact needs forward scroll. */
+  const dustWas = H.dustN();
+  H.clearDust();
+  await new Promise(requestAnimationFrame);
+  await new Promise(requestAnimationFrame);
+  /* EVERYTHING BELOW THIS LINE IS ONE FRAME. There is no `await` past here, so the page's rAF
+     loop cannot run and no sprite can arrive: every read that follows is of the same canvas the
+     emptiness scan proved empty. That is the whole repair. */
+
+  const img = H.px(0, 6, innerWidth, gy * BAND), r = img.width * 4;
+  const starRows = Math.min(img.height, Math.round(img.height * STARB / BAND));
+  let longest = 0, longRow = -1, stars = 0;
+  const row = new Array(img.width), samp = [];
+  for (let yy = 0; yy < img.height; yy++) {
+    for (let xx = 0; xx < img.width; xx++) {
+      const a = yy * r + xx * 4; row[xx] = img.data[a] + img.data[a + 1] + img.data[a + 2];
+    }
+    samp.length = 0;
+    for (let xx = 0; xx < img.width; xx += 4) samp.push(row[xx]);
+    samp.sort((a, b) => a - b);
+    const med = samp[samp.length >> 1];
+    let run = 0;
+    for (let xx = 0; xx < img.width; xx++) {
+      if (Math.abs(row[xx] - med) > DEV) { if (++run > longest) { longest = run; longRow = yy; } }
+      else run = 0;
+      /* stars: pixels in the top third of the sky brighter than the sky 8px to their right.
+         Same rectangle, same pass, every pixel — a 1px star on a 3px grid is mostly missed. */
+      if (yy < starRows && xx + 8 < img.width && row[xx] > row[xx + 8] + 26) stars++;
+    }
+  }
+  if (longest > RUNMAX) return { clean: false, longest, longRow: longRow + 6, stars };
+
+  /* The sky, away from the lit pool's centre so the number is the AIR and not the lamp. Summed
+     across the channels rather than weighted into luminance: 13's colour ramp is not monotone
+     in luminance — phosphor is a bright green and LED is a dim blue, and a luminance test
+     therefore reads 1974 as a lighter sky than 2015 and calls the ramp broken. What is claimed
+     is that there is MORE LIGHT IN THE AIR, and value, not perceived brightness, is that. */
+  const sky = [[120, 40], [1320, 40], [120, gy * 0.5], [1320, gy * 0.5]]
+    .map(([x, y]) => H.bgAt(x, y).reduce((s, v) => s + v, 0));
+
+  /* the earth. Sampled at the local surface so the columns follow the land, and deep enough to
+     clear the tie band, which is never more than 20px under it. */
+  const soil = [];
+  for (let x = 60; x < innerWidth - 60; x += 137)
+    for (const d of [80, 140, 200]) soil.push(H.bgAt(x, H.surfAt(x) + d).join('/'));
+
+  /* the HUD sits on the sky, and the sky is the surface that just started moving */
+  let hud = 99;
+  for (const sel of ['#hud .num', '#hud .era']) {
+    const el = document.querySelector(sel), b = el.getBoundingClientRect();
+    const m = getComputedStyle(el).color.match(/\d+/g).map(Number);
+    for (const [fx, fy] of [[0.15, 0.5], [0.5, 0.4], [0.85, 0.6]]) {
+      const bg = H.bgAt(b.x + b.width * fx, b.y + b.height * fy);
+      const l1 = lum(m), l2 = lum(bg);
+      hud = Math.min(hud, (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+    }
+  }
+  /* gate 5's fingerprint of the same sky, taken in this same frame rather than in a second
+     evaluate of its own — it had the identical gap and no reason to keep it. */
+  const fp = [];
+  for (let x = 40; x < innerWidth; x += 70)
+    for (const f of [0.03, 0.16, 0.30, 0.45]) fp.push(H.bgAt(x, gy * f).join('/'));
+
+  return { clean: true, longest, longRow: longRow + 6, stars, reach: H.reach(),
+           sky: Math.max(...sky), soil, hud, dustWas, fp: fp.join(' ') };
+}, [SKY_BAND, STAR_BAND, RUN_MAX, DEV]);
+
+/* Walk forward until the pixels themselves say the sky is clear. `air` is not consulted at all
+   any more: it was never wrong, it was only ever read at a different moment than the pixels. */
+const settleRead = async (y0) => {
+  let worst = null;
+  for (let k = 0; k < 40; k++) {
+    await to(k === 0 ? y0 : y0 + k * 18, k === 0 ? 6 : 2);
+    const r = await readSky();
+    if (r.clean) return r;
+    if (!worst || r.longest > worst.longest) worst = r;
+  }
+  return { clean: false, worst };
 };
 
 /* five stops spanning the ramp, each on a page nobody has scrolled — the head has to be a first
    visit or its objects are already dust and there is nothing on the ground to sample past */
 const ERAS = [6, 40, 150, 196, 226];
-const skyRead = [];
+const skyRead = [], skyMiss = [];
 for (const i of ERAS) {
   await fresh();
-  if (!await settle(T.LAND[i] + T.LIFE[i] * 0.3)) throw new Error(`era ${i}: never found an empty sky`);
-  skyRead.push(await page.evaluate(async () => {
-    const H = window.__hh, gy = H.groundY();
-    const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-      return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
-
-    /* Impact dust is drawn OVER the soil and over the low sky, and it is frozen wherever the
-       scrollbar left it. The harness clears the particle set and lets one frame redraw without
-       it: dust is not dated, it is not the earth, and it is the only thing between the two.
-       Nothing respawns it — dust is made at impact and an impact needs forward scroll. */
-    const dustWas = H.dustN();
-    H.clearDust();
-    await new Promise(requestAnimationFrame);
-    await new Promise(requestAnimationFrame);
-
-    /* The sky, away from the lit pool's centre so the number is the AIR and not the lamp. Summed
-       across the channels rather than weighted into luminance: 13's colour ramp is not monotone
-       in luminance — phosphor is a bright green and LED is a dim blue, and a luminance test
-       therefore reads 1974 as a lighter sky than 2015 and calls the ramp broken. What is claimed
-       is that there is MORE LIGHT IN THE AIR, and value, not perceived brightness, is that. */
-    const sky = [[120, 40], [1320, 40], [120, gy * 0.5], [1320, gy * 0.5]]
-      .map(([x, y]) => H.bgAt(x, y).reduce((s, v) => s + v, 0));
-
-    /* stars: pixels in the top third of the sky brighter than the sky immediately right of them.
-       One rectangle read, scanned every pixel — a 1px star on a 3px grid is mostly missed. */
-    let stars = 0;
-    {
-      const d = H.px(0, 6, innerWidth, gy * 0.33), r = d.width * 4;
-      for (let yy = 0; yy < d.height; yy++)
-        for (let xx = 0; xx + 8 < d.width; xx++) {
-          const a = yy * r + xx * 4, b = a + 32;
-          if (d.data[a] + d.data[a + 1] + d.data[a + 2] > d.data[b] + d.data[b + 1] + d.data[b + 2] + 26) stars++;
-        }
-    }
-
-    /* the earth. Sampled at the local surface so the columns follow the land, and deep enough to
-       clear the tie band, which is never more than 20px under it. */
-    const soil = [];
-    for (let x = 60; x < innerWidth - 60; x += 137)
-      for (const d of [80, 140, 200]) soil.push(H.bgAt(x, H.surfAt(x) + d).join('/'));
-
-    /* the HUD sits on the sky, and the sky is the surface that just started moving */
-    let hud = 99;
-    for (const sel of ['#hud .num', '#hud .era']) {
-      const el = document.querySelector(sel), b = el.getBoundingClientRect();
-      const m = getComputedStyle(el).color.match(/\d+/g).map(Number);
-      for (const [fx, fy] of [[0.15, 0.5], [0.5, 0.4], [0.85, 0.6]]) {
-        const bg = H.bgAt(b.x + b.width * fx, b.y + b.height * fy);
-        const l1 = lum(m), l2 = lum(bg);
-        hud = Math.min(hud, (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
-      }
-    }
-    return { reach: H.reach(), sky: Math.max(...sky), soil, stars, hud, dustWas };
-  }));
+  const r = await settleRead(T.LAND[i] + T.LIFE[i] * 0.3);
+  if (!r.clean) {
+    skyMiss.push(`era ${i}: no photograph-free sky in 702px of walk — worst run ` +
+                 `${r.worst.longest}px at y=${r.worst.longRow} (bar ${RUN_MAX})`);
+    continue;
+  }
+  /* the era rides ON the reading. `skyRead[k]` and `ERAS[k]` are the same thing only while every
+     era is readable, and the one run where they are not is the run the table has to be right on. */
+  skyRead.push({ ...r, era: i });
 }
-ERAS.forEach((i, k) => console.log(`  era item ${String(i).padStart(3)} y=${String(T.years[i]).padStart(5)}  reach ${skyRead[k].reach.toFixed(3)}  sky-value ${skyRead[k].sky}  star-px ${skyRead[k].stars}  hud ${skyRead[k].hud.toFixed(2)}:1  dust cleared ${skyRead[k].dustWas}`));
+skyRead.forEach(r => console.log(`  era item ${String(r.era).padStart(3)} y=${String(T.years[r.era]).padStart(5)}  reach ${r.reach.toFixed(3)}  sky-value ${r.sky}  star-px ${r.stars}  hud ${r.hud.toFixed(2)}:1  longest-run ${r.longest}px  dust cleared ${r.dustWas}`));
+skyMiss.forEach(m => console.log(`  MISS  ${m}`));
+
+/* A probe that could not read its subject fails its gates and names why. All four below are
+   claims ACROSS the five eras, so four eras is not a weaker reading of the same claim — it is a
+   different one, and reporting it as a pass would be the decoration this round is here to
+   delete. */
+if (skyMiss.length) {
+  for (const g of ['backdrop_is_dated', 'ground_never_dates', 'stars_go_out', 'hud_contrast'])
+    ok(g, false, `sky unreadable — ${skyMiss.join(' | ')}`);
+} else {
 
 /* 1. The sky is dated, and the test is against `reach` rather than against a straight line:
       wherever the light of the age got further the sky has more light in it, and wherever it did
@@ -1095,12 +1188,15 @@ ok('ground_never_dates', soilBad.length === 0,
 const starOK = skyRead[0].stars > 60 && skyRead[skyRead.length - 1].stars === 0 &&
                skyRead.every((r, k) => k === 0 || r.stars <= skyRead[k - 1].stars);
 ok('stars_go_out', starOK,
-   `star pixels ${skyRead.map(r => r.stars).join(' → ')} across firelight → LED`);
+   `star pixels ${skyRead.map(r => r.stars).join(' → ')} across firelight → LED, ` +
+   `every count proved photograph-free in its own buffer (worst run ` +
+   `${Math.max(...skyRead.map(r => r.longest))}px against a ${RUN_MAX}px bar)`);
 
 // 4. the HUD lies on the sky, and the sky is the thing that just started changing
 const hudWorst = Math.min(...skyRead.map(r => r.hud));
 ok('hud_contrast', hudWorst >= 4.5,
    `worst ${hudWorst.toFixed(2)}:1 over the HUD number and era name at all ${ERAS.length} eras`);
+}
 
 /* 5. The backdrop is a function of the scrollbar and of nothing else — the same position twice,
       reached two different ways, and then two seconds of wall clock on top.
@@ -1112,23 +1208,25 @@ ok('hud_contrast', hudWorst >= 4.5,
       exactly that and the finding was the harness's, not the page's. */
 await fresh();
 const atY = T.LAND[150] + T.LIFE[150] * 0.3;
-const skyPx = () => page.evaluate(() => {
-  const H = window.__hh, gy = H.groundY(), o = [];
-  for (let x = 40; x < innerWidth; x += 70)
-    for (const f of [0.03, 0.16, 0.30, 0.45]) o.push(H.bgAt(x, gy * f).join('/'));
-  return o.join(' ');
-});
-if (!await settle(atY)) throw new Error('scroll-only: never found an empty sky');
-const atSettled = await page.evaluate(() => scrollY);
-const skyA = await skyPx();
-await to(atSettled + 40000, 4); await to(0, 4); await to(atSettled, 8);
-const skyB = await skyPx();
-await page.waitForTimeout(1500); await tick(4);
-const skyC = await skyPx();
-ok('backdrop_is_scroll_only', skyA === skyB && skyB === skyC,
-   skyA !== skyB ? 'the same scroll position drew two different skies'
-   : skyB !== skyC ? 'the sky moved on wall clock with the scrollbar still'
-   : 'the same scroll position draws the same sky, twice, and does not drift on wall clock');
+const A = await settleRead(atY);
+if (!A.clean) {
+  ok('backdrop_is_scroll_only', false,
+     `sky unreadable at item 150 — worst run ${A.worst.longest}px at y=${A.worst.longRow}`);
+} else {
+  /* B and C are re-read with the SAME probe, not with a second evaluate of their own: the
+     fingerprint carries its own proof that nothing was in the sky when it was taken, so a late
+     sprite can no longer make "the same position drew two different skies" out of one arrival. */
+  const atSettled = await page.evaluate(() => scrollY);
+  await to(atSettled + 40000, 4); await to(0, 4); await to(atSettled, 8);
+  const B = await readSky();
+  await page.waitForTimeout(1500); await tick(4);
+  const C = await readSky();
+  ok('backdrop_is_scroll_only', B.clean && C.clean && A.fp === B.fp && B.fp === C.fp,
+     !B.clean || !C.clean ? `a photograph was in the sky on the re-read (run ${(B.clean ? C : B).longest}px)`
+     : A.fp !== B.fp ? 'the same scroll position drew two different skies'
+     : B.fp !== C.fp ? 'the sky moved on wall clock with the scrollbar still'
+     : 'the same scroll position draws the same sky, twice, and does not drift on wall clock');
+}
 
 /* ---------------- shape ---------------- */
 aliveCurve.sort((a, b) => a[0] - b[0]); tieCurve.sort((a, b) => a[0] - b[0]);
