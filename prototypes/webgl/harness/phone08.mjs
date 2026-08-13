@@ -66,7 +66,30 @@ const rec = (name, ok, msg) => {
 
     /* THE BAR MOVE, and it is the one case setViewportSize cannot produce. `resize` fires and the
        large viewport does not change; the page's box therefore does not change; nothing may
-       happen. Eight of them in a row, because on iOS that is one scroll gesture. */
+       happen. Eight of them in a row, because on iOS that is one scroll gesture.
+
+       IT HAS TO GATE THE COST AND NOT ONLY THE STATE, and the teeth are what said so. Written
+       against state alone it stayed GREEN with the fix backed out — because in a browser with no
+       chrome in it `innerHeight` IS the box, so a page that re-reads the window re-derives the
+       same numbers and lands on the same ground line, having done every bit of the work. That is
+       round 12's decoration through a new door: the assertion could not fail for the reason it was
+       written. The work is visible even when the result is not, so the budget is what carries it.
+
+       IT IS NOT A TIMING GATE, AND THREE TRIES AT MAKING IT ONE IS WHY IT SAYS SO HERE. Timing the
+       two frames read 30ms idle, 120ms on the SAME code with the machine busy and 255ms perturbed
+       — noise four times the signal. Timing the dispatch loop instead read 1.8ms clean against
+       14.6ms for eight full re-bakes, nowhere near their true cost, because canvas fills are queued
+       and the handler returns before any of the work is done. A control-and-floor version separated
+       them by only 40ms. Every one of those was an attempt to infer, from how long it took, a fact
+       the page will state outright.
+
+       SO THE BAR IS SIMULATED INSTEAD OF INFERRED. What iOS actually does is change `innerHeight`
+       while the large viewport stays where it is — and that is two lines here: shadow `innerHeight`
+       and `innerWidth` with a getter, leave the box alone, fire `resize`. A page that reads the
+       window lands its ground line at 0.78 of a lie; a page that reads its box does not move. No
+       clock, no budget, no load sensitivity, and it fails by hundreds of pixels rather than by
+       milliseconds. The numbers are restored afterwards, and the page is reloaded for the next
+       block regardless. */
     const bar = await p.evaluate(async () => {
       const st = () => ({
         gy: window.__hh.groundY(), docH: document.documentElement.scrollHeight,
@@ -74,19 +97,23 @@ const rec = (name, ok, msg) => {
         cell: document.querySelector('.icell')
       });
       const before = st();
-      const t0 = performance.now();
+      const realH = innerHeight, realW = innerWidth;
+      const lie = (k, v) => Object.defineProperty(window, k, { get: () => v, configurable: true });
+      lie('innerHeight', realH - 99);            // the bar shows. The LARGE viewport has not moved.
+      lie('innerWidth', realW);                  // shadowed too, so neither is the un-lied one
       for (let k = 0; k < 8; k++) dispatchEvent(new Event('resize'));
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const cost = performance.now() - t0;
       const after = st();
-      return { cost, same: before.gy === after.gy && before.docH === after.docH &&
-                           before.top === after.top && before.canvas === after.canvas &&
-                           before.cell === after.cell,
-               gy: [before.gy, after.gy], docH: [before.docH, after.docH] };
+      const box = document.querySelector('#gl canvas').clientHeight;
+      lie('innerHeight', realH); lie('innerWidth', realW);
+      return { same: before.gy === after.gy && before.docH === after.docH &&
+                     before.top === after.top && before.canvas === after.canvas &&
+                     before.cell === after.cell,
+               lied: realH - 99, box, gy: [before.gy, after.gy], docH: [before.docH, after.docH] };
     });
     rec('resize_with_an_unchanged_box_does_nothing', bar.same,
-        `8 bar moves in ${bar.cost.toFixed(1)}ms — ground ${bar.gy[0]} -> ${bar.gy[1]}, ` +
-        `runway ${bar.docH[0]} -> ${bar.docH[1]}`);
+        `8 bar moves with innerHeight lying at ${bar.lied} and the box still ${bar.box} — ` +
+        `ground ${bar.gy[0]} -> ${bar.gy[1]}, runway ${bar.docH[0]} -> ${bar.docH[1]}`);
 
     const shot = () => ({
       docH: document.documentElement.scrollHeight,
