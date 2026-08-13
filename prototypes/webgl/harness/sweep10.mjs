@@ -103,6 +103,15 @@ const T = await page.evaluate(() => {
 });
 const N = T.PER.length;
 const VW = 1440;
+/* ROUND 10. Two things the attribution gates need, and BOTH are computed by the harness rather
+   than read off the page — that is the whole lesson of round 8's two tautologies.
+   MAXW mirrors the wrap width in `lay()` as arithmetic on the viewport, so a build that widened
+   its own wrap cannot widen the bound it is tested against.
+   LICENCES is the record's own licence vocabulary, read out of the DATA, so the test for "is the
+   citation back on the piece" does not depend on the class name a re-implementation would pick. */
+const MAXW = Math.min(VW * 0.42, 330);
+const LICENCES = await page.evaluate(() => [...new Set(window.ITEMS.map(i => i.lic))]);
+console.log(`label wrap ${MAXW}px · ${LICENCES.length} distinct licences in the record`);
 console.log(`\ntotal scroll ${Math.round(T.TOTAL)}px  (${(T.TOTAL / 900).toFixed(0)} screens of 900)`);
 console.log(`PER ${Math.min(...T.PER)}..${Math.max(...T.PER)}  FALL ${T.FALL}  LIFE ${Math.min(...T.LIFE)}..${Math.max(...T.LIFE)}\n`);
 
@@ -199,11 +208,11 @@ ok('decay_runs_both_ways',
 /* ---------------- the long sweep: truth gates, from a page nobody has touched ---------------- */
 await fresh();
 let maxAir = 0;
-const groundViol = [], tieCutViol = [], captions = [], lifeViol = [], ghosts = [],
-      wholeViol = [], spreadViol = [], lastViol = [];
+const groundViol = [], tieCutViol = [], captions = [], groundWords = [], ghosts = [],
+      wholeViol = [], credOnPiece = [], lastViol = [];
 const survivors = new Set();                 // 14: whose name outlives impact. Must be exactly {N-1}
 const aliveCurve = [], tieCurve = [];
-let shatterSeen = 0, wholeSeen = 0, nameSeen = 0, lastSeen = 0;
+let groundSeen = 0, wholeSeen = 0, nameSeen = 0, lastSeen = 0;
 const STEP = 140;
 const stops = [];
 for (let y = 0; y < T.TOTAL; y += STEP) stops.push(y);
@@ -234,59 +243,81 @@ for (const y of stops) {
     if (t.segments !== truth + 1) tieCutViol.push({ y, i: t.i, drawn: t.segments, truth });
   }
 
-  /* the citation contract and the shatter, measured off the live objects rather than off any
-     flag the page keeps about itself */
+  /* ROUND 10 — THE LABEL CONTRACT, in place of round 8's citation contract. Measured off the live
+     objects and off the DOM rects, never off a flag the page keeps about itself.
+
+     `credNodes` counted `#labels .c` and expected it to equal the sum of every live object's word
+     count. There is no `.c` on the piece any more, and the gate that replaces it wants BOTH ends:
+     the citation must be absent HERE and present in the roll, so the count of `.c` nodes is still
+     taken — its correct value is now zero, and a zero it can go non-zero from is a gate. */
   const w = await page.evaluate(() => {
     const H = window.__hh, out = [];
-    let credNodes = 0;
-    for (const el of document.querySelectorAll('#labels .c')) credNodes++;
+    const credNodes = document.querySelectorAll('#labels .c').length;
+    /* the citation string itself, wherever it is printed on the piece: a re-implementation that
+       gave the credit a different class would slip past a `.c` count, and this would not. `.sr` is
+       excluded on purpose — the screen-reader copy is deliberate and round 10 kept it. */
+    const credText = [...document.querySelectorAll('#labels span:not(.sr)')]
+      .filter(s => parseFloat(s.style.opacity || '0') > 0.02)
+      .map(s => s.textContent).join(' ');
     let expect = 0, orphans = 0;
     for (const d of H.drops) {
       if (d.atoms && (d.gone || (!d.air && !d.down))) orphans++;
-      if (!d.cred) continue;
-      if (d.air || (d.down && !d.gone)) expect += d.cred.length;
+      if (!d.atoms) continue;
+      if (d.air || (d.down && !d.gone)) expect += d.atoms.length;
       const frags = d.pieces.length + d.specks.length;
-      const vis = d.cred.filter(a => parseFloat(a.el.style.opacity || '0') > 0).length;
-      const txs = d.cred.map(a => a.tx).filter(v => typeof v === 'number');
-      const xs = [...d.pieces.map(p => p.x), ...d.specks.map(q => q.x)];
+      const lit = d.atoms.filter(a => parseFloat(a.el.style.opacity || '0') > 0.02);
+      /* the label's span measured from the RENDERED RECTS, not from the offsets the page wrote.
+         Round 8's version compared two of the page's own numbers; this one compares what the
+         browser drew against an arithmetic bound the harness computes for itself. */
+      const rs = lit.map(a => a.el.getBoundingClientRect());
       out.push({
-        i: d.i, age: d.age, down: d.down, gone: d.gone, air: d.air, frags, vis,
+        i: d.i, age: d.age, down: d.down, gone: d.gone, air: d.air, frags,
         specks: d.specks.length, splits: d.splits,          // 14
-        total: d.cred.length,
-        wordSpan: txs.length ? Math.max(...txs) - Math.min(...txs) : 0,
-        fieldSpan: xs.length ? Math.max(...xs) - Math.min(...xs) : 0,
-        fieldC: xs.length ? (Math.max(...xs) + Math.min(...xs)) / 2 : 0,
-        lineW: d.boxGnd ? d.boxGnd.w : 0,
-        nameVis: d.atoms.filter(a => a.cls !== 'c' && parseFloat(a.el.style.opacity || '0') > 0.02).length,
-        nameTotal: d.atoms.filter(a => a.cls !== 'c').length
+        total: d.atoms.length,
+        vis: lit.length,
+        span: rs.length ? Math.max(...rs.map(r => r.right)) - Math.min(...rs.map(r => r.left)) : 0,
+        rows: rs.length ? Math.max(...rs.map(r => r.bottom)) - Math.min(...rs.map(r => r.top)) : 0,
+        nameVis: lit.length, nameTotal: d.atoms.length
       });
     }
-    return { items: out, credNodes, expect, orphans };
+    return { items: out, credNodes, credText, expect, orphans };
   });
-  if (w.credNodes !== w.expect || w.orphans) ghosts.push({ y, nodes: w.credNodes, expect: w.expect, orphans: w.orphans });
+  /* ROUND 10 — attribution is at the END. Two independent readings, because a class rename would
+     defeat either one alone: no `.c` node anywhere on the piece, and none of the record's licence
+     strings printed on it. `expect`/`orphans` is the ghost check, unchanged in intent. */
+  if (w.credNodes) credOnPiece.push({ y, nodes: w.credNodes });
+  for (const l of LICENCES) if (w.credText.includes(l)) { credOnPiece.push({ y, lic: l }); break; }
+  if (w.orphans) ghosts.push({ y, orphans: w.orphans });
   for (const it of w.items) {
-    if (!it.down || it.gone) continue;
-    // 13's ruling, both halves
-    if (it.frags > 0 && it.vis < it.total) lifeViol.push({ y, i: it.i, vis: it.vis, of: it.total });
-    // still whole before the object's first split
-    if (it.age < T.SPLITS[0]) { wholeSeen++; if (it.wordSpan > it.lineW + 4) wholeViol.push({ y, i: it.i, span: it.wordSpan, line: it.lineW }); }
-    /* TICKET 14 — the last object never breaks, so it has no wreckage for its words to be as wide
-       as. The exemption is exactly one index and is gated by `only_the_last_one_survives` below;
-       written as `it.i !== N - 1` rather than as a tolerance, because a tolerance is a hole. */
-    if (it.i === N - 1) { lastSeen++; if (it.frags !== 1 || it.specks || it.splits ||
-                                          it.vis !== it.total || it.nameVis !== it.nameTotal)
-                            lastViol.push({ y, frags: it.frags, specks: it.specks, splits: it.splits,
-                                            vis: it.vis, of: it.total, nameVis: it.nameVis }); }
-    // as wide as its own wreckage once the object is fully apart (70px is the stated floor)
-    if (it.i !== N - 1 && it.age > T.SPLITS[T.SPLITS.length - 1] + 0.06 && it.frags > 0) {
-      shatterSeen++;
-      const half = Math.max(it.fieldSpan / 2, 70);
-      const target = Math.min(VW - 14, it.fieldC + half) - Math.max(14, it.fieldC - half);
-      // words sit at (k+0.5)/n of the span, so the outermost pair spans (n-1)/n of it
-      const r = it.wordSpan / target;
-      if (r < 0.78 || r > 1.12)
-        spreadViol.push({ y, i: it.i, span: Math.round(it.wordSpan), target: Math.round(target), r: +r.toFixed(2) });
+    /* ONE LINE UNTIL IMPACT, and it is measured IN THE AIR — which is the only place the claim
+       means anything now. The break throws the words ±95px on purpose, so a span test over a
+       landed object would be testing the break, not the line. In the air the label is a wrapped
+       cluster and its span is bounded by the wrap width `lay()` uses — and the harness computes
+       that bound ITSELF from the viewport rather than reading the page's own idea of it, which is
+       what round 8's two tautologies got wrong: corrupting one stored value moved both sides of
+       the comparison together. */
+    if (it.air && it.vis) {
+      wholeSeen++;
+      if (it.span > MAXW + 4) wholeViol.push({ y, i: it.i, span: Math.round(it.span), line: MAXW });
     }
+    if (!it.down || it.gone) continue;
+    /* THE GROUND CARRIES NO WORDS. Round 8's claim here was the opposite one — a fragment down and
+       part of the citation missing was the violation — and this is that ruling reversed rather than
+       retired: past the name's break an object on the ground has no text at all. The ending is the
+       one exemption and it is exactly one index, gated by `only_the_last_one_survives` below rather
+       than written as a tolerance. */
+    if (it.i !== N - 1 && it.age > T.NAME_OUT) {
+      if (it.frags > 0) groundSeen++;
+      if (it.vis > 0) groundWords.push({ y, i: it.i, age: +it.age.toFixed(3), words: it.vis });
+    }
+    /* TICKET 14 — the last object never breaks, and ROUND 10 did not weaken it: it keeps every one
+       of its words standing, it just has fewer of them now that the citation is at the end. The
+       exemption is exactly one index and is gated by `only_the_last_one_survives` below; written as
+       `it.i !== N - 1` rather than as a tolerance, because a tolerance is a hole. */
+    if (it.i === N - 1) { lastSeen++; if (it.frags !== 1 || it.specks || it.splits ||
+                                          it.vis !== it.total)
+                            lastViol.push({ y, frags: it.frags, specks: it.specks, splits: it.splits,
+                                            vis: it.vis, of: it.total }); }
     /* the name is taken within NAME_OUT and never comes back — TICKET 14 RE-AIMED THIS RATHER THAN
        NARROWING IT. The claim is no longer "no name outlives impact"; it is "the SET of names that
        outlive impact is exactly {the last object}". A gate that simply skipped index N-1 would go
@@ -352,14 +383,23 @@ ok('tie_cuts_are_true', tieCutViol.length === 0,
    `${tieCutViol.length} ties whose drawn segment count is not gap+1`);
 ok('no_miss_caption', captions.length === 0,
    captions.length ? `printed at ${captions.slice(0, 3)}` : 'no year phrase printed anywhere');
-ok('credit_lives_with_the_last_fragment', lifeViol.length === 0,
-   `${lifeViol.length} objects with a fragment on the ground and part of the citation missing`);
-ok('credit_never_outlives_it', ghosts.length === 0,
-   `${ghosts.length} stops with an orphaned credit node in the DOM`);
-ok('credit_is_one_line_until_it_breaks', wholeViol.length === 0,
-   `${wholeViol.length} of ${wholeSeen} un-split citations wider than their own line`);
-ok('credit_spreads_with_its_wreckage', spreadViol.length === 0,
-   `${spreadViol.length} of ${shatterSeen} shattered citations not as wide as their debris`);
+/* ROUND 10 — the four citation gates, RE-AIMED RATHER THAN DELETED. Round 8's build is gone and a
+   deleted gate would have taken the evidence with it, so each one now measures the claim that
+   replaced the one it was written for. Every one of them can still go red; teeth10 proves it. */
+ok('attribution_is_only_at_the_end', credOnPiece.length === 0,
+   credOnPiece.length
+     ? `citation back on the piece at ${credOnPiece.length} stops: ${JSON.stringify(credOnPiece[0])}`
+     : `no .c node and no licence string printed on the piece over ${stops.length} stops — ` +
+       `the credit is in the roll, which sweep11i gates with its link`);
+ok('no_orphaned_words', ghosts.length === 0,
+   `${ghosts.length} stops with a word left in the DOM by an object that is neither up nor down`);
+ok('label_is_one_line_until_impact', wholeViol.length === 0,
+   `${wholeViol.length} of ${wholeSeen} airborne labels wider than the ${MAXW}px wrap`);
+ok('the_ground_carries_no_words', groundWords.length === 0,
+   groundWords.length
+     ? `${groundWords.length} landed objects still printing words past NAME_OUT: ` +
+       JSON.stringify(groundWords[0])
+     : `0 words over the soil past NAME_OUT, across ${groundSeen} landed-and-broken readings`);
 ok('name_dies_at_impact', survivors.size === 1 && survivors.has(N - 1) && nameSeen > 0,
    survivors.size !== 1 || !survivors.has(N - 1)
      ? `names alive past ${T.NAME_OUT} of a life: {${[...survivors].join(', ')}} — want exactly {${N - 1}}`
@@ -397,45 +437,66 @@ const flood = await snap();
 ok('jump_does_not_flood', flood.items.filter(x => x.down).length <= 9 && flood.items.length > 0,
    `${flood.items.filter(x => x.down).length} fields alive after a 0 -> 120,000 jump`);
 
-/* ---------------- legibility, measured off the composited pixels ---------------- */
-/* 06 item 5. The credit always lies on the baked earth, which never changes value, so the worst
-   case is single-ended: the dullest ink on the lightest patch of soil under any word. Sampled
-   from the canvas itself, at five points under each word's box, worst point wins. The dying tail
-   (age > 0.9) is excluded and named: over the last tenth of a life the citation is fading out
-   with the last speck, and a thing on its way out is not a thing being read. */
-let worstC = 99, worstAt = null, measured = 0;
-for (const at of [T.LAND[96] + 900, T.LAND[140] + 1400, T.LAND[190] + 2000, T.LAND[24] + 600]) {
+/* ---------------- legibility, measured off the composited pixels ----------------
+
+   ROUND 10 MOVED THE SURFACE, AND THIS IS THE RISK THE ROUND WAS OPENED KNOWING ABOUT.
+
+   Round 8 solved contrast single-ended and could: the citation only ever lay on the baked earth,
+   which 13 froze, so there was exactly one worst case and INK_LO was picked against it. The
+   citation is at the end now, and what is left is the LABEL — which rides under a falling object,
+   over the SKY and sometimes over the photograph. Round 8's own comment names those as the two
+   surfaces it was not solved against, and nothing on this project has ever measured them.
+
+   The sky is the hard end and it is dated: at firelight it is black and the near-white label is
+   trivially legible, and at LED round 9 lit the whole frame, so the label's background is a
+   function of the year. The sample therefore walks arrivals across the whole span rather than
+   picking four crowded stops in the body, and it takes the object IN THE AIR, which is when the
+   label exists.
+
+   MEASURED HONESTLY, WHICH MEANS THE SHADOW IS NOT COUNTED. `#labels span` carries
+   `text-shadow:0 1px 4px rgba(0,0,0,.95)`, which is a real legibility device and is why this text
+   reads on a bright sky — but WCAG's ratio has no term for it, and inventing an allowance for it
+   here would be marking my own homework. What is reported is the raw ratio of ink to the pixel
+   under it; if that number is low, the number is low and the shadow is the reason it still reads. */
+let worstC = 99, worstAt = null, measured = 0, worstEra = null;
+/* every twentieth arrival, so firelight through LED is sampled rather than four stops in the body */
+const contrastAt = [];
+for (let i = 4; i < N; i += Math.max(1, Math.round(N / 14))) contrastAt.push(i);
+for (const i of contrastAt) {
   await fresh();
-  await to(at, 6);
+  await to(T.START[i] + T.FALL * 0.55, 6);        // mid-fall: the label is up and the object is lit
   const r = await page.evaluate(() => {
     const H = window.__hh;
     const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
       return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
     let worst = 99, who = null, count = 0;
     for (const d of H.drops) {
-      if (!d.cred || !d.down || d.gone || d.age > 0.9) continue;
-      for (const a of d.cred) {
+      if (!d.atoms || !d.air) continue;
+      for (const a of d.atoms) {
         const o = parseFloat(a.el.style.opacity || '0');
         if (o < 0.05) continue;
         const b = a.el.getBoundingClientRect();
-        const m = (a.el.style.color.match(/\d+/g) || [238, 242, 247]).map(Number);
+        if (b.y < 0 || b.y + b.height > innerHeight) continue;
+        const m = (getComputedStyle(a.el).color.match(/\d+/g) || [238, 242, 247]).map(Number);
         for (const [dx, dy] of [[0, 0], [-0.35, 0], [0.35, 0], [0, -0.3], [0, 0.3]]) {
           const bg = H.bgAt(b.x + b.width * (0.5 + dx), b.y + b.height * (0.5 + dy));
-          const fg = m.map((v, i) => o * v + (1 - o) * bg[i]);
+          const fg = m.map((v, j) => o * v + (1 - o) * bg[j]);
           const l1 = lum(fg), l2 = lum(bg);
           const c = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
           count++;
-          if (c < worst) { worst = c; who = { t: a.t, o: +o.toFixed(2), bg, fg: fg.map(Math.round) }; }
+          if (c < worst) { worst = c; who = { t: a.t ?? a.el.textContent, cls: a.el.className,
+                                              o: +o.toFixed(2), bg, fg: fg.map(Math.round) }; }
         }
       }
     }
-    return { worst, who, count };
+    return { worst, who, count, era: document.querySelector('#hud .era')?.textContent || '' };
   });
   measured += r.count;
-  if (r.worst < worstC) { worstC = r.worst; worstAt = r.who; }
+  if (r.worst < worstC) { worstC = r.worst; worstAt = r.who; worstEra = r.era; }
 }
-ok('credit_contrast', worstC >= 4.5,
-   `worst ${worstC.toFixed(2)}:1 over ${measured} samples — ${JSON.stringify(worstAt)}`);
+ok('label_contrast', worstC >= 4.5,
+   `worst ${worstC.toFixed(2)}:1 over ${measured} samples at ${contrastAt.length} arrivals ` +
+   `across the span — ${worstEra} — ${JSON.stringify(worstAt)}`);
 
 /* ---------------- frozen ---------------- */
 /* The warm-up shot is not a weakening: the first screenshot after a scroll forces a paint the
@@ -741,23 +802,24 @@ await fresh();
 await to(T.TOTAL, 8);
 for (let i = 0; i < 60 && (await page.evaluate(() => window.__hh.pending())) > 0; i++) await tick(3);
 await tick(6);
+/* ROUND 10 — the ending's citation went with all the others, so the claim is now about the LABEL:
+   every word this object was built with is still printed. `wordVis === wordTotal` is the same
+   all-or-nothing test the citation half used, applied to what is left, so the gate did not get
+   weaker when the subject got smaller — a single missing word still reddens it. */
 const ending = await page.evaluate(() => {
   const d = window.__hh.drops[window.__hh.drops.length - 1];
   return { down: d.down, gone: d.gone, pieces: d.pieces.length, specks: d.specks.length,
            splits: d.splits, hasWords: !!d.atoms,
-           nameVis: d.atoms ? d.atoms.filter(a => a.cls !== 'c' && +a.el.style.opacity > 0.02).length : 0,
-           credVis: d.cred ? d.cred.filter(a => +a.el.style.opacity > 0.02).length : 0,
-           credTotal: d.cred ? d.cred.length : 0 };
+           wordVis: d.atoms ? d.atoms.filter(a => +a.el.style.opacity > 0.02).length : 0,
+           wordTotal: d.atoms ? d.atoms.length : 0 };
 });
 const jumpOK = ending.down && !ending.gone && ending.pieces === 1 && ending.specks === 0 &&
-               ending.splits === 0 && ending.nameVis > 0 && ending.credVis === ending.credTotal &&
-               ending.credTotal > 0;
+               ending.splits === 0 && ending.wordTotal > 0 && ending.wordVis === ending.wordTotal;
 ok('only_the_last_one_survives', lastViol.length === 0 && lastSeen > 0 && jumpOK,
    lastViol.length ? `walk: ${JSON.stringify(lastViol[0])}`
      : !jumpOK ? `jumped straight to TOTAL and the ending is ${JSON.stringify(ending)}`
      : `item ${N - 1} whole at all ${lastSeen} stops of the walk AND after a hard jump to TOTAL — ` +
-       `1 piece, 0 specks, 0 splits, ${ending.nameVis} name words and ${ending.credVis}/${ending.credTotal} ` +
-       `citation words standing`);
+       `1 piece, 0 specks, 0 splits, and all ${ending.wordVis} of its label's words standing`);
 
 /* 6. The window is not a clock. Two independent first visits jump to the same position, wait for
       the same quiescence, and must agree about what is on the ground — if which frame a sprite

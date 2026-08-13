@@ -243,24 +243,41 @@ const closed = await page.evaluate(() => {
 ok('close_puts_the_shelf_back', closed.lit === 0 && closed.box === 'none' && closed.txt === '',
    `${closed.lit} cells left lit, cluster display:${closed.box}`);
 
-/* =============================================================== phase 5 — attribution */
+/* =============================================================== phase 5 — attribution
+
+   ROUND 10 MADE THIS GATE LOAD-BEARING. Until now the roll was the second place a visitor could
+   read a credit and the piece was the first; 06 round 10 took the citation off the piece, so the
+   roll is the ONLY place the record is attributed and this gate is the only thing standing
+   between the site and a licence breach.
+
+   THE LINK IS THEREFORE PART OF THE CLAIM, and it was not checked before. CC BY 4.0 3(a)(2) is
+   what the whole arrangement rests on — the conditions may be satisfied by LINKING a resource
+   that carries the required information — so a row whose source name is not a link is a row
+   whose licence is not discharged, however complete its text is. */
 await fresh();
 const roll = await page.evaluate(() => {
   const li = [...document.querySelectorAll('.iroll li')];
   const items = window.ITEMS;
-  let bad = 0, first = '';
+  let bad = 0, first = '', noLink = 0, firstNoLink = '';
   li.forEach((e, k) => {
     const t = e.textContent, it = items[k];
     if (!it || !t.includes(it.n) || !t.includes(it.disp) || !t.includes(it.src) || !t.includes(it.lic)) {
       bad++; if (!first) first = `${it ? it.k : k}: "${t.slice(0, 60)}"`;
     }
+    const a = e.querySelector('a[href]');
+    if (!it || !a || !/^https?:/.test(a.getAttribute('href') || '')) {
+      noLink++; if (!firstNoLink) firstNoLink = `${it ? it.k : k}: href="${a ? a.getAttribute('href') : '(no anchor)'}"`;
+    }
   });
   const labels = [...document.querySelectorAll('.icell')]
     .filter(b => !b.getAttribute('aria-label')?.includes(items[+b.dataset.i].n)).length;
-  return { n: li.length, want: items.length, bad, first, labels };
+  return { n: li.length, want: items.length, bad, first, noLink, firstNoLink, labels };
 });
-ok('every_item_carries_its_attribution', roll.n === roll.want && roll.bad === 0 && roll.labels === 0,
-   roll.bad ? roll.first : `${roll.n} credits in the roll, each with name, date, source and licence; ${roll.labels} cells without a name`);
+ok('every_item_carries_its_attribution',
+   roll.n === roll.want && roll.bad === 0 && roll.labels === 0 && roll.noLink === 0,
+   roll.bad ? roll.first : roll.noLink ? `${roll.noLink} rows with no source link — ${roll.firstNoLink}`
+     : `${roll.n} credits in the roll, each with name, date, source, licence AND an http link to ` +
+       `the source's own page; ${roll.labels} cells without a name`);
 
 /* =============================================================== TICKET 14 — the signature
 

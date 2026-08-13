@@ -121,12 +121,15 @@ const SOIL = { m: '#2b2620', d: '#4c4438', k: '#171410', l: '#5c5344' };
 
 let W = 0, H = 0, dpr = 1;
 let surf = new Float32Array(1), COLW = 4, PAD = 80, NCOL = 1;
-const groundY = () => H * (W < 720 ? 0.64 : 0.71);
+/* ROUND 10. ONE ground line, and the drop is the point: objects fall further.
+   The 0.64 / 0.71 split this replaces was never a look — it was round 8 buying a phone 245px of
+   soil to pack six citations into. Round 10 takes the citation off the piece entirely, so the
+   reason for the split went with it and the band below the line only has to hold the contour's
+   own wander (±32px), the tie band (24px) and the ending's standing cluster. */
+const groundY = () => H * 0.78;
 const idx = x => Math.max(0, Math.min(NCOL - 1, Math.round((x + PAD) / COLW)));
 const xAt = i => i * COLW - PAD;
 const surfAt = x => surf[idx(x)];
-/* the slope of the land at x, in radians — every word of text lies down on it */
-const slopeAt = x => Math.atan2(surfAt(x + 10) - surfAt(x - 10), 20);
 
 function bakeSurface() {
   NCOL = Math.ceil((W + PAD * 2) / COLW) + 1;
@@ -1180,35 +1183,31 @@ function prebuild(d) {
    vanish instantly and named this ticket as the owner of the replacement; 13 said the name goes
    out at impact, and a break that starts at the impact is the more faithful reading of it.
 
-   THE CREDIT. Three states, all keyed to the object's own decay and all pure functions of scroll:
+   THE CREDIT IS NOT ON THE PIECE. ROUND 10, and it deletes most of round 8's build.
 
-     whole      one line of words, riding under the object as it falls, then lying where it fell
-     level 1    at the object's FIRST split the line breaks at its separators into three groups,
-                and the groups move apart across the width its own debris has reached
-     level 2    at the SECOND split the groups break into single words, scattered across it
+   Round 8 gave the citation three states — whole, then three groups at the object's first split,
+   then single words scattered across its debris at the second — and it lived until the last
+   speck. All of that is gone. Attribution is at the END, in the credits roll under the shelf,
+   and the roll already discharges every licence in the record: CC BY 4.0 3(a)(2) says the
+   conditions may be satisfied by LINKING a resource that carries the required information, and
+   the roll links each source to its own file page. Round 8's own comment said the piece cannot
+   carry a link because a word about to be thrown across the soil is unreachable; round 10 is
+   that argument followed all the way down. The piece is the picture; the credit is at the end.
 
-   And the whole time it decays with the thing it belongs to: the type gets smaller, the ink gets
-   duller, and every word lies down on whatever slope of soil it landed on. A fresh citation is
-   the brightest text on the page and a spent one is a scatter of grey a shade above the earth.
-   That gradient is what stops six of them reading as a list — no two share a baseline, no two
-   share a weight, and each one is as wide as its own wreckage.
+   WHAT IS LEFT IS THE LABEL, and only while the object is whole or breaking: a name and a date
+   riding under it as it falls, thrown up and out with the shards at impact, gone within NAME_OUT
+   of the life. After that the ground carries no words at all.
 
-   THE INK HAS A FLOOR AND IT IS MEASURED. 06 item 5 asks for legibility as a gate, not a note.
-   The credit always lies on the baked earth, which is the only surface in the piece whose value
-   never changes — the era's colour is a light and the light is painted BEFORE the opaque earth
-   goes down over it. So the worst case is single-ended and solvable once: INK_LO is the dullest
-   grey that still measures 4.5:1 against that soil, and the sweep measures it off the rendered
-   pixels rather than off this comment. */
+   The identity claim is unaffected and that is why this is cheap: what lay on the soil was
+   `source · licence · credit`, never the object's name, so nothing a visitor could recognise a
+   heap by has been taken away. What HAS moved is the contrast problem — round 8 solved it
+   single-ended because the citation only ever lay on the baked earth, the one surface whose
+   value never changes. The label rides over lit sky and over the photograph, which are the two
+   surfaces round 8 said the gate was NOT solved against. `label_contrast` measures them. */
 
-const NAME_OUT = 0.07;                 // fraction of a life over which the broken name is taken
-const CRED_PX = 10.2;                  // credit type at its freshest; it only ever scales down
-const CRED_LO = 0.82;                  // …to this much of it, at the end of the object's life
-const INK_HI = [238, 242, 247];
-const INK_LO = [188, 190, 194];        // the dullest ink that still clears the contrast gate
-const TILT = 0.085;                    // ~5°, the most a word may lie over past the soil's slope
+const NAME_OUT = 0.05;                 // fraction of a life over which the broken name is taken
 const GAPX = 5;                        // between two words of one line
-const GAPP = 13;                       // …and between two parts of the citation, in place of a dot
-const GAPY = 3;                        // between two rows of one citation
+const GAPY = 3;                        // between two rows of one label
 
 function chunk(text, max) {
   const words = [];
@@ -1229,31 +1228,11 @@ function chunk(text, max) {
   return out;
 }
 
-/* The citation as words. Never truncated to make it fit — all three parts are always all there,
-   in order, separators included; only how many words they are set as changes. */
-function credTokens(it) {
-  const parts = [it.src, it.lic, shortCred(it.cred)];
-  const narrow = W < 720;
-  const cap = narrow ? 5 : 7;
-  let out = [];
-  for (const max of (narrow ? [21, 26, 32, 999] : [16, 24, 34, 999])) {
-    out = [];
-    parts.forEach((p, pi) => {
-      for (const c of chunk(p, max)) out.push({ t: c, cls: 'c', part: pi, lead: false });
-      out[out.length - chunk(p, max).length].lead = pi > 0;   // first word of a new part
-    });
-    if (out.length <= cap) break;
-  }
-  return out;
-}
-
 function build(d) {
   const it = d.it;
-  const name = chunk(it.n, 14).map(t => ({ t, cls: 'n', part: -2 }));
-  const date = chunk(it.disp, 14).map((t, k) => ({ t, cls: 'y', part: -1, row: k === 0 }));
-  const cred = credTokens(it);
-  d.atoms = [...name, ...date, ...cred];
-  cred[0].row = true;                                // the citation always starts its own row
+  const name = chunk(it.n, 14).map(t => ({ t, cls: 'n' }));
+  const date = chunk(it.disp, 14).map((t, k) => ({ t, cls: 'y', row: k === 0 }));
+  d.atoms = [...name, ...date];
   const spot = d.light[1];
   d.atoms.forEach((a, k) => {
     const el = document.createElement('span');
@@ -1262,32 +1241,28 @@ function build(d) {
     el.style.opacity = '0';
     if (a.cls === 'y') el.style.color = spot;
     a.el = el;
-    /* where this word ends up once the object is dust: a share of the debris field's width, off
-       the strict share by a deterministic wobble so eight words never read as a ruler */
-    a.jx = (hash(it.k, 300 + k) - 0.5) * 0.16;
-    a.jy = hash(it.k, 400 + k) * 22;
-    a.jr = (hash(it.k, 500 + k) - 0.5) * 2;
-    // the impulse this word takes if it is part of the name, thrown with the shards
+    // the impulse this word takes at impact, thrown up and out with the shards
     a.vx = (hash(it.k, 600 + k) - 0.5) * 190;
     a.vy = -70 - hash(it.k, 700 + k) * 90;
     a.vr = (hash(it.k, 800 + k) - 0.5) * 1.0;
     d.slot.appendChild(el);
   });
-  d.cred = d.atoms.filter(a => a.cls === 'c');
-  d.cred.forEach((a, k) => { a.u = d.cred.length > 1 ? k / (d.cred.length - 1) : 0.5; });
-  /* the screen reader gets the citation as one unbroken string. The words on the soil are the
-     picture of the credit; this is the text of it, and it never comes apart. */
+  /* THE ATTRIBUTION A NON-VISUAL VISITOR GETS, and round 10 does not touch it. The roll under the
+     shelf is where the licence is discharged and where a sighted visitor reads the credit; this
+     span is the same information reaching someone who never sees the roll's layout, and taking it
+     out would be a regression dressed as a deletion. Whether 236 spoken citations is the right
+     shape for a screen reader is [08]'s, not this round's. */
   const sr = document.createElement('span');
   sr.className = 'sr';
   sr.textContent = `${it.n}, ${it.disp}. ${it.src} · ${it.lic} · ${shortCred(it.cred)}`;
   d.slot.appendChild(sr);
   d.srEl = sr;
-  /* THESE WORDS HAVE NEVER BEEN MEASURED. `lay()` writes every offset `place()` reads — `ax/ay`,
-     `gx/gy`, `px/py` — onto the atom objects, and the ones made above are new objects with none
-     of them. Leaving `laid` set from a previous incarnation means `place()` skips the measure and
-     every offset reads `undefined`, which makes `tx` NaN, which makes the transform string
-     invalid, which the browser silently drops — so the whole citation renders at the top-left
-     corner at full opacity.
+  /* THESE WORDS HAVE NEVER BEEN MEASURED. `lay()` writes every offset `place()` reads — `ax/ay`
+     and `w/h` — onto the atom objects, and the ones made above are new objects with none of them.
+     Leaving `laid` set from a previous incarnation means `place()` skips the measure and every
+     offset reads `undefined`, which makes the coordinate NaN, which makes the transform string
+     invalid, which the browser silently drops — so the whole label renders at the top-left corner
+     at full opacity.
 
      THIS IS OLDER THAN ROUND 9 AND IT SHIPPED. The only route to a rebuild used to be `fit()`
      crossing 720px, which calls `rebuild()` and does not clear the flag either, so resizing a
@@ -1298,14 +1273,14 @@ function build(d) {
   d.laid = false;
 }
 
-// crossing 720px changes the split, so the words are thrown away and cut again
+// the type size is a function of W, so crossing a viewport change re-cuts and re-measures the words
 function rebuild(d) { unbuild(d); build(d); }
 
 function unbuild(d) {
   if (!d.atoms) return;
   for (const a of d.atoms) a.el.remove();
   d.srEl.remove();
-  d.atoms = null; d.cred = null; d.srEl = null;
+  d.atoms = null; d.srEl = null;
 }
 
 /* one line of words, wrapped: writes each word's centre offset from the cluster's centre-top */
@@ -1313,10 +1288,9 @@ function layout(atoms, maxW, key) {
   const rows = [];
   let row = null;
   for (const a of atoms) {
-    const gap = a.lead ? GAPP : GAPX;
-    if (row && (a.row || row.w + gap + a.w > maxW)) row = null;
+    if (row && (a.row || row.w + GAPX + a.w > maxW)) row = null;
     if (!row) { row = { items: [], w: 0, h: 0 }; rows.push(row); }
-    row.w += (row.items.length ? gap : 0) + a.w;
+    row.w += (row.items.length ? GAPX : 0) + a.w;
     row.h = Math.max(row.h, a.h);
     row.items.push(a);
   }
@@ -1325,7 +1299,7 @@ function layout(atoms, maxW, key) {
     let x = -r.w / 2;
     for (const a of r.items) {
       a[key + 'x'] = x + a.w / 2; a[key + 'y'] = y + r.h / 2;
-      x += a.w + (a.lead ? GAPP : GAPX);
+      x += a.w + GAPX;
     }
     y += r.h + GAPY;
     cw = Math.max(cw, r.w);
@@ -1338,26 +1312,26 @@ function layout(atoms, maxW, key) {
 function lay(d) {
   for (const a of d.atoms) {
     a.el.style.fontSize = (a.cls === 'n' ? Math.max(12, Math.min(15, W * 0.0125))
-                         : a.cls === 'y' ? Math.max(11, Math.min(13, W * 0.0105))
-                         : W < 720 ? CRED_PX * 0.84 : CRED_PX).toFixed(2) + 'px';
+                                         : Math.max(11, Math.min(13, W * 0.0105))).toFixed(2) + 'px';
   }
   for (const a of d.atoms) {                        // every write above, then every read — one layout
     const r = a.el.getBoundingClientRect();
     a.w = r.width; a.h = r.height;
   }
   const maxW = Math.min(W * 0.42, 330);
-  d.boxAir = layout(d.atoms, maxW, 'a');            // name, date and credit, riding the fall
-  d.boxGnd = layout(d.cred, maxW, 'g');             // the citation alone, lying where it fell
-  for (let p = 0; p < 3; p++) layout(d.cred.filter(a => a.part === p), maxW, 'p');
+  d.boxAir = layout(d.atoms, maxW, 'a');            // the name and the date, riding the fall
   d.laid = true;
 }
 
 /* ------------------------------------------------------------------ placing the words
 
-   Two overlap contracts, and they are not the same contract. A credit is the citation and must
-   be drawn even if the ground is full; the collision search is what stops that ever being
-   needed. Boxes are the ROTATED bounding box, because a word lying at five degrees is what the
-   sweep measures with getBoundingClientRect and a flat w×h would quietly under-report it. */
+   11's contract is that nothing on this page overlaps anything, ever, and the search below is
+   what holds it. Boxes are the ROTATED bounding box, because a word lying over is what the sweep
+   measures with getBoundingClientRect and a flat w×h would quietly under-report it.
+
+   ROUND 10 took most of the pressure off this: the words that used to compete for the soil band
+   were six citations decaying at once, and they are at the end now. What is left contending is a
+   falling label, a breaking name, the ending's standing cluster and the signature. */
 
 const taken = [];
 // ROW_TOP clears the tie band: six ties stacked 3.4px apart reach 19px into the soil
@@ -1378,17 +1352,11 @@ const qz = (v, step) => Math.round(v / step) * step;
 const aabbW = (w, h, r) => w * Math.abs(Math.cos(r)) + h * Math.abs(Math.sin(r));
 const aabbH = (w, h, r) => w * Math.abs(Math.sin(r)) + h * Math.abs(Math.cos(r));
 
-/* a break, smoothed over 0.05 of a life so the object and its citation come apart together
-   rather than the text snapping a frame before the shards do */
-const brk = (age, at) => Math.max(0, Math.min(1, (age - at) / 0.05));
-
-/* One word, placed and reserved. The nudge is the second half of the collision contract and it
-   is the half a per-cluster row search cannot do: two words of the SAME citation, scattered by
-   their own wobble, land on each other with nothing between them to push against. So each word
-   steps off its own resting line, nearest clear offset first, and takes the ground it finds.
-   If nothing within a word's height is clear it prints where it was — a credit is the contract,
-   and an overlap is a bad frame while a missing citation is a breach. */
-function put(a, x, y, s, r, o, ink, bounds) {
+/* One word, placed and reserved. Each word steps off its own resting line, nearest clear offset
+   first, and takes the ground it finds. If nothing within its height is clear it prints where it
+   was: a label that names the thing on screen is the contract, and an overlap is a bad frame
+   while a missing name is a breach. */
+function put(a, x, y, s, r, o, bounds) {
   /* the box is computed from the QUANTISED transform, not the exact one — what the sweep
      measures with getBoundingClientRect is what was written to the element, and a box derived
      from a value the element never received is a box the gate can disagree with */
@@ -1397,20 +1365,18 @@ function put(a, x, y, s, r, o, ink, bounds) {
   const step = Math.max(6, bh * 0.55);
   let ty = y;
   if (o > 0.02) {
-    /* Bounds are the band a citation is allowed to occupy: never above its own soil line —
-       that is the one surface the contrast gate is solved against — and never below the fold,
-       because a citation off the bottom of the screen is a citation that is not on screen.
-       Inside that band the word walks all the way DOWN first and only then all the way back
-       up. Down-first is what leaves clear soil for the clusters placed after it; searching the
-       whole band is what a phone needs, where the oldest citation is already at the bottom of
-       245px of soil and has three steps of room left under it. */
+    /* Bounds are the band a cluster is allowed to occupy: never above its own soil line, and
+       never below the fold, because a word off the bottom of the screen is a word that is not
+       on screen. Inside that band it walks all the way DOWN first and only then all the way back
+       up — down-first is what leaves clear soil for anything placed after it. Only the ending
+       passes bounds now; everything else has left the soil by the time it would need them. */
     const lo = bounds ? bounds[0] + bh / 2 : y - step * 7, hi = bounds ? bounds[1] - bh / 2 : y + step * 8;
     ty = Math.max(lo, Math.min(Math.max(lo, hi), y));
     let free = false;
     for (let c = ty; c <= hi && !free; c += step) if (!hits(x, c - bh / 2, bw, bh)) { ty = c; free = true; }
     for (let c = ty - step; c >= lo && !free; c -= step) if (!hits(x, c - bh / 2, bw, bh)) { ty = c; free = true; }
   }
-  draw(a, x, ty, s, r, o, ink);
+  draw(a, x, ty, s, r, o);
   if (o > 0.02) taken.push({ x, y: ty - bh / 2, w: bw, h: bh });
 }
 
@@ -1425,7 +1391,7 @@ function place(d) {
        which was invisible while a solver threw things through that band in a few frames; a
        scroll-mapped fall spends its last 200px of budget there, so the clamp printed the name
        across the photograph on every arrival. Unclamped it simply follows, and ends the fall
-       sitting on the soil at exactly the spot the credit is about to take over. */
+       sitting on the soil at exactly the spot the break throws it up out of. */
     const below = d.py + d.h / 2 + 12;
     const above = d.py - d.h / 2 - d.boxAir.h - 12;
     let top = below;
@@ -1434,25 +1400,28 @@ function place(d) {
       if (!hits(cx, top, d.boxAir.w, d.boxAir.h)) break;
     }
     const o = top > 4 ? 1 : 0;
-    for (const a of d.atoms) put(a, cx + a.ax, top + a.ay, 1, 0, o, a.cls === 'c' ? INK_HI : null);
+    for (const a of d.atoms) put(a, cx + a.ax, top + a.ay, 1, 0, o);
     return;
   }
   if (!d.down || d.gone) return;
 
   /* ---- TICKET 14, the ending. It never broke, so its words never came apart. ----
 
-     Name, date and citation stay the one cluster they rode down as, standing on the soil beside
-     the object. This is 06's rule rather than an exception to it — "a credit is one line until its
-     object's FIRST SPLIT" — and this object has no first split. The ink stays fresh for the same
-     reason: 13 ruled the credit decays with the object, and nothing here is decaying.
+     Name and date stay the one cluster they rode down as, standing on the soil beside the object.
+     Every other label on the site is thrown up and gone within NAME_OUT of a life; this one has no
+     life to run, so it stands — and that is the ending said in text as well as in pixels.
+
+     ROUND 10 took its citation off with all the others. What is here is the label, and the ending
+     is unweakened by that: 14's ruling was that the last object never breaks, not that it keeps a
+     credit nothing else keeps.
 
      Clamped as a CLUSTER, not word by word. `credX` is only held to 15–85% of the width, which on
-     a 390px phone hangs an eighty-pixel half-cluster off the right edge — the frame showed a credit
+     a 390px phone hangs an eighty-pixel half-cluster off the right edge — the frame showed a label
      reading "ALEXANDER MIG". Clamping each word instead would keep them all on screen and pile
      them against the margin; the thing that has to stay whole here is the shape.
 
-     It goes in the soil band like every other citation, so the contrast problem stays solved
-     against the one surface whose value never changes. */
+     It is the one label that lies in the soil band and stays there, so it is also the only text
+     on the site whose contrast is still solved against the earth rather than against the sky. */
   if (d.i === LAST) {
     const half = d.boxAir.w / 2;
     const cx = Math.max(14 + half, Math.min(W - 14 - half, d.credX));
@@ -1462,8 +1431,7 @@ function place(d) {
       if (!hits(cx, surfAt(cx) + row, d.boxAir.w, d.boxAir.h)) break;
     const top = surfAt(cx) + Math.min(row, BOT);
     for (const a of d.atoms)
-      put(a, cx + a.ax, top + a.ay, 1, 0, 1, a.cls === 'c' ? INK_HI : null,
-          [surfAt(cx + a.ax) + 8, H - 5]);
+      put(a, cx + a.ax, top + a.ay, 1, 0, 1, [surfAt(cx + a.ax) + 8, H - 5]);
     return;
   }
 
@@ -1484,76 +1452,19 @@ function place(d) {
   if (d.blown) {
     const cx = d.credX;
     const top = surfAt(cx) - d.h * 0.55;
-    for (const a of d.atoms) {
-      if (a.cls === 'c') continue;
+    for (const a of d.atoms)
       put(a, cx + a.ax + a.vx * nu, top + a.ay + a.vy * nu + 300 * nu * nu,
-          1, a.vr * nu, 1 - nu * nu, null);
-    }
+          1, a.vr * nu, 1 - nu * nu);
   }
 
-  /* ---- the citation, coming apart with its object ---- */
-  const k1 = brk(d.age, SPLITS[0]);
-  const k2 = SPLITS.length > 1 ? brk(d.age, SPLITS[1]) : 0;
-  const s = 1 - (1 - CRED_LO) * d.age;
-  const ink = INK_HI.map((v, j) => Math.round(v + (INK_LO[j] - v) * d.age));
-  const o = d.age > 0.9 ? Math.max(0, (1 - d.age) / 0.1) : 1;
+  /* ---- and that is all. ROUND 10: past the name's break the ground carries no words. ----
 
-  /* how wide its own wreckage has got. The words spread exactly that far and no further, which
-     is the whole of "the source shatters with the piece" — it is not a separate animation, it
-     is a readout of where the fragments actually are. */
-  let lo = Infinity, hi = -Infinity;
-  for (const p of d.pieces) { if (p.x < lo) lo = p.x; if (p.x > hi) hi = p.x; }
-  for (const q of d.specks) { if (q.x < lo) lo = q.x; if (q.x > hi) hi = q.x; }
-  if (lo > hi) { lo = d.credX - d.w / 2; hi = d.credX + d.w / 2; }
-  const fieldC = (lo + hi) / 2;
-  // 70px is a floor, not a look: a field that has not spread yet must not stack its own words
-  const half = Math.max((hi - lo) / 2, W < 720 ? (W - 28) / 2 : 70);
-  const x0 = Math.max(14, fieldC - half), x1 = Math.min(W - 14, fieldC + half);
-
-  let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
-  for (const a of d.cred) {
-    const gc = x0 + (x1 - x0) * (a.part + 0.5) / 3;
-    const hx = d.credX + a.gx;                                   // whole
-    const px = gc + a.px;                                        // three groups
-    const sx = x0 + (x1 - x0) * Math.max(0, Math.min(1, a.u + a.jx));  // single words
-    a.tx = hx + (px - hx) * k1 + (sx - (hx + (px - hx) * k1)) * k2;
-    a.ty = a.gy * (1 - k1) + a.py * k1 * (1 - k2) + a.jy * k2;
-    a.tx = Math.max(a.w * s / 2 + 6, Math.min(W - a.w * s / 2 - 6, a.tx));
-    /* Lying down on the land is worth a few degrees and no more. The collision box is the
-       ROTATED one, so every degree makes a long word taller: a 103px citation word on one of
-       the steeper stretches of soil measured 15 degrees and a 22px-tall box, and two of those
-       in one column will not fit a phone's band however hard the search works. */
-    const lie = W < 720 ? 0.05 : 0.09;
-    a.tr = Math.max(-lie, Math.min(lie, slopeAt(a.tx) + TILT * a.jr * Math.max(k1, k2)));
-    a.bw = aabbW(a.w * qz(s, 0.02), a.h * qz(s, 0.02), qz(a.tr, 0.012));
-    a.bh = aabbH(a.w * qz(s, 0.02), a.h * qz(s, 0.02), qz(a.tr, 0.012));
-    const ry = surfAt(a.tx) + a.ty;                  // before the row offset, which shifts all of it
-    bx0 = Math.min(bx0, a.tx - a.bw / 2); bx1 = Math.max(bx1, a.tx + a.bw / 2);
-    by0 = Math.min(by0, ry - a.bh / 2);  by1 = Math.max(by1, ry + a.bh / 2);
-  }
-
-  /* The cluster drops row by row until every one of its words is clear. Its own bounding box is
-     tried first: when the box is clear the whole cluster is clear, and that settles most rows in
-     one comparison instead of eight. */
-  let row = ROW_TOP;
-  const BOT = rowBot();
-  if (k1 >= 1) row = ROW_TOP;
-  else for (row = ROW_TOP; row <= BOT; row += ROW_STEP) {
-    if (!hits((bx0 + bx1) / 2, by0 + row, bx1 - bx0, by1 - by0)) break;
-    let clash = false;
-    for (const a of d.cred) {
-      const y = surfAt(a.tx) + row + a.ty;
-      if (hits(a.tx, y - a.bh / 2, a.bw, a.bh)) { clash = true; break; }
-    }
-    if (!clash) break;
-  }
-  row = Math.min(row, BOT);
-
-  for (const a of d.cred)
-    put(a, a.tx, surfAt(a.tx) + row + a.ty, s, a.tr, o, ink, [surfAt(a.tx) + 8, H - 5]);
+     What used to be here was round 8's citation, spreading across its own debris and living
+     until the last speck. It is at the end now, in the roll. There is deliberately nothing in
+     its place: a wordless soil is the ruling, not a gap waiting to be filled. */
 }
 
-function draw(a, x, y, s, r, o, ink) {
+function draw(a, x, y, s, r, o) {
   const sq = qz(s, 0.02), rq = qz(r, 0.012);
   const t = `translate(-50%,-50%) translate(${x.toFixed(1)}px,${y.toFixed(1)}px)` +
             (sq !== 1 ? ` scale(${sq.toFixed(2)})` : '') +
@@ -1561,10 +1472,6 @@ function draw(a, x, y, s, r, o, ink) {
   if (a.el.style.transform !== t) a.el.style.transform = t;
   const os = o.toFixed(2);
   if (a.el.style.opacity !== os) a.el.style.opacity = os;
-  if (ink) {
-    const c = `rgb(${qz(ink[0], 6)},${qz(ink[1], 6)},${qz(ink[2], 6)})`;
-    if (a.el.style.color !== c) a.el.style.color = c;
-  }
 }
 
 /* ------------------------------------------------------------------ the frame */
@@ -2005,7 +1912,7 @@ function frame() {
 /* read by the headless sweep only; nothing in the page touches it. `air` is the gate that says
    the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
 window.__hh = {
-  drops, queue, surfAt, FALL, TOTAL, W_YEARS, SPLITS, DUST_AT, NAME_OUT, INK_LO,
+  drops, queue, surfAt, FALL, TOTAL, W_YEARS, SPLITS, DUST_AT, NAME_OUT,
   /* the texture window, for the round-10 gates. DRAW_H x DPR_CAP is the claim the shipped files
      are baked against; `held` is the resident set counted off the live references rather than
      off any tally the page keeps, and `blind` is the tripwire on a landing solved without its
@@ -2067,13 +1974,13 @@ window.__hh = {
       y: d.air ? +d.py.toFixed(2) : null,
       down: d.down, age: +d.age.toFixed(4), pieces: d.pieces.length, specks: d.specks.length,
       tie: d.tie ? d.tie.j : null, gap: d.tie ? d.tie.gap : null,
-      // the citation contract, as numbers: how many of its words are on screen, and how wide
-      // they have spread against how wide the whole line would be
-      words: d.cred ? d.cred.filter(a => +a.el.style.opacity > 0.02).length : 0,
-      credW: d.cred && d.cred.length
-        ? Math.max(...d.cred.map(a => a.tx || 0)) - Math.min(...d.cred.map(a => a.tx || 0)) : 0,
-      lineW: d.boxGnd ? d.boxGnd.w : 0,
-      nameOn: d.atoms ? d.atoms.filter(a => a.cls !== 'c' && +a.el.style.opacity > 0.02).length : 0
+      /* ROUND 10 — the label contract as numbers, in place of round 8's citation contract.
+         `words` is how many of this object's words are printed at all, which is the quantity the
+         wordless-ground gate is written against; `lineW` is the width of the one line the label
+         rides down as. `nameOn` is gone: with the citation off the piece it counted the same
+         atoms as `words` and a second name for one number is a gate waiting to disagree. */
+      words: d.atoms ? d.atoms.filter(a => +a.el.style.opacity > 0.02).length : 0,
+      lineW: d.boxAir ? d.boxAir.w : 0
     }))
   })
 };

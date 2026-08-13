@@ -10,6 +10,10 @@ __pycache__/
 
 # harness run logs — the numbers live in the ticket, not in the repo
 prototypes/webgl/harness/*.log
+# …and the static server's own log, which the harness README tells you to redirect INTO the
+# directory it is serving. `site/` is the deploy root, so an un-ignored httpd.log is a file that
+# gets uploaded and publicly served. Found in 06 round 10.
+site/httpd.log
 
 .vercel
 .env*

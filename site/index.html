@@ -49,20 +49,19 @@
   #gl{position:fixed;inset:0;z-index:0}
   #spacer{position:relative;z-index:1;pointer-events:none}
 
-  /* Every fact on the page is one of these: a single word, positioned individually, crisp DOM
-     text over the canvas and never drawn into it (ticket 12). A word is the unit because a
-     name and a citation both have to come apart with the object they belong to — a block of
-     text cannot shatter, and a block of text stacked in rows is the filing cabinet this
-     replaces. Size, colour and tilt are set per word from the object's own decay. */
+  /* Every word on the page is one of these: positioned individually, crisp DOM text over the
+     canvas and never drawn into it (ticket 12). A word is the unit because the label has to come
+     apart with the object it belongs to — a block of text cannot shatter.
+     ROUND 10: `.c`, the citation, is gone from the piece. Attribution is in the roll at the end,
+     and what rides the object down is a name and a date and nothing else. */
   #labels{position:fixed;inset:0;z-index:3;pointer-events:none}
   #labels span{position:absolute;left:0;top:0;white-space:nowrap;display:block;
                 transform-origin:50% 50%;will-change:transform,opacity;
                 text-shadow:0 1px 4px rgba(0,0,0,.95)}
   #labels .n{font-weight:700;letter-spacing:-.01em}
   #labels .y{font-weight:600;font-variant-numeric:tabular-nums}
-  #labels .c{font-weight:500;letter-spacing:.06em;text-transform:uppercase}
-  /* the screen-reader copy of the citation: one unbroken string per object, so a credit that
-     is scattered across the soil as eight words is still read as one line */
+  /* the screen-reader copy of the citation: one unbroken string per object, so a visitor who
+     never reaches the roll still gets the credit with the thing it belongs to */
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
       clip-path:inset(50%);white-space:nowrap}
 
