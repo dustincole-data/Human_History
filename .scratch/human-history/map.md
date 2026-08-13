@@ -319,8 +319,12 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
 ### The destination was reached, 2026-08-12 — [15](issues/15-deploy-and-the-card.md) round 1
 
 - **Shipped.** `site/` is the deploy root, push auto-deploys (verified, not assumed), the card is
-  live, and both sweeps were re-run **against the deployed origin** rather than localhost —
-  `sweep11i` 26/26, `sweep10` 42/43.
+  live, and the sweeps were re-run **against the deployed origin** rather than localhost.
+  **`sweep11i` 26/26 there; `sweep10` did not finish there** — 42/43 on localhost, but against the
+  real CDN `frame_budget` goes red (p95 25.7ms, worst 47.1ms) and the round-9 sky probe crashes on
+  `era 196: never found an empty sky`. **The shelf is verified against production and the piece is
+  not**, and the frame-budget red is unattributed — the machine was loaded. One quiet back-to-back
+  re-run settles it.
 - **The name changed on the way out: TIME TAKES ALL.** Two copy consequences recorded, not acted on:
   [14](issues/14-the-ending-and-the-frame.md)'s ending was an argument for the old title, and the
   intro's last clause *"until the ground has taken all of it"* is now the title said twice — the

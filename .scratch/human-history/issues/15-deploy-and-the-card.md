@@ -198,7 +198,22 @@ defect 07 fixed in the other direction when it cut `Everything that lands breaks
 `HH_BASE` now overrides the harness's base URL, which is what the whole site-root move bought.
 
 - **`sweep11i` 26/26 green against the deployed CDN.**
-- **`sweep10` 42/43** — see below.
+- **`sweep10` 42/43 on localhost** — the one red is below. **Against the deployed origin it did NOT
+  finish**, and that is the honest result rather than a number: 34 green, **two red**, and then a
+  crash. Both new facts are about the network, which is the whole reason the ticket asked for this
+  run.
+  - **`frame_budget` is red only against the real origin** — warm median 16.4ms but **p95 floor
+    25.7ms and a worst pass of 47.1ms**, against the same gate that passes on localhost. The
+    plausible mechanism is exactly what `--slow` was built to simulate and could not: on 127.0.0.1
+    every photograph is ready before it is needed, so cutting work never lands on a scrolling frame,
+    and on a real CDN it does. **Not attributed yet, and it must be** — the machine was running
+    several other sessions during this pass, so load is a live alternative explanation. It wants one
+    quiet re-run against each origin before anyone believes either number.
+  - **The sweep then crashed**: `era 196: never found an empty sky`. Round 9's sky probes require a
+    frame with nothing in the air, and `settle()` gave up finding one. That is a harness limit
+    reached only over real latency — the instrument, not the page, for the fifth time this project.
+  - So: **the shelf is verified against production and the piece is not.** Seven of `sweep10`'s
+    gates never ran there.
 - The live HTML greps for four things only this build has (`timetakesall`, `fonts/archivo-latin.woff2`,
   `favicon.svg`, `src="data.js"`), and the ShareAlike sentence is in the shipped `index.js`.
 - **The per-deployment URL returns 302 to an SSO page**, exactly as the ticket warned. The project's
@@ -238,4 +253,7 @@ the hang.
 - **`no_text_collision_390`** → [08](08-accessibility-and-mobile.md)'s next round, with the two
   URL-bar reds.
 - **The title echo in the intro's last clause** (above) — copy, so Dustin's.
+- **`frame_budget` against the real origin, and the sky-probe crash at era 196** — one quiet re-run,
+  localhost and deployed back to back on an idle machine, decides whether the CDN moved the frame
+  budget or the machine did. **Seven of `sweep10`'s 43 gates have never run against production.**
 - **The real-device phone pass** — now just opening a link, which is what deploying first was for.
