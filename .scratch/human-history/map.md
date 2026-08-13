@@ -297,6 +297,37 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   **One open, named not chased: `stars_go_out`** reads 1,624 stars at one era on production against
   177 on localhost — round 9's photograph-read-as-sky arriving a third time, through latency. No
   ruling depends on it, every other sky gate passes there, and localhost is 43/43.
+- [08 — Accessibility & mobile](issues/08-accessibility-and-mobile.md) **round 2 — the two URL-bar
+  reds. CLOSED, and they were one defect.** The page called `innerHeight` "a screen" and iOS changes
+  that on an ordinary scroll gesture. **Measured before the options went to Dustin, and the
+  measurement moved the argument**: round 1's headline 563ms handler **did not reproduce**
+  (157–229ms over six collapses, median 179 against a 250 budget — the cost was the machine), while
+  the number nobody had read was the one that mattered — **the ground line moved 77.2px on one bar
+  collapse**, on a page whose [13](issues/13-visual-direction-v2.md) says the ground never moves,
+  with an airborne object jumping 29.7px at a scroll position the visitor never left and the shelf's
+  real document top sliding 89,924 → 89,726. Ruled by Dustin from three priced options: **the unit
+  is `100lvh`, read off the canvas's own box** — on iOS a bar move does not change that box so
+  nothing runs, on a desktop `lvh` IS the window so nothing changes, **no branch and no platform
+  test**; the trigger is a **ResizeObserver on that box** with the work split, since `measure()`
+  reads a width and never a height and a height change had been rebuilding 236 cells and
+  re-encoding two WebP soil textures to reach byte-identical markup. **What it costs is stated:**
+  the bar covers the bottom 99px of a canvas drawn to the tall height, which is deep soil — 86.7px
+  of soil stays visible below the line — and the furniture deliberately does NOT follow the rule,
+  because a control has to stay reachable while the world stays still.
+  **The round's own new gate was a DECORATION and the teeth found it**: asserted against state it
+  stayed green with the fix backed out, because a browser with no chrome in it has
+  `innerHeight === the box`. **Three attempts to catch it on a clock all failed** — 30/120/255ms
+  timing the frames, 1.8 vs 14.6ms timing the handler (canvas fills are queued), 40ms
+  control-and-floor — every one of them inferring from a duration a fact the page will state
+  outright. **So the bar is simulated instead: shadow `innerHeight`, leave the box alone, fire
+  `resize`.** It now reproduces round 1's exact numbers headlessly. **Round 1 said only a device
+  could settle this; it needed the right simulation, not a phone.** Five perturbations, four red at
+  their target, and one control that stayed green and proved the ResizeObserver is load-bearing.
+  42/43 localhost AND 42/43 production, the same `frame_budget` red in both, median floor unmoved
+  (16.5 / 17.0) and an A/B flooring both arms — **43/43 was not reached on either origin.**
+  `stars_go_out` **crashed the first production run** (`era 40: never found an empty sky`, the
+  fourth occurrence, first time it took the sweep down) and **passed a straight re-run at 177 → 177
+  → 74 → 0 → 0**: intermittent, latency-dependent, instrument not page. Still open, still not 08's.
 - [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
   the furniture was outside every collision gate.** Resolved by building the options rather than
   picking: seven names in three families, all DNS-checked, and three voices written on the real
