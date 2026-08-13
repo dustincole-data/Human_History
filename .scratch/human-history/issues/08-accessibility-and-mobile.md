@@ -257,3 +257,124 @@ failure mode includes taking the whole sweep down.** Still not this ticket's, an
   the sliver, 200% text, VoiceOver) are untouched by this round.
 - Alt text at volume, screen-reader structure, reduced motion and 200% text — round 1 did not reach
   them and neither did this one.
+
+---
+
+## Round 3, 2026-08-13 — the sky reads pixels, production finishes, and the teeth had no teeth
+
+`1b41d0e` landed the code and not the verification. This round is the verification, and it changes
+two of the round's own claims: one is confirmed harder than it was stated, and one was never tested
+at all.
+
+### The three runs, and production finished for the first time
+
+| | localhost | production (`time-takes-all.vercel.app`) |
+|---|---|---|
+| `sweep10` | **43/43** | **43/43 — and it FINISHED** |
+| `sweep11i` | **26/26** | not run — localhost only this round |
+
+Two prior production attempts died on playwright's default 30s `goto` budget, at 610 gates in and
+then at 751. **The `arrive()` retry never fired** — there is no retry line anywhere in the log — so
+the 90s budget alone carried it and the retry is unspent insurance. That is worth stating precisely
+because it characterises the fault: the old browser is **slow to navigate, not broken**, and one
+budget the size of the fault was the whole fix. No third navigation site, no ceiling.
+
+**`stars_go_out` reads identically on both origins: 177 → 177 → 74 → 0 → 0**, longest run
+3 / 3 / 2 / 0 / 0 px against a 12px bar. The 1,624-star reading and `era 40: never found an empty
+sky` are both gone, and gone **at the origin that produced them**, which is the only place that
+counts. The gap between `snap()` and `getImageData` was the whole of it.
+
+**And `frame_budget` was green on both origins, for the first time since the machine got busy.**
+Median floor **16.5ms on both**; p95 floor 19.9 localhost / 19.6 production; worst pass 20.2 / 20.1.
+Nothing in this round goes near the frame loop, and round 2's floors were 16.5 / 17.0 against this
+round's 16.5 / 16.5. **The number that moved is the laptop, not the page** — which is what round 2,
+[06](06-visual-treatment.md) round 10 and [15](15-deploy-and-the-card.md) each concluded from the
+other side. Recorded as the fourth piece of evidence for that reading, **not as a fix**, because
+nothing was fixed.
+
+### The one thing production still says differently, and it is a sample set
+
+Six numbers differ between the two logs. Five are noise — `the_ground_carries_no_words` 5,282 vs
+5,283 readings, decoded peak 5.8 vs 4.3 MB, fragment peak 3.90 vs 3.98 MB, dust cleared 478/475/479
+vs 156/78/78. The sixth is not.
+
+**`label_contrast` took 195 samples on localhost and 20 against production, and reported the same
+worst value — 7.81:1 — from both.** Measured rather than inferred, at the gate's own 14 stops:
+
+| | localhost | production |
+|---|---|---|
+| arrivals contributing a label | **14 of 14** | **1 of 14** |
+| photographs still in flight at a dead stop | 0 | **12–18** |
+
+The gate skips `!d.atoms || !d.air`, and *no pixels, no fall* is the page being **right**: an arrival
+whose photograph has not landed is not in the air, so there is no label to measure. The worst value
+survives only because the one readable stop is **item 4 — the head**, whose photograph is in the
+first-load batch of eight and which happens to be the firelight case that produces the worst reading
+anyway. That is luck, not design.
+
+**Ninth instrument fault of this shape, and the second of this exact one** —
+[06](06-visual-treatment.md) round 10's `contact_is_a_position` was three reads that each assumed
+the probe object was present. **A green gate is only as wide as its sample set, and this one is 10×
+narrower on the origin that matters.** Named and measured, **not chased**: no ruling depends on it,
+it is green on both origins, and the fix is round 10's bounded `waitFor` pointed at a new subject.
+
+### The teeth had no teeth, and 03's memory ceiling is why
+
+The first run came back **2 of 3, and the miss was case 1 — the case the file exists for.** The
+parked photograph left all 43 gates green.
+
+**It was never drawn.** `teeth08r3` grabbed the page's own `Image` element and this comment said so
+in prose: *"held by the harness's own reference so the texture window releasing it cannot take the
+perturbation away."* It can. [03](03-engine-reuse-or-clean-build.md)'s `release()` is
+`d.im.removeAttribute('src')`, and its own comment reads *"hand the decoded buffer back, not just
+the ref"* — **the element survives and its pixels do not**, and `drawImage` of a 0×0 image draws
+nothing and throws nothing. Measured: captured at scrollY 0 as `ainghazal.webp` 89×264, and by the
+time era 6's walk begins at 4,028 the same object reads `src ""`, `naturalWidth 0`. So the
+perturbation was a **silent no-op**, and the control passed because nothing was ever drawn anywhere.
+**03's memory ceiling ate the teeth aimed at 08's sky probe.**
+
+This is round 12's rule one level up. Round 12 said a gate that cannot go red is a decoration; this
+was a **test of a gate** that could not go red, and it read as a pass in a file whose entire purpose
+is to catch that.
+
+**And it corrects the round's own headline.** `1b41d0e`'s message claims the parked photograph
+*"only reads 4,661 → 177 → 74 → 0 → 0 … and PASSES the old probe."* The parked photograph cannot
+have produced 4,661 stars, because the parked photograph was never on the canvas. The only thing in
+the rectangle was **the page's own falling object** — which is the fault the round repaired,
+arriving through the honest door. Right about the phenomenon, wrong about its cause.
+
+**How it was found, which is the reusable half.** A sweep per attempt is twelve minutes, so the
+sky walk was re-implemented standalone with every step printed, and it answered in one. The first
+reading showed runs of 107 → 108 → 44 → 3 px with the row index marching *down* the rectangle —
+that is the real falling object leaving the sky, detected correctly and walked past correctly, which
+is exactly what the walk is for. **The stuck photograph appeared at no step at all**, and that
+absence is what named the fault. Repaired by copying the photograph into a canvas the page has no
+handle on, then verified before spending a sweep on it: **240px run at every one of the 40 steps**,
+20× the bar, stars 7,332–10,199 against the honest 177.
+
+| perturbation | first run | repaired |
+|---|---|---|
+| photograph parked in the star rectangle, era 6 | **43/43 green — the false green the file exists to delete** | **39/43** — `backdrop_is_dated`, `ground_never_dates`, `stars_go_out` and `hud_contrast` all red on *"era 6: no photograph-free sky in 702px of walk — worst run 240px at y=100 (bar 12)"*, **and the run printed its table** |
+| the same photograph parked at 60,000px, where no era walks | green — but trivially, nothing was drawn | **green, and now a real control** |
+| `STAR_OUT` 0.72 → 9 | **red** — 177 → 177 → 167 → 147 → 145 | red, unchanged |
+
+**3/3 as designed, files restored byte-identical.** Both of round 3's claims are now proven rather
+than asserted: **a photograph in the rectangle cannot satisfy the count**, and **a probe that cannot
+read its subject reports four named reds instead of taking the other 39 gates down with it.** The
+four-red result is the design, not a spill — all four gates are claims *across* five eras, so an
+unreadable era fails all four rather than quietly passing on the remaining four.
+
+### Where it stands
+
+**`stars_go_out` is CLOSED.** Open since [06](06-visual-treatment.md) round 10, carried through
+[15](15-deploy-and-the-card.md) and round 2 as "intermittent, latency-dependent, the instrument and
+not the page" — all three of which were right. It now reads identically on both origins and its
+teeth are green.
+
+**Nothing in this round touched the page.** `site/` is byte-identical to `1b41d0e`; the only change
+is `teeth08r3.mjs`.
+
+**Still 08's, and still open — unchanged by this round:** the real-device phone pass (the ship gate,
+only Dustin), alt text at volume, screen-reader structure, reduced motion and 200% text. Also open
+and **not 08's**: `label_contrast`'s production sample set, and the intro's title-echo copy line
+([07](07-copy-voice-and-name.md)).

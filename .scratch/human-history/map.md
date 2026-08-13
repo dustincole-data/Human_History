@@ -328,6 +328,29 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   `stars_go_out` **crashed the first production run** (`era 40: never found an empty sky`, the
   fourth occurrence, first time it took the sweep down) and **passed a straight re-run at 177 → 177
   → 74 → 0 → 0**: intermittent, latency-dependent, instrument not page. Still open, still not 08's.
+- [08 — Accessibility & mobile](issues/08-accessibility-and-mobile.md) **round 3 — the sky reads
+  pixels, PRODUCTION FINISHES, and `stars_go_out` is CLOSED.** The probe asked the page whether
+  anything was in the air and then counted stars in a *second* evaluate; on localhost a photograph
+  is never late so the gap is never spent, and against the real CDN it is — both production symptoms
+  were that one gap from its two sides. One `getImageData` now answers both questions, so the
+  emptiness proof and the star count are the same bytes; the discriminator is **run length**, which
+  a photograph cannot fake. **43/43 localhost AND 43/43 production — the first time the sweep has
+  ever finished there**, reading 177 → 177 → 74 → 0 → 0 identically on both. The two earlier
+  production deaths were **playwright's default 30s `goto` budget on an old browser**, not the sky;
+  every navigation now goes through one `arrive()` helper and **its retry never fired**, so the
+  fault was slow, not broken. **`frame_budget` went green on both origins** with nothing near the
+  frame loop touched — fourth independent finding that the red is the laptop, recorded as evidence
+  and not as a fix. **And the teeth had no teeth**: the perturbation held the page's own `Image`,
+  but [03](issues/03-engine-reuse-or-clean-build.md)'s `release()` does `removeAttribute('src')` —
+  *"hand the decoded buffer back, not just the ref"* — so the element survived, its pixels did not,
+  `drawImage` of a 0×0 image drew nothing silently, and the case the file exists for read 43/43
+  green. **03's memory ceiling ate the teeth aimed at 08's sky probe.** Repaired by copying the
+  photograph into a canvas the page has no handle on: 3/3 as designed, 240px run at every one of
+  the 40 walk steps against a 12px bar. **A test of a gate can be a decoration too** — round 12's
+  rule, one level up. One new open item, named not chased: **`label_contrast` takes 195 samples on
+  localhost and 20 against production** (1 of 14 arrivals contributes there against 14 of 14 here,
+  12–18 photographs still in flight) — *no pixels, no fall* is the page being right, and a green
+  gate is only as wide as its sample set.
 - [07 — Copy, voice & the name](issues/07-copy-voice-and-name.md) — **the name and the voice, and
   the furniture was outside every collision gate.** Resolved by building the options rather than
   picking: seven names in three families, all DNS-checked, and three voices written on the real

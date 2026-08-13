@@ -30,14 +30,27 @@ const patch = (which, ...pairs) => {
   fs.writeFileSync(F[which], out);
 };
 
-/* One photograph, held by the harness's own reference so the texture window releasing it cannot
-   take the perturbation away, drawn over the frame inside a band of scroll. `BAND` is what makes
-   each case different: the star rectangle spans y 6..238 at 1440x900, so a 132px-tall cut-out
-   drawn at y=30 is squarely inside the pixels the count is taken from. */
+/* One photograph, COPIED INTO A CANVAS the page has no handle on, drawn over the frame inside a
+   band of scroll. `BAND` is what makes each case different: the star rectangle spans y 6..316 at
+   1440x900, so a 132px-tall cut-out drawn at y=30 is squarely inside the pixels the count is
+   taken from.
+
+   THE COPY IS THE WHOLE POINT, and the first cut of this file did not have it. It held the
+   `Image` element and said in this comment that a reference the harness owns is a reference the
+   texture window cannot take away. It is not: `release()` calls `im.removeAttribute('src')` —
+   its own comment reads *"hand the decoded buffer back, not just the ref"* — so the element
+   survives and its PIXELS do not, and `drawImage` of a 0x0 image draws nothing and throws
+   nothing. Measured: captured at scrollY 0 as `ainghazal.webp` 89x264, and by the time era 6's
+   walk begins at 4,028 the same object reads `src ""`, `naturalWidth 0`. So the perturbation was
+   a silent no-op, the case it exists for read 43/43 green, and the control passed because
+   nothing was ever drawn anywhere. 03's memory ceiling ate the teeth aimed at 08's sky probe. */
 const stuck = band => [
   `  for (let i = drops.length - 1; i >= 0; i--) place(drops[i]);`,
   `  for (let i = drops.length - 1; i >= 0; i--) place(drops[i]);
-  { if (!window.__stuck) { const q = drops.find(d => d.im); if (q) window.__stuck = q.im; }
+  { if (!window.__stuck) { const q = drops.find(d => d.im && d.im.naturalWidth);
+      if (q) { const c = document.createElement('canvas');
+               c.width = q.im.naturalWidth; c.height = q.im.naturalHeight;
+               c.getContext('2d').drawImage(q.im, 0, 0); window.__stuck = c; } }
     if (window.__stuck && scrollY > ${band[0]} && scrollY < ${band[1]})
       ctx.drawImage(window.__stuck, 520 * dpr, 30 * dpr, 240 * dpr, 132 * dpr); }`];
 
