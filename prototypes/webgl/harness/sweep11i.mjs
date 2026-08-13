@@ -13,7 +13,12 @@ import fs from 'fs';
 const require = createRequire('C:/Users/dusti/Projects/Deep_Time/package.json');
 const { chromium } = require('playwright');
 
-const BASE = 'http://127.0.0.1:8812';
+/* Ticket 15: the gates have to be runnable against the DEPLOYED origin, because
+   everything they have ever measured was served by a local server with no latency and
+   03 already found three gates that were green with their own code deleted for exactly
+   that reason. Same URL shape either way - that is what the site/ move was for.
+     HH_BASE=https://time-takes-all.vercel.app node sweep10.mjs */
+const BASE = process.env.HH_BASE || 'http://127.0.0.1:8812';
 const URL = BASE + '/index.html';
 const OUT = process.argv.find(a => a.endsWith('.json')) || null;
 const SLOW = process.argv.includes('--slow');

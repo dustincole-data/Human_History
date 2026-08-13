@@ -4,7 +4,7 @@ Labels: `wayfinder:map`
 
 ## Destination
 
-**EVERYTHING BREAKS** ([07](issues/07-copy-voice-and-name.md)) — a scroll-driven data toy telling **~12,000 years of everything humans built**, from Göbekli Tepe to now — built entirely from real, cited, public-domain artifacts and photographs — **live at `everythingbreaks.dustincoledata.com`** with a card on dustincoledata.com/projects.
+**TIME TAKES ALL** — renamed by Dustin 2026-08-12, superseding [07](issues/07-copy-voice-and-name.md)'s EVERYTHING BREAKS — a scroll-driven data toy telling **~12,000 years of everything humans built**, from Göbekli Tepe to now — built entirely from real, cited, public-domain artifacts and photographs. **SHIPPED 2026-08-12** ([15](issues/15-deploy-and-the-card.md)): live at `timetakesall.dustincoledata.com` (CNAME pending), card live on dustincoledata.com/projects.
 
 Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 
@@ -315,6 +315,29 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
     one 8,934 years *newer* passes at any threshold — and it sweeps forward only. **A gate has a
     direction, and a gate that only ever walks forward has only ever tested forward.** Fourth round
     running where the instrument was wrong and the page was not; first where it was the *direction*.
+
+### The destination was reached, 2026-08-12 — [15](issues/15-deploy-and-the-card.md) round 1
+
+- **Shipped.** `site/` is the deploy root, push auto-deploys (verified, not assumed), the card is
+  live, and both sweeps were re-run **against the deployed origin** rather than localhost —
+  `sweep11i` 26/26, `sweep10` 42/43.
+- **The name changed on the way out: TIME TAKES ALL.** Two copy consequences recorded, not acted on:
+  [14](issues/14-the-ending-and-the-frame.md)'s ending was an argument for the old title, and the
+  intro's last clause *"until the ground has taken all of it"* is now the title said twice — the
+  exact defect 07 fixed in the other direction. Both are Dustin's.
+- **ShareAlike ruled by Dustin: it reaches the CUT-OUT, under its own source's licence** — not the
+  code, not the record, not the site. The only formulation that is right across all seven SA
+  versions present, since the one CC BY-SA 1.0 entry has no later-version clause. One colophon
+  sentence.
+- **A new red, and it is real: `no_text_collision_390`.** Green at 230, red at 236 — the six new tail
+  items filled the phone's soil band, and the page's designed fallback prints a citation rather than
+  drop it. Byte-identical over two passes, so not the knife-edge the gate is on record as being.
+  **Ruled: ship now, [08](issues/08-accessibility-and-mobile.md)'s next round rules it**, with the
+  two URL-bar reds, on the same surfaces.
+- **`no_text_collision_390` is the fifth time the number moved when the SET grew, not when the code
+  changed** — and the harness cost four dead runs before it could be read at all: **a phase gets a
+  new page, not a navigation.** A false green was caught in that fix before it ran, which is the
+  same lesson from the other side.
 
 ## Not yet specified
 
