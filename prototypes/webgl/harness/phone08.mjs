@@ -7,16 +7,26 @@
  * what each of them actually is:
  *
  *   1. iOS URL-BAR COLLAPSE. Not a rendering bug — a RESIZE EVENT. Safari fires `resize` every
- *      time the bar hides or shows, which on a scroll-driven page happens constantly. This page
- *      binds `fit()` to it, and `fit()` re-bakes the surface and the ground, rewinds every
- *      generation of every wreck, and rebuilds all 236 shelf cells with two soil bakes to data
- *      URLs. Cost is measured below. Worse than cost: `setSpacer()` sizes the runway as
- *      `TOTAL + innerHeight * 2`, so THE DOCUMENT'S OWN HEIGHT IS A FUNCTION OF THE URL BAR —
- *      and on a page where the scrollbar is the only clock, a runway that changes underneath the
- *      visitor moves what is drawn at a scroll position they have not moved from.
+ *      time the bar hides or shows, which on a scroll-driven page happens constantly.
+ *
+ *      ROUND 2 FIXED THIS AND RE-AIMED THE GATES THAT MEASURED IT, because round 1's two were
+ *      testing the wrong event. `setViewportSize` is a GENUINE viewport change — a rotation, or a
+ *      window drag — and every viewport unit moves with it, `lvh` included. A URL-bar move is the
+ *      opposite: `resize` fires and the LARGE viewport does not change. So the page is now held at
+ *      `100lvh` and re-syncs from its own box, and the checkable claim is
+ *      `resize_with_an_unchanged_box_does_nothing` — which is the bar move exactly, and which
+ *      round 1's setViewportSize could not produce at all.
+ *
+ *      What round 1 found still stands and is what forced the ruling: the runway was
+ *      `TOTAL + innerHeight * 2`, so THE DOCUMENT'S OWN HEIGHT WAS A FUNCTION OF THE URL BAR, and
+ *      the GROUND LINE was `innerHeight * 0.78`, so the bar moved the ground 77px on a page whose
+ *      13 says the ground never moves. Round 1's 563ms did not reproduce (157–229ms over six
+ *      collapses on an idle laptop) — the cost was the machine and the MOVEMENT was the defect.
  *
  *   2. RESIZEOBSERVER vs `resize`. The map's rule is that a fixed canvas re-syncs from ITS OWN
- *      BOX. This one re-syncs from `innerWidth/innerHeight`, which is the thing iOS lies about.
+ *      BOX. Round 1 found this one re-syncing from `innerWidth/innerHeight`, which is the thing
+ *      iOS lies about; round 2 moved it onto the box and `canvas_is_its_own_box` asserts the
+ *      relationship rather than the fix.
  *
  *   3. FIRST-TAP-IS-HOVER. WebKit swallows the first tap's click on any element whose `mouseenter`
  *      mutates the DOM. No emulator reproduces it — Playwright's touch emulation is not WebKit's
@@ -54,39 +64,77 @@ const rec = (name, ok, msg) => {
     await p.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), Math.round(total * 0.35));
     await p.waitForTimeout(600);
 
-    const before = await p.evaluate(() => ({
+    /* THE BAR MOVE, and it is the one case setViewportSize cannot produce. `resize` fires and the
+       large viewport does not change; the page's box therefore does not change; nothing may
+       happen. Eight of them in a row, because on iOS that is one scroll gesture. */
+    const bar = await p.evaluate(async () => {
+      const st = () => ({
+        gy: window.__hh.groundY(), docH: document.documentElement.scrollHeight,
+        top: window.__hh.index().top, canvas: document.querySelector('#gl canvas').height,
+        cell: document.querySelector('.icell')
+      });
+      const before = st();
+      const t0 = performance.now();
+      for (let k = 0; k < 8; k++) dispatchEvent(new Event('resize'));
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const cost = performance.now() - t0;
+      const after = st();
+      return { cost, same: before.gy === after.gy && before.docH === after.docH &&
+                           before.top === after.top && before.canvas === after.canvas &&
+                           before.cell === after.cell,
+               gy: [before.gy, after.gy], docH: [before.docH, after.docH] };
+    });
+    rec('resize_with_an_unchanged_box_does_nothing', bar.same,
+        `8 bar moves in ${bar.cost.toFixed(1)}ms — ground ${bar.gy[0]} -> ${bar.gy[1]}, ` +
+        `runway ${bar.docH[0]} -> ${bar.docH[1]}`);
+
+    const shot = () => ({
       docH: document.documentElement.scrollHeight,
       y: scrollY,
       hud: document.querySelector('#hud .num').textContent + ' ' +
            document.querySelector('#hud .unit').textContent,
-      canvas: [document.getElementById('gl').querySelector('canvas').width,
-               document.getElementById('gl').querySelector('canvas').height],
-    }));
+      canvas: [document.querySelector('#gl canvas').width,
+               document.querySelector('#gl canvas').height],
+      box: [document.querySelector('#gl canvas').clientWidth,
+            document.querySelector('#gl canvas').clientHeight],
+      dpr: Math.min(devicePixelRatio, window.__hh.index().DPR_CAP),
+      // where the shelf's arithmetic SAYS it starts, against where it actually does
+      top: window.__hh.index().top,
+      real: Math.round(document.getElementById('index').getBoundingClientRect().top + scrollY)
+    });
 
-    // the URL bar hides. Time the handler the page has bound to it.
+    const before = await p.evaluate(shot);
+    // stamp a cell, so a rebuild can be told from a no-op by node identity rather than by count
+    await p.evaluate(() => { document.querySelector('.icell').dataset.stamp = '1'; });
+
+    /* A GENUINE viewport height change — a rotation, not a bar move. The shelf's layout is a pure
+       function of the WIDTH, so none of it may be rebuilt; only where it starts moves. */
     const t0 = Date.now();
     await p.setViewportSize({ width: PHONE.width, height: COLLAPSED });
     await p.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
     const cost = Date.now() - t0;
 
-    const after = await p.evaluate(() => ({
-      docH: document.documentElement.scrollHeight,
-      y: scrollY,
-      hud: document.querySelector('#hud .num').textContent + ' ' +
-           document.querySelector('#hud .unit').textContent,
-      canvas: [document.getElementById('gl').querySelector('canvas').width,
-               document.getElementById('gl').querySelector('canvas').height],
-    }));
+    const after = await p.evaluate(shot);
+    const kept = await p.evaluate(() => document.querySelector('.icell').dataset.stamp === '1');
 
-    rec('urlbar_does_not_move_the_runway', before.docH === after.docH,
-        `runway ${before.docH} -> ${after.docH} px (${after.docH - before.docH >= 0 ? '+' : ''}` +
-        `${after.docH - before.docH}) when the bar hides`);
     rec('urlbar_does_not_move_the_moment', before.hud === after.hud,
         `counter ${before.hud} -> ${after.hud} at scrollY ${before.y} -> ${after.y}`);
-    rec('urlbar_resize_is_affordable', cost < 250, `${cost}ms of work on one bar collapse`);
-    rec('canvas_follows_its_box',
-        after.canvas[1] !== before.canvas[1],
-        `canvas ${before.canvas.join('x')} -> ${after.canvas.join('x')}`);
+    rec('height_change_does_not_rebuild_the_shelf', kept,
+        `236 cells and two WebP soil bakes ${kept ? 'reused' : 'REBUILT'} for a height-only change`);
+    rec('height_change_is_affordable', cost < 250,
+        `${cost}ms of work on one genuine viewport height change`);
+    rec('runway_matches_the_shelf',
+        before.top === before.real && after.top === after.real,
+        `indexTop() vs the shelf's real document offset: ${before.top}/${before.real} -> ` +
+        `${after.top}/${after.real}`);
+    /* THE MAP'S RULE, ASSERTED AS A RELATIONSHIP. Not "did the canvas change" — that passed in
+       round 1 at 563ms a go — but "is the canvas exactly its own box at the page's density",
+       which is false the moment anything sizes it from a window number again. */
+    rec('canvas_is_its_own_box',
+        after.canvas[0] === Math.round(after.box[0] * after.dpr) &&
+        after.canvas[1] === Math.round(after.box[1] * after.dpr) &&
+        before.canvas[1] === Math.round(before.box[1] * before.dpr),
+        `canvas ${after.canvas.join('x')} = box ${after.box.join('x')} x dpr ${after.dpr}`);
     await p.close();
   }
 
@@ -173,6 +221,15 @@ const rec = (name, ok, msg) => {
 
     await p.close();
   }
+
+  /* THE HALF THAT IS NOT A GATE HERE AND CANNOT BE. Everything above runs in Chromium with no
+     browser chrome in it, so `lvh`, `svh` and `dvh` are all the same number and a viewport resize
+     moves all three — the fix is invisible to this file by construction, and the two assertions
+     that look like they cover it (`resize_with_an_unchanged_box_does_nothing`, `canvas_is_its_own
+     _box`) cover the MECHANISM, not the device. Ruled with Dustin in round 2: the device claim is
+     his pass, stated as one, rather than faked here. */
+  console.log('\n-- device gate, not asserted here: on a real iPhone, scrolling the bar in and out\n' +
+              '   mid-piece must move neither the ground line nor the shelf, and must not hitch.');
 
   const bad = out.filter(r => !r.ok).length;
   console.log(`\n${out.length - bad}/${out.length}`);

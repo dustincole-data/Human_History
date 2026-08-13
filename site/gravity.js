@@ -107,7 +107,12 @@ setIntro(
 
 const host = document.getElementById('gl');
 const cvs = document.createElement('canvas');
-cvs.style.cssText = 'position:fixed;inset:0;width:100%;height:100%';
+/* 08 round 2: `height:100%` here resolved against the INITIAL CONTAINING BLOCK, not against the
+   host — a fixed box with `inset:0` ignores its parent — so the canvas was the dynamic viewport
+   however the host was sized. It takes the host's `lvh` height instead, and it is the element the
+   ResizeObserver watches: the map's rule is that a fixed canvas re-syncs from ITS OWN BOX, and
+   this is that box. */
+cvs.style.cssText = 'position:fixed;inset:0 0 auto 0;width:100%;height:100vh;height:100lvh';
 host.appendChild(cvs);
 const ctx = cvs.getContext('2d');
 
@@ -275,9 +280,39 @@ const DRAW_H = 132;
 const DPR_CAP = 2;
 
 let wasNarrow = false;
+let lastW = -1, lastH = -1, lastDpr = 0;
+
+/* TICKET 08 ROUND 2 — THE PAGE MEASURES ITSELF IN ITS OWN BOX, AND `innerHeight` IS GONE.
+   Ruled by Dustin from options, and it is one ruling with two reds under it.
+
+   `innerHeight` is the number iOS lies about: the URL bar hides and it goes 844 -> 745, so
+   everything computed from it moved. Measured, at a scroll position the visitor had not left:
+   the GROUND LINE went 658.3 -> 581.1, seventy-seven pixels, on a page whose 13 says the ground
+   never moves; an object in the air jumped 29.7px; and the runway lost 198px, sliding the shelf's
+   real document top from 89,924 to 89,726 under the reader. Round 1 also priced the handler at
+   563ms — that number did NOT reproduce (157-229ms over six collapses on an idle laptop, median
+   179 against a 250 budget), so the cost was the machine and the MOVEMENT was the defect.
+
+   So W and H are the canvas's own box, which the stylesheet holds at `lvh`. On iOS a bar move
+   does not change that box, this does not run, and all three numbers stay still. On a desktop
+   `lvh` is the window, so the behaviour there is exactly what it was. There is no branch and no
+   platform test, which is the point of choosing the unit rather than the reader.
+
+   THE GUARD IS THE BOX, NOT THE EVENT. Both a ResizeObserver on the canvas and `window.resize`
+   call this — `resize` is kept only because it is the one thing that fires on a device-pixel-ratio
+   change, which no ResizeObserver sees — and neither of them does any work unless the box or the
+   density actually moved. A bar collapse still fires `resize`; it now returns on the next line.
+
+   AND THE SHELF'S HALF IS WIDTH-ONLY. `measure()` reads a width and never a height, so a height
+   change was rebuilding all 236 cells and re-encoding two soil textures to WebP data URLs — 56ms
+   of the 179 — to arrive at byte-identical markup. It gets `setTop` instead, which is a number. */
 function fit() {
-  W = innerWidth; H = innerHeight;
-  dpr = Math.min(devicePixelRatio, DPR_CAP);
+  const w = cvs.clientWidth, h = cvs.clientHeight;
+  const dp = Math.min(devicePixelRatio, DPR_CAP);
+  if (w === lastW && h === lastH && dp === lastDpr) return;
+  const reflow = w !== lastW || dp !== lastDpr;     // the only two things the shelf's layout reads
+  lastW = w; lastH = h; lastDpr = dp;
+  W = w; H = h; dpr = dp;
   cvs.width = Math.round(W * dpr); cvs.height = Math.round(H * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bakeSurface();
@@ -295,11 +330,13 @@ function fit() {
     if (!d.down) d.prepped = false;               // the landing solve is against a surface that moved
     if (d.atoms) { if (flip) rebuild(d); else d.laid = false; }
   }
-  /* The shelf wraps against the viewport, so it is laid out again — but only once it exists;
-     fit() runs during module init, before there is a TOTAL to hang it under. The spacer is
-     re-set here too: its height is a function of innerHeight, so a resize that did not move it
-     would leave the piece's own runway and the shelf's top disagreeing about where TOTAL is. */
-  if (indexBuilt) { setSpacer(); INDEX.build(indexTop()); }
+  /* The shelf wraps against the width, so it is laid out again — but only once it exists; fit()
+     runs during module init, before there is a TOTAL to hang it under. The spacer is re-set
+     either way: its height is a function of H, so a change that did not move it would leave the
+     piece's own runway and the shelf's top disagreeing about where TOTAL is. A height change
+     moves where the shelf STARTS and not one pixel of what is in it, and those are two different
+     calls now. */
+  if (indexBuilt) { setSpacer(); if (reflow) INDEX.build(indexTop(), W); else INDEX.setTop(indexTop()); }
 }
 let indexBuilt = false;
 
@@ -593,19 +630,26 @@ let reach = 0;                                        // how far the light of th
    So there is a SECOND screen between them, and it is the stop itself: the last thing breaks, the
    piece goes out over the screen that follows, and then there is one screen of nothing before the
    shelf. 01 asked for a quiet stop rather than a finale, and a screen of dark ground is what one
-   is. */
+   is.
+
+   08 ROUND 2: the two screens are H, the canvas's own box, and no longer `innerHeight`. The
+   runway therefore stops being a function of the URL bar — it was losing the 99px bar twice over,
+   and the shelf is laid out as absolute arithmetic precisely so that nothing about it races. Both
+   of these read the same H as the ground line does, so there is one number on the page and the
+   two arithmetics cannot drift apart. */
 const spacerEl = document.getElementById('spacer');
-const setSpacer = () => { spacerEl.style.height = (TOTAL + innerHeight * 2) + 'px'; };
-const indexTop = () => TOTAL + innerHeight * 2;
+const setSpacer = () => { spacerEl.style.height = (TOTAL + H * 2) + 'px'; };
+const indexTop = () => TOTAL + H * 2;
 
 fit();
+new ResizeObserver(fit).observe(cvs);             // the box. See fit() for why `resize` is still here
 addEventListener('resize', fit);
 setSpacer();
 
 /* Reached by this same scrollbar and by nothing else: no route, no click, no transition to wait
    on. The whole layout is built here, out of the baked thumbnail dimensions, before a single
    photograph of it is fetched. */
-INDEX.build(indexTop());
+INDEX.build(indexTop(), W);
 indexBuilt = true;
 const glEl = document.getElementById('gl'), hudEl = document.getElementById('hud');
 const markEl = document.getElementById('mark');    // 14 — the signature, on the piece

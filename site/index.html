@@ -46,7 +46,18 @@
   body{font-family:'Archivo',ui-sans-serif,system-ui,sans-serif;color:#eef2f7;
        -webkit-font-smoothing:antialiased;overflow-x:hidden}
   canvas{display:block}
-  #gl{position:fixed;inset:0;z-index:0}
+  /* TICKET 08 ROUND 2 — `lvh`, AND IT IS THE WHOLE FIX.
+     `100vh` on iOS is the bar-retracted height and is stable; `100%` of the initial containing
+     block is not — it is the DYNAMIC viewport, so the box shrinks and grows every time the URL
+     bar moves and a canvas sized from it re-bakes on an ordinary scroll gesture. `lvh` is that
+     stable height said explicitly rather than relied on, and the `vh` line before it is the
+     fallback for anything that predates the unit. The world is drawn at this height at every bar
+     position; when the bar is showing it covers the bottom of it, which is deep soil and nothing
+     else (the ground line is at 0.78 of it, 87px clear of the shortest viewport).
+     The FURNITURE deliberately does not follow this rule — #intro, #hint and the signature are
+     bottom-anchored to the viewport, because a control has to stay reachable while the world
+     stays still. */
+  #gl{position:fixed;inset:0 0 auto 0;height:100vh;height:100lvh;z-index:0}
   #spacer{position:relative;z-index:1;pointer-events:none}
 
   /* Every word on the page is one of these: positioned individually, crisp DOM text over the

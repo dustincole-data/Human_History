@@ -282,8 +282,11 @@ function sky(year, skyH, w) {
    cells are absolutely positioned out of it, so there is no reflow to race and the no-collision
    contract is a sum rather than a hope. */
 
-function measure() {
-  W = innerWidth;
+function measure(w) {
+  /* 08 round 2: handed the piece's own W rather than reading `innerWidth`, so both surfaces are
+     laid out against one number. It is the canvas's box, which is also the width this section
+     actually gets in flow — `innerWidth` includes a classic scrollbar and this element does not. */
+  W = w;
   const narrow = W < 720;
   THUMB_H = narrow ? THUMB_NARROW : THUMB_WIDE;
   const gut = narrow ? GUTTER_N : GUTTER_W;
@@ -340,9 +343,9 @@ function measure() {
 
 /* ------------------------------------------------------------------ building it */
 
-export function build(top) {
+export function build(top, w) {
   INDEX_TOP = top;
-  const { skyH, rowH, gut } = measure();
+  const { skyH, rowH, gut } = measure(w);
   const dpr = Math.min(devicePixelRatio, DPR_CAP);
   /* WebP rather than PNG: the strip is 2,880 device px of grain and a base64 PNG of it is well
      over a megabyte of string. It is a texture, and a lossy texture is a texture. */
@@ -603,6 +606,14 @@ export function close() {
    So: open at TOTAL, shut 0.15 of a screen before the shelf arrives. */
 export const fadeAt = (y, H) =>
   Math.max(0, Math.min(1, (y - (INDEX_TOP - H * 2)) / (H * 0.85)));
+
+/* 08 round 2 — WHERE THE SHELF STARTS IS NOT WHAT IS IN IT.
+   `INDEX_TOP` is a single number and the only thing that reads it is the seam's fade; the layout
+   above is a pure function of the WIDTH and never of the height. So a viewport that changed
+   height alone was rebuilding 236 cells and re-encoding two soil textures to WebP data URLs to
+   produce byte-identical markup — 56ms of a 179ms handler, on iOS, on an ordinary scroll gesture.
+   This is that call, without the rebuild. */
+export function setTop(t) { INDEX_TOP = t; }
 
 export const top = () => INDEX_TOP;
 export const height = () => HEIGHT;
