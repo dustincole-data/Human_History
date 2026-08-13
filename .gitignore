@@ -10,3 +10,6 @@ __pycache__/
 
 # harness run logs — the numbers live in the ticket, not in the repo
 prototypes/webgl/harness/*.log
+
+.vercel
+.env*
