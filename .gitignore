@@ -18,6 +18,10 @@ site/httpd.log
 # any time from sourced.json + orig/resolved.json, read only by the review surface. A local
 # working set, not repo content, and the only thing here big enough to matter if it slipped in.
 prototypes/directions/orig/
+# lane A's second-opinion cuts and their comparison sheets — candidates, not masters, and
+# reproducible from orig/ by rematte02.py. Nothing here is shippable until it is promoted.
+prototypes/directions/alt/
+prototypes/directions/rematte-sheet-*.png
 
 .vercel
 .env*
