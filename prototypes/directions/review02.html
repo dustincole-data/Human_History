@@ -30,6 +30,9 @@
   .cell.ate { border-color:#e05a3a; box-shadow:inset 0 0 0 1px #e05a3a; }
   .cell.bg  { border-color:#3ab0e0; box-shadow:inset 0 0 0 1px #3ab0e0; }
   .cell.ate.bg { border-color:#c07ae0; box-shadow:inset 0 0 0 1px #c07ae0; }
+  /* orthogonal to ate/bg — it answers a different question, so it must not compete for the
+     border the fault flags own. Its channel is the cell's own ground. */
+  .cell.ok { background:#101a12; }
   .box { height:var(--cell,240px); display:flex; align-items:center; justify-content:center;
          cursor:zoom-in; }
   .box img { max-width:100%; max-height:100%; }
@@ -46,6 +49,7 @@
   .flags button + button { border-left:1px solid var(--line); }
   .flags button.a.on { background:#e05a3a; color:#fff; }
   .flags button.b.on { background:#3ab0e0; color:#0a0a0a; }
+  .flags button.c.on { background:#5ac07a; color:#0a0a0a; }
 
   /* ---- grounds ---- */
   .g-check { background-image:
@@ -115,9 +119,10 @@
 </header>
 
 <div class="note">
-  <b>ate</b> = it removed part of the object · <b>bg</b> = it left background behind.
-  Click an image to zoom (← → walk · <b>1</b> ate · <b>2</b> bg · <b>s</b> silhouette · <b>b</b> ground · esc).
-  Flags live in this browser only.
+  <b>ate</b> = it removed part of the object · <b>bg</b> = it left background behind ·
+  <b>orig ok</b> = the original photo is fine, the CUT is what is broken (re-matte, do not re-source).
+  Click an image to zoom (← → walk · <b>1</b> ate · <b>2</b> bg · <b>3</b> orig ok · <b>s</b> silhouette ·
+  <b>b</b> ground · esc). Flags live in this browser only.
 </div>
 
 <div id="grid"></div>
@@ -125,7 +130,7 @@
 <div id="zoom">
   <div id="zbar">
     <b id="zk"></b><span id="zn"></span><span class="yr" id="zy"></span>
-    <span class="grp"><button class="a" id="za">1 · ate</button><button class="b" id="zb">2 · bg</button></span>
+    <span class="grp"><button class="a" id="za">1 · ate</button><button class="b" id="zb">2 · bg</button><button class="c" id="zc">3 · orig ok</button></span>
     <span class="grp"><a id="zpage" target="_blank" rel="noopener">source page ↗</a></span>
     <span class="grp" style="margin-left:auto"><button id="zclose">esc</button></span>
   </div>
@@ -193,14 +198,15 @@ function render() {
 
   $('#grid').innerHTML = view.map(r => {
     const fl = flags[r.k] || {};
-    return `<div class="cell ${fl.ate ? 'ate' : ''} ${fl.bg ? 'bg' : ''}" data-k="${r.k}">
+    return `<div class="cell ${fl.ate ? 'ate' : ''} ${fl.bg ? 'bg' : ''} ${fl.ok ? 'ok' : ''}" data-k="${r.k}">
       <div class="box g-${ground} ${sil ? 'sil' : ''}">
         <img loading="lazy" src="img/${r.k}.webp" alt="${r.k}"></div>
       <div class="meta"><span class="k">${r.k}</span><span class="yr">${r.disp}</span></div>
       <div class="nums">${nums(r, key)}</div>
       <div class="flags">
         <button class="a ${fl.ate ? 'on' : ''}" data-f="ate">ate</button>
-        <button class="b ${fl.bg ? 'on' : ''}" data-f="bg">bg</button></div>
+        <button class="b ${fl.bg ? 'on' : ''}" data-f="bg">bg</button>
+        <button class="c ${fl.ok ? 'on' : ''}" data-f="ok">orig ok</button></div>
     </div>`;
   }).join('');
   count();
@@ -215,21 +221,22 @@ function nums(r, key) {
           derived[key] ? `<b>${val(r, key).toFixed(2)}</b>` : ''].join(' ');
 }
 
+const BTN = { ate: 'a', bg: 'b', ok: 'c' };
+
 function count() {
-  const a = Object.values(flags).filter(f => f.ate).length;
-  const b = Object.values(flags).filter(f => f.bg).length;
-  $('#fcount').textContent = `${a} ate · ${b} bg`;
+  const n = w => Object.values(flags).filter(f => f[w]).length;
+  $('#fcount').textContent = `${n('ate')} ate · ${n('bg')} bg · ${n('ok')} orig ok`;
 }
 
 function flag(k, which) {
   const f = flags[k] || (flags[k] = {});
   f[which] = !f[which];
-  if (!f.ate && !f.bg) delete flags[k];
+  if (!f.ate && !f.bg && !f.ok) delete flags[k];
   localStorage.setItem(FKEY, JSON.stringify(flags));
   const cell = document.querySelector(`.cell[data-k="${k}"]`);
   if (cell) {
     cell.classList.toggle(which, !!(flags[k] && flags[k][which]));
-    cell.querySelector(`.flags .${which === 'ate' ? 'a' : 'b'}`)
+    cell.querySelector(`.flags .${BTN[which]}`)
         .classList.toggle('on', !!(flags[k] && flags[k][which]));
   }
   if (zi >= 0) syncZoomFlags();
@@ -256,7 +263,8 @@ $('#onlyflag').onclick = () => { onlyFlag = !onlyFlag; $('#onlyflag').classList.
 $('#size').oninput = e => document.documentElement.style.setProperty('--cell', e.target.value + 'px');
 $('#copy').onclick = () => {
   const pick = w => Object.keys(flags).filter(k => flags[k][w]).sort();
-  const t = `ate (${pick('ate').length}):\n${pick('ate').join('\n')}\n\nbg (${pick('bg').length}):\n${pick('bg').join('\n')}`;
+  const list = w => `${w} (${pick(w).length}):\n${pick(w).join('\n')}`;
+  const t = `${list('ate')}\n\n${list('bg')}\n\n${list('ok')}`;
   navigator.clipboard.writeText(t).then(() => { $('#copy').textContent = 'copied';
     setTimeout(() => $('#copy').textContent = 'copy keys', 900); });
 };
@@ -291,9 +299,11 @@ function openZoom(i) {
 function syncZoomFlags() {
   const f = flags[view[zi].k] || {};
   $('#za').classList.toggle('on', !!f.ate); $('#zb').classList.toggle('on', !!f.bg);
+  $('#zc').classList.toggle('on', !!f.ok);
 }
 $('#za').onclick = () => flag(view[zi].k, 'ate');
 $('#zb').onclick = () => flag(view[zi].k, 'bg');
+$('#zc').onclick = () => flag(view[zi].k, 'ok');
 $('#zclose').onclick = closeZoom;
 function closeZoom() { $('#zoom').classList.remove('open'); zi = -1; }
 
@@ -309,6 +319,7 @@ addEventListener('keydown', e => {
   else if (k === 'arrowleft' || k === 'k') openZoom(zi - 1);
   else if (k === '1') flag(view[zi].k, 'ate');
   else if (k === '2') flag(view[zi].k, 'bg');
+  else if (k === '3') flag(view[zi].k, 'ok');
 });
 setGround('check');
 </script>

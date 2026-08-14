@@ -110,6 +110,15 @@ ok('zoom walks with arrows', z0 !== z1, `${z0} -> ${z1}`);
 await page.keyboard.press('1'); await page.waitForTimeout(150);
 const zf = await page.$eval('#za', e => e.className);
 ok('zoom key 1 flags ate', zf.includes('on'), zf);
+// `ok` is the flag he walks all 236 on, and it is orthogonal to the other two rather than a
+// third value of them — so it is asserted on the STORED value, not just the lit button: a
+// class that toggles without persisting loses the whole pass and looks right while doing it.
+await page.keyboard.press('3'); await page.waitForTimeout(150);
+const [zc, stored3] = await page.evaluate(() => [
+  document.querySelector('#zc').className,
+  JSON.parse(localStorage.getItem('hh02.flags') || '{}')[view[zi].k] || {}]);
+ok('zoom key 3 flags orig ok, and it persists', zc.includes('on') && stored3.ok === true,
+   `${zc} / ${JSON.stringify(stored3)}`);
 const zimg = await page.$eval('#zimg', e => [e.complete, e.naturalWidth]);
 ok('zoom image decodes', zimg[0] && zimg[1] > 0, JSON.stringify(zimg));
 // asserted on the RENDERED BOX, not the class — the class was right while the pane was
