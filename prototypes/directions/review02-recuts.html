@@ -1,0 +1,240 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>02 lane A — re-cut review, 74</title>
+<style>
+  :root { --chrome:#191919; --ink:#e8e6e2; --dim:#8c8880; --line:#2f2d2a; --soil:#2b2620; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--chrome); color:var(--ink);
+         font:13px/1.4 ui-sans-serif,system-ui,"Segoe UI",sans-serif; }
+  a { color:#9db8d8; }
+
+  header { position:sticky; top:0; z-index:5; background:#141414; border-bottom:1px solid var(--line);
+           padding:8px 12px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+  header b { font-weight:600; letter-spacing:.02em; }
+  .grp { display:flex; gap:6px; align-items:center; }
+  .grp > label { color:var(--dim); }
+  select, button { background:#232323; color:var(--ink); border:1px solid #3a3a3a;
+           border-radius:3px; padding:3px 6px; font:inherit; }
+  button { cursor:pointer; }
+  button:hover { border-color:#666; }
+  button.on { background:#e8e6e2; color:#141414; border-color:#e8e6e2; }
+  .note { color:var(--dim); padding:6px 12px; }
+
+  #list { padding:12px; display:flex; flex-direction:column; gap:4px; }
+  .row { border:1px solid var(--line); border-radius:3px; background:#101010; padding:8px; }
+  .row.active { border-color:#e8e6e2; }
+  .row.original { box-shadow:inset 0 0 0 1px #8c8880; }
+  .row.drop { box-shadow:inset 0 0 0 1px #e05a3a; }
+  .row.promote { box-shadow:inset 0 0 0 1px #5ac07a; }
+  .row.remat { box-shadow:inset 0 0 0 1px #3ab0e0; }
+
+  .rhead { display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; margin-bottom:6px; }
+  .rhead .k { font-weight:600; }
+  .rhead .n { color:var(--ink); }
+  .rhead .yr, .rhead .mv { color:var(--dim); }
+  .rhead .nums { margin-left:auto; color:var(--dim); font:11px/1.4 ui-monospace,Consolas,monospace; }
+  .rhead .nums .hot { color:#e0a03a; }
+
+  .triple { display:flex; gap:2px; }
+  .box { flex:1; min-width:0; height:var(--cell,320px); display:flex; align-items:center;
+         justify-content:center; position:relative; }
+  .box img { max-width:100%; max-height:100%; }
+  .box .miss { color:var(--dim); font-size:11px; }
+  .tag { position:absolute; top:6px; left:8px; font-size:11px; color:#000; background:#ffffffcc;
+         padding:1px 5px; border-radius:2px; }
+
+  .g-check { background-image:
+      linear-gradient(45deg,#999 25%,transparent 25%,transparent 75%,#999 75%),
+      linear-gradient(45deg,#999 25%,#ddd 25%,#ddd 75%,#999 75%);
+      background-size:16px 16px; background-position:0 0,8px 8px; }
+  .g-white { background:#fff; }
+  .g-black { background:#000; }
+  .g-soil  { background:var(--soil); }
+  .sil img { filter:brightness(0) saturate(0); }
+  .sil.g-black img, .sil.g-soil img { filter:brightness(0) invert(1); }
+
+  .flags { display:flex; gap:2px; margin-top:6px; }
+  .flags button { flex:1; font-size:11px; padding:4px; color:var(--dim); }
+  .flags button.og.on { background:#8c8880; color:#0a0a0a; border-color:#8c8880; }
+  .flags button.dp.on { background:#e05a3a; color:#fff; border-color:#e05a3a; }
+  .flags button.pr.on { background:#5ac07a; color:#0a0a0a; border-color:#5ac07a; }
+  .flags button.rm.on { background:#3ab0e0; color:#0a0a0a; border-color:#3ab0e0; }
+</style>
+
+<header>
+  <b>02 lane A · re-cut review</b>
+  <span class="grp"><span id="count"></span></span>
+
+  <span class="grp"><label>ground</label>
+    <button data-g="check">checker</button><button data-g="white">white</button>
+    <button data-g="black">black</button><button data-g="soil">soil</button>
+    <button id="silbtn" title="alpha as a solid shape, on the cut columns only">silhouette</button>
+  </span>
+
+  <span class="grp"><label>show</label>
+    <select id="filt">
+      <option value="">all</option>
+      <option value="unreviewed">unreviewed</option>
+      <option value="original">1 · original</option>
+      <option value="drop">2 · drop / new photo</option>
+      <option value="promote">3 · promote</option>
+      <option value="remat">4 · re-matte</option>
+    </select>
+  </span>
+
+  <span class="grp"><label>size</label>
+    <input type="range" id="size" min="160" max="520" step="20" value="320" style="width:90px">
+  </span>
+
+  <span class="grp" style="margin-left:auto">
+    <span id="fcount" style="color:var(--dim)"></span>
+    <button id="copy">copy keys</button>
+    <button id="clear">clear flags</button>
+  </span>
+</header>
+
+<div class="note">
+  Ranked biggest change first (birefnet's isl/holes move vs the shipped master — the number the
+  sheets were ordered by). <b>1 · original</b> = current cut stays, reject the re-cut ·
+  <b>2 · drop / new photo</b> = this photo's no good, source a different one of the same item or
+  drop it · <b>3 · promote</b> = swap the birefnet re-cut in · <b>4 · re-matte</b> = neither cut
+  is right but the photo's fine, try another cut on it. Click a row to make it active, then press
+  the number · <b>↑ ↓</b> walk rows · <b>s</b> silhouette · <b>b</b> ground. Flags live in this
+  browser only. Nothing here writes img/ or site/.
+</div>
+
+<div id="list"></div>
+
+<script>
+const FKEY = 'hh02.recut.flags';
+let rows = [], view = [], flags = JSON.parse(localStorage.getItem(FKEY) || '{}');
+let ground = 'check', sil = false, filt = '', activeK = null;
+
+const $ = s => document.querySelector(s);
+const hot = (t, on) => on ? `<span class="hot">${t}</span>` : t;
+
+fetch('review02-recuts.json').then(r => r.json()).then(d => { rows = d; render(); });
+
+function render() {
+  view = rows.filter(r => {
+    const f = flags[r.k];
+    if (filt === 'unreviewed') return !f;
+    if (filt) return f === filt;
+    return true;
+  });
+  $('#count').textContent = `${view.length} / ${rows.length}`;
+  $('#list').innerHTML = view.map(row).join('');
+  count();
+}
+
+function row(r) {
+  const f = flags[r.k];
+  const o = r.new;
+  const nums = `cov ${hot(r.cov.toFixed(2)+'→'+o.cov.toFixed(2), o.cov < r.cov)}  `
+             + `isl ${hot(r.isl+'→'+o.isl, o.isl < r.isl)}  `
+             + `holes ${hot(r.holes+'→'+o.holes, o.holes < r.holes)}  `
+             + `halo ${hot(r.halo+'→'+o.halo, o.halo < r.halo)}`;
+  return `<div class="row ${f || ''} ${r.k === activeK ? 'active' : ''}" data-k="${r.k}">
+    <div class="rhead">
+      <span class="k">${r.k}</span><span class="n">${r.n}</span><span class="yr">${r.disp}</span>
+      <span class="mv">moved ${r.moved}</span>
+      <span class="nums">${nums}</span>
+    </div>
+    <div class="triple">
+      <div class="box g-${ground}"><span class="tag">original</span>${
+        r.o ? `<img loading="lazy" src="orig/${r.k}.jpg">` : '<span class="miss">no original</span>'}</div>
+      <div class="box g-${ground} ${sil ? 'sil' : ''}"><span class="tag">current cut</span>
+        <img loading="lazy" src="img/${r.k}.webp"></div>
+      <div class="box g-${ground} ${sil ? 'sil' : ''}"><span class="tag">re-cut (birefnet)</span>
+        <img loading="lazy" src="alt/${r.k}.png"></div>
+    </div>
+    <div class="flags">
+      <button class="og ${f === 'original' ? 'on' : ''}" data-f="original">1 · original</button>
+      <button class="dp ${f === 'drop' ? 'on' : ''}" data-f="drop">2 · drop / new photo</button>
+      <button class="pr ${f === 'promote' ? 'on' : ''}" data-f="promote">3 · promote</button>
+      <button class="rm ${f === 'remat' ? 'on' : ''}" data-f="remat">4 · re-matte</button>
+    </div>
+  </div>`;
+}
+
+function count() {
+  const n = w => Object.values(flags).filter(v => v === w).length;
+  $('#fcount').textContent =
+    `${n('original')} original · ${n('drop')} drop · ${n('promote')} promote · ${n('remat')} re-matte`;
+}
+
+function setFlag(k, which) {
+  if (flags[k] === which) delete flags[k]; else flags[k] = which;
+  localStorage.setItem(FKEY, JSON.stringify(flags));
+  if (filt) { render(); return; }
+  const el = document.querySelector(`.row[data-k="${k}"]`);
+  if (el) {
+    el.className = `row ${flags[k] || ''} ${k === activeK ? 'active' : ''}`;
+    el.querySelectorAll('.flags button').forEach(b =>
+      b.classList.toggle('on', b.dataset.f === flags[k]));
+  }
+  count();
+}
+
+function setActive(k) {
+  const prev = document.querySelector('.row.active');
+  if (prev) prev.classList.remove('active');
+  activeK = k;
+  const el = document.querySelector(`.row[data-k="${k}"]`);
+  if (el) el.classList.add('active');
+}
+
+function setGround(g) {
+  ground = g;
+  document.querySelectorAll('[data-g]').forEach(b => b.classList.toggle('on', b.dataset.g === g));
+  document.querySelectorAll('.triple .box').forEach((el, i) => {
+    ['check', 'white', 'black', 'soil'].forEach(x => el.classList.toggle('g-' + x, x === g));
+  });
+}
+
+document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => setGround(b.dataset.g));
+$('#silbtn').onclick = () => {
+  sil = !sil; $('#silbtn').classList.toggle('on', sil);
+  document.querySelectorAll('.triple .box:nth-child(2), .triple .box:nth-child(3)')
+    .forEach(el => el.classList.toggle('sil', sil));
+};
+$('#filt').onchange = e => { filt = e.target.value; render(); };
+$('#size').oninput = e => document.documentElement.style.setProperty('--cell', e.target.value + 'px');
+$('#copy').onclick = () => {
+  const pick = w => Object.keys(flags).filter(k => flags[k] === w).sort();
+  const list = w => `${w} (${pick(w).length}):\n${pick(w).join('\n')}`;
+  const t = `${list('original')}\n\n${list('drop')}\n\n${list('promote')}\n\n${list('remat')}`;
+  navigator.clipboard.writeText(t).then(() => { $('#copy').textContent = 'copied';
+    setTimeout(() => $('#copy').textContent = 'copy keys', 900); });
+};
+$('#clear').onclick = () => { if (confirm('clear every flag?')) { flags = {}; localStorage.removeItem(FKEY); render(); } };
+
+$('#list').onclick = e => {
+  const rowEl = e.target.closest('.row'); if (!rowEl) return;
+  setActive(rowEl.dataset.k);
+  const fb = e.target.closest('[data-f]');
+  if (fb) setFlag(rowEl.dataset.k, fb.dataset.f);
+};
+
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  const k = e.key.toLowerCase();
+  if (k === 's') { $('#silbtn').click(); return; }
+  if (k === 'b') { const g = ['check', 'white', 'black', 'soil'];
+                   setGround(g[(g.indexOf(ground) + 1) % 4]); return; }
+  if (!view.length) return;
+  const i = Math.max(0, view.findIndex(r => r.k === activeK));
+  if (k === 'arrowdown' || k === 'j') {
+    const next = view[Math.min(i + 1, view.length - 1)];
+    setActive(next.k);
+    document.querySelector(`.row[data-k="${next.k}"]`).scrollIntoView({ block: 'center' });
+  } else if (k === 'arrowup' || k === 'k') {
+    const prev = view[Math.max(i - 1, 0)];
+    setActive(prev.k);
+    document.querySelector(`.row[data-k="${prev.k}"]`).scrollIntoView({ block: 'center' });
+  } else if (activeK && '1234'.includes(k)) {
+    setFlag(activeK, { 1: 'original', 2: 'drop', 3: 'promote', 4: 'remat' }[k]);
+  }
+});
+setGround('check');
+</script>

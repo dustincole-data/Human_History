@@ -84,3 +84,83 @@ acquisition and matting, not choosing.
 4. Otherwise **matte it** (`matte.py`). Verify by eye; the coverage check catches empty and full frames
    but happily passes a beautifully-cut wrong object.
 5. Record source, licence, credit, and the accession URL.
+
+## Re-cut review 2026-08-14 — Dustin's pass on the 74 `ate` keys, birefnet vs. shipped
+
+Reviewed in `review02-recuts.html` (extends `review02.py --recuts`; source
+`alt/rematte02.json` from `rematte02.py --ate`). 74/74 flagged, one of four:
+**1 original** (current isnet cut stays, reject birefnet) · **2 drop / new photo** (this
+photo's no good — source a different one of the same item, or drop the item) ·
+**3 promote** (birefnet re-cut replaces the master) · **4 re-matte** (neither cut is right,
+photo's fine, needs a third attempt). Flags also live in that page's `localStorage`
+(`hh02.recut.flags`) — this is the durable copy.
+
+**original (7):** bayeux, durerblock, greatwave, kells, rocket, tughra, vhs
+
+**drop (28):** airjordan, apollosuit, aztecserpent, bajaj, batik2, bulb, crossbow, eniac,
+enigma, funangold, godrej, jeep, safetybike, snowgoggles, spinjenny, spitfire, stainedglass,
+stickchart, talwar, telescope, terracotta, trinitron, unitree, v2, visionpro, wampum,
+wattengine, zero
+
+**promote (37):** armor, asantestool, astrolabe, bairdtv, catalhoyuk, chintz, chip, corolla,
+daguerreo, djembe, djidrone, dx7, embraer, floppy, gladius, hyundaipony, igboukwu, jar,
+kashmir, lamassu, lustrebowl, modelt, raspberrypi, ricecooker, rubik, ruware, sasanian,
+seikoquartz, strat, supercub, swissknife, tamagotchi, teddybear, tiffanylamp, tutmask, ute,
+winchester
+
+**remat (2):** dynatac, mughalmini
+
+The 37 are **promoted** — next section. The 28 `drop` keys are unresolved supply work — this
+ticket's original remit. The 2 `remat` keys need a third cut attempt, model/method not yet
+chosen.
+
+## Promoted 2026-08-14 — the 37 replace their masters, and a promotion is not a re-encode
+
+`promote02.py` (new), then `bake_sprites.py`. **37 masters and exactly 37 sprites changed**;
+the bake is deterministic, so the other 199 re-encoded to identical bytes and git shows them
+untouched. Nothing was promoted that Dustin did not flag `3`, and the other three flags are
+untouched.
+
+**The re-encode the plan called for would have been wrong, and visibly.** `rematte02.py` cuts
+the *whole original frame at full resolution* — armor's re-cut is 2679x4000, 9 MB — while every
+shipped master is `crop(thumbnail(original, 900))` at WEBP q88/method 5 (`source5.py`). Handing
+`alt/<k>.png` straight to WEBP keeps the transparent margin, and that margin is part of the box
+gravity.js scales to 132 px: **the promoted objects would have arrived drawn at a fraction of
+their neighbours' size.** So the frame goes back on the master's terms first — 900 px cap, alpha
+bbox crop (`getbbox()` is the alpha's bbox here: rembg zeroes RGB wherever alpha is 0, verified),
+then source5's encode unchanged.
+
+**One thing the shipped pipeline never had to do, and it had to be added.** The masters were cut
+from an already-downsampled photo, so nothing was ever resampled across their own alpha edge. A
+re-cut is, and a straight RGBA LANCZOS pass averages the object's colour against the zeroed RGB
+under the transparency — **a dark fringe around all 37, the `halo` defect this ticket's own
+review surface exists to catch, manufactured by the promotion.** The resize is premultiplied.
+Measured after: halo **1.54 / 1.79 / 1.68 px** on armor / bairdtv / tutmask, against the ~2 px
+line the docstring draws.
+
+Geometry moved where the mask moved, which is the point: armor 279x508 → 400x733 and bairdtv
+513x291 → 839x500 (the cut stopped eating); tutmask 549x770 → 418x582 and rubik 481x527 →
+366x402 (it stopped keeping). astrolabe 829x1050 → 628x794 is the **frame cap, not the mask** —
+its master predates source5 and came from the 1200 px generation. Site-invisible either way: the
+bake caps every sprite at 264 px tall.
+
+**`bake_sprites.py` was dead and nobody had noticed.** It read `directions/data.js`; the file
+moved to `site/` in `257a1b1`, the commit that last touched the script. It has not run since the
+site root moved. Fixed to the same `../../site/` shape `review02.py` already used — path only.
+
+**Gate chain, in order, all green.** sweep10 localhost **43/43** · sweep11i localhost **26/26** ·
+production sweep10 **43/43, and it finished there** · `review02.py` re-measured all 236 and
+`review02.verify.mjs` **26/26**.
+
+**`frame_budget` went red once, and it was the machine for the fifth time.** First production
+run: warm median 16.7 ms — *normal* — but p95 floor **35.9 ms** against a 25 ms gate. Production
+was still serving the pre-promotion sprites, so the change could not be the cause. Re-run minutes
+later, **same build, same origin**: p95 floor **19.9 ms**, worst pass 20.4, 43/43. Prod-vs-prod is
+a tighter control than the origin back-to-back [06](06-visual-treatment.md) round 10 used, and it
+says the same thing that round, [08](08-accessibility-and-mobile.md) round 2 and
+[15](15-deploy-and-the-card.md) each said: **the laptop moves this number, the CDN never has.**
+No ruling rests on the red.
+
+Also noted, harmless: a `review02.py --serve` orphaned from the previous session still holds
+8813. It is rooted in the same directory and served files byte-identical to disk (hashes
+compared), so the 26/26 measured the new masters, not a stale copy.

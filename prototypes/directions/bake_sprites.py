@@ -30,7 +30,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 MASTER = os.path.join(HERE, "img")
 OUT = os.path.abspath(os.path.join(HERE, "..", "..", "site", "img"))
-DATA = os.path.join(HERE, "data.js")
+DATA = os.path.abspath(os.path.join(HERE, "..", "..", "site", "data.js"))
 
 DRAW_PX = 132       # gravity.js prep(): hh
 DPR_CAP = 2         # gravity.js fit(): Math.min(devicePixelRatio, 2)

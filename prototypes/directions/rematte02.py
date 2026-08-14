@@ -88,8 +88,12 @@ def recut(k, sess):
     src = os.path.join(ORIG, k + ".jpg")
     if not os.path.exists(src):
         return None, "no original"
-    out = remove(Image.open(src).convert("RGB"), session=sess)
     dest = os.path.join(ALT, k + ".png")
+    # birefnet is ~5 min/item on this CPU, so 74 of them is a run a sleeping laptop can
+    # interrupt. The cut is deterministic, so an existing alt/ file is resumed, not redone.
+    if os.path.exists(dest):
+        return dest, None
+    out = remove(Image.open(src).convert("RGB"), session=sess)
     out.save(dest)
     return dest, None
 

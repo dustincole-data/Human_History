@@ -8,6 +8,7 @@ surface that shows them over four grounds at once.
 
     python review02.py                 # measure all 236 shipped masters -> review02.json
     python review02.py --serve         # measure (if absent) and serve on 127.0.0.1:8813
+    python review02.py --recuts        # rank alt/'s re-cuts -> review02-recuts.json (see below)
 
 8813, not the harness's 8812: sweep10 defaults to `http://127.0.0.1:8812` and expects `site/`
 to be what is behind it, so a review server left running on that port silently becomes the
@@ -17,6 +18,13 @@ Reads:  ../../site/data.js (the 236 that shipped, and their record fields)
         sourced.json       (the DIRECT image URL each master was cut from)
         img/<key>.webp     (the masters — opened read-only)
 Writes: review02.json      (this directory only; nothing under site/ is read-written or served)
+
+--recuts is lane A's second surface: rematte02.py --ate already ran measure() on every shipped
+master and its birefnet re-cut (alt/rematte02.json). This never re-measures — it just ranks
+those keys by the same isl/holes-moved score rematte02.py sorts its sheets by, and merges in
+each key's own review02.json row for metadata, so review02-recuts.html can show
+original | current cut | re-cut per item without touching img/ or site/. Serves alongside
+review02.html on the same 8813 once --serve is passed.
 
 The two failure modes, and the signal that finds each:
 
@@ -120,9 +128,27 @@ def build():
     print(f"{len(rows)} measured -> review02.json   ({nourl} have no direct source URL)")
 
 
+def build_recuts():
+    """The 74 `ate` keys, ranked by how much birefnet moved them. Reads alt/rematte02.json
+    (old vs new measure(), already computed by rematte02.py --ate) and review02.json (this
+    key's own shipped-master row); writes review02-recuts.json. Never re-measures."""
+    alt = os.path.join(HERE, "alt")
+    log = json.load(open(os.path.join(alt, "rematte02.json"), encoding="utf-8"))
+    base = {r["k"]: r for r in json.load(open(OUT, encoding="utf-8"))}
+    moved = lambda k: ((log[k]["old"]["isl"] - log[k]["new"]["isl"])
+                       + (log[k]["old"]["holes"] - log[k]["new"]["holes"]) * 0.2)
+    rows = [dict(base[k], moved=round(moved(k), 3), new=log[k]["new"])
+            for k in sorted(log, key=moved, reverse=True) if k in base]
+    dest = os.path.join(HERE, "review02-recuts.json")
+    json.dump(rows, open(dest, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    print(f"{len(rows)} recuts -> review02-recuts.json")
+
+
 if __name__ == "__main__":
     if "--serve" not in sys.argv or not os.path.exists(OUT):
         build()
+    if "--recuts" in sys.argv:
+        build_recuts()
     if "--serve" in sys.argv:
         os.chdir(HERE)
         import http.server, socketserver
@@ -130,4 +156,6 @@ if __name__ == "__main__":
         with socketserver.TCPServer(("127.0.0.1", 8813),
                                     http.server.SimpleHTTPRequestHandler) as srv:
             print("http://127.0.0.1:8813/review02.html")
+            if "--recuts" in sys.argv:
+                print("http://127.0.0.1:8813/review02-recuts.html")
             srv.serve_forever()
