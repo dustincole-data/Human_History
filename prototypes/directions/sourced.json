@@ -1137,12 +1137,12 @@
   "datesrc": "authored"
  },
  "enigma": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Enigma-IMG_0487-black.jpg/1280px-Enigma-IMG_0487-black.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Enigma-IMG_0498-white.jpg/1280px-Enigma-IMG_0498-white.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC BY-SA 2.0 fr",
   "credit": "Rama",
-  "page": "https://commons.wikimedia.org/wiki/File:Enigma-IMG_0487-black.jpg",
-  "found": "Enigma-IMG 0487-black.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Enigma-IMG_0498-white.jpg",
+  "found": "Enigma-IMG 0498-white.jpg",
   "key": "enigma",
   "name": "Enigma machine",
   "year": 1938,
@@ -1150,12 +1150,13 @@
   "region": "Germany",
   "cov": 0.781,
   "size": [
-   864,
-   496
+   785,
+   810
   ],
-  "frag": 0.781,
+  "frag": 0.765,
   "dategap": null,
-  "datesrc": "authored"
+  "datesrc": "authored",
+  "instdate": "Taken on 27 October 2011, 11:38 (accordi"
  },
  "vespa": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Piaggio_Vespa_in_M%C3%BCnchen.jpg/1280px-Piaggio_Vespa_in_M%C3%BCnchen.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -2281,13 +2282,13 @@
   "datesrc": "authored"
  },
  "stainedglass": {
-  "url": "https://images.metmuseum.org/CRDImages/cl/original/DP103910.jpg",
+  "url": "https://images.metmuseum.org/CRDImages/md/original/sf30-73-258ats1.jpg",
   "src": "The Met",
   "lic": "CC0",
-  "credit": "The Cloisters Collection, 1965",
-  "page": "https://www.metmuseum.org/art/collection/search/471934",
-  "found": "Stained Glass Panel with Queen Kunigunde",
-  "instdate": "1340–50",
+  "credit": "Gift of George D. Pratt, 1930",
+  "page": "https://www.metmuseum.org/art/collection/search/467259",
+  "found": "Stained Glass Fragment",
+  "instdate": "1200–1215",
   "key": "stainedglass",
   "name": "Gothic stained-glass panel",
   "year": 1200,
@@ -2298,10 +2299,10 @@
   "spec": "met:stained glass panel Gothic French|panel,glass",
   "cov": 0.551,
   "size": [
-   311,
-   789
+   392,
+   880
   ],
-  "frag": 0.905,
+  "frag": 0.946,
   "dategap": 0,
   "datesrc": "institution"
  },
@@ -2981,13 +2982,13 @@
   "datesrc": "institution"
  },
  "talwar": {
-  "url": "https://images.metmuseum.org/CRDImages/aa/original/DP163746.jpg",
+  "url": "https://images.metmuseum.org/CRDImages/aa/original/36.25.1529_001June2014.jpg",
   "src": "The Met",
   "lic": "CC0",
   "credit": "Bequest of George C. Stone, 1935",
-  "page": "https://www.metmuseum.org/art/collection/search/24328",
-  "found": "Saber (Talwar) with Scabbard",
-  "instdate": "blade, dated A.H. 835/1673 CE; hilt, 19t",
+  "page": "https://www.metmuseum.org/art/collection/search/30983",
+  "found": "Sword (Talwar)",
+  "instdate": "18th–19th century",
   "key": "talwar",
   "name": "Talwar sword",
   "year": 1700,
@@ -2998,11 +2999,11 @@
   "spec": "met:talwar sword Indian hilt|sword,talwar",
   "cov": 0.188,
   "size": [
-   393,
-   777
+   186,
+   624
   ],
-  "frag": 0.866,
-  "dategap": 27,
+  "frag": 0.725,
+  "dategap": 50,
   "datesrc": "institution"
  },
  "chintz": {
@@ -3431,13 +3432,13 @@
   "datesrc": "authored"
  },
  "safetybike": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Rover_safety_bicycle_of_1885_%28right%29.jpg/1280px-Rover_safety_bicycle_of_1885_%28right%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Safety_Bicycle_ca._1890.jpg/1280px-Safety_Bicycle_ca._1890.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY-SA 3.0",
-  "credit": "Jonathan Cardy",
-  "page": "https://commons.wikimedia.org/wiki/File:Rover_safety_bicycle_of_1885_(right).jpg",
-  "found": "Rover safety bicycle of 1885 (right).jpg",
-  "instdate": "2016-08-13 13:02:29",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Kenneth C. Zirkel",
+  "page": "https://commons.wikimedia.org/wiki/File:Safety_Bicycle_ca._1890.jpg",
+  "found": "Safety Bicycle ca. 1890.jpg",
+  "instdate": "2022-09-04 15:14:57",
   "key": "safetybike",
   "name": "Safety bicycle",
   "year": 1885,
@@ -3448,8 +3449,8 @@
   "spec": "com:Rover safety bicycle 1885 museum|safety bicycle,rover|advert,poster,map,portrait",
   "cov": 0.174,
   "size": [
-   788,
-   459
+   421,
+   499
   ],
   "frag": 1.0,
   "dategap": null,
@@ -3806,13 +3807,13 @@
   "datesrc": "authored"
  },
  "jeep": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Willy%27s_MB_Jeep_in_Military_Museum_Luxembourg.jpg/1280px-Willy%27s_MB_Jeep_in_Military_Museum_Luxembourg.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Jeep_Willys_MB._facing_right._Spielvogel.JPG/1280px-Jeep_Willys_MB._facing_right._Spielvogel.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC0",
-  "credit": "Alfvanbeem  https://commons.wikimedia.org/wiki/File:Willy%27s_MB_Jeep_20468017_pic2.JPG",
-  "page": "https://commons.wikimedia.org/wiki/File:Willy%27s_MB_Jeep_in_Military_Museum_Luxembourg.jpg",
-  "found": "Willy's MB Jeep in Military Museum Luxembourg.jpg",
-  "instdate": "2010-02-23 13:11:15",
+  "credit": "For a gallery of some more of my uploaded pictures see:  here.",
+  "page": "https://commons.wikimedia.org/wiki/File:Jeep_Willys_MB._facing_right._Spielvogel.JPG",
+  "found": "Jeep Willys MB. facing right. Spielvogel.JPG",
+  "instdate": "2013-08-18 15:22:44",
   "key": "jeep",
   "name": "Willys Jeep",
   "year": 1941,
@@ -3823,10 +3824,10 @@
   "spec": "com:Willys MB Jeep military vehicle museum|willys,jeep|modern,logo,advert,interior,convoy",
   "cov": 0.234,
   "size": [
-   771,
-   482
+   592,
+   461
   ],
-  "frag": 0.85,
+  "frag": 0.855,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -4681,13 +4682,13 @@
   "datesrc": "institution"
  },
  "aztecserpent": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Turquoise_Mosaic_of_a_Double-Headed_Serpent_%28Mixtec-Aztec%2C_AD_1400-1521%29_-_British_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Aztec_double-headed_serpent_-_Denis_Bourez_-_British_Museum%2C_London.jpg/1280px-Aztec_double-headed_serpent_-_Denis_Bourez_-_British_Museum%2C_London.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC BY 2.0",
-  "credit": "Andres Rueda",
-  "page": "https://commons.wikimedia.org/wiki/File:Turquoise_Mosaic_of_a_Double-Headed_Serpent_(Mixtec-Aztec,_AD_1400-1521)_-_British_Museum.jpg",
-  "found": "Turquoise Mosaic of a Double-Headed Serpent (Mixtec-Aztec, AD 1400-1521) - British Museum.jpg",
-  "instdate": "2012-03-24 14:48",
+  "credit": "Denis Bourez from France",
+  "page": "https://commons.wikimedia.org/wiki/File:Aztec_double-headed_serpent_-_Denis_Bourez_-_British_Museum,_London.jpg",
+  "found": "Aztec double-headed serpent - Denis Bourez - British Museum, London.jpg",
+  "instdate": "2013-04-27 13:58",
   "key": "aztecserpent",
   "name": "Aztec double-headed serpent",
   "year": 1450,
@@ -4698,10 +4699,10 @@
   "spec": "com:Aztec double-headed serpent turquoise mosaic British Museum|serpent|calendar,stone,codex,map,pyramid",
   "cov": 0.618,
   "size": [
-   815,
-   465
+   877,
+   552
   ],
-  "frag": 0.977,
+  "frag": 0.933,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -5056,13 +5057,13 @@
   "datesrc": "authored"
  },
  "bajaj": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Auto_rickshaw_tuk_tuk_mototaxi_in_motion.jpg/1280px-Auto_rickshaw_tuk_tuk_mototaxi_in_motion.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Auto_rickshaw%2C_Kolkata.jpg/1280px-Auto_rickshaw%2C_Kolkata.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY 2.0",
-  "credit": "GloRik",
-  "page": "https://commons.wikimedia.org/wiki/File:Auto_rickshaw_tuk_tuk_mototaxi_in_motion.jpg",
-  "found": "Auto rickshaw tuk tuk mototaxi in motion.jpg",
-  "instdate": "2007-03-16 21:00:06",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Bernard Gagnon",
+  "page": "https://commons.wikimedia.org/wiki/File:Auto_rickshaw,_Kolkata.jpg",
+  "found": "Auto rickshaw, Kolkata.jpg",
+  "instdate": "2013-12-11",
   "key": "bajaj",
   "name": "Auto rickshaw",
   "year": 1972,
@@ -5073,10 +5074,10 @@
   "spec": "com:Bajaj auto rickshaw three wheeler|auto rickshaw,bajaj|street,traffic,crowd,logo,e-rickshaw",
   "cov": 0.562,
   "size": [
-   465,
-   325
+   525,
+   353
   ],
-  "frag": 0.891,
+  "frag": 0.83,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -5506,13 +5507,13 @@
   "datesrc": "authored"
  },
  "wampum": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Wampum_belt%2C_Iroquois_and_Algonkian%2C_commemorating_peace_treaty_in_17th_century_-_Native_American_collection_-_Peabody_Museum%2C_Harvard_University_-_DSC05418.JPG/1280px-Wampum_belt%2C_Iroquois_and_Algonkian%2C_commemorating_peace_treaty_in_17th_century_-_Native_American_collection_-_Peabody_Museum%2C_Harvard_University_-_DSC05418.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Hiawatha_Wampum_Belt_%281909%29_%2814779431751%29.jpg/1280px-Hiawatha_Wampum_Belt_%281909%29_%2814779431751%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC0",
-  "credit": "Daderot",
-  "page": "https://commons.wikimedia.org/wiki/File:Wampum_belt,_Iroquois_and_Algonkian,_commemorating_peace_treaty_in_17th_century_-_Native_American_collection_-_Peabody_Museum,_Harvard_University_-_DSC05418.JPG",
-  "found": "Wampum belt, Iroquois and Algonkian, commemorating peace treaty in 17th century - Native American collection - Peabody Museum, Harvard University - DSC05418.JPG",
-  "instdate": "2012-03-18 12:55:21",
+  "lic": "No restrictions",
+  "credit": "Internet Archive Book Images",
+  "page": "https://commons.wikimedia.org/wiki/File:Hiawatha_Wampum_Belt_(1909)_(14779431751).jpg",
+  "found": "Hiawatha Wampum Belt (1909) (14779431751).jpg",
+  "instdate": "1909",
   "key": "wampum",
   "name": "Wampum belt",
   "year": 1700,
@@ -5523,10 +5524,10 @@
   "spec": "com:wampum belt beads Iroquois museum|wampum|map,treaty text,drawing,portrait",
   "cov": 0.306,
   "size": [
-   566,
-   871
+   889,
+   388
   ],
-  "frag": 1.0,
+  "frag": 0.991,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -5781,13 +5782,13 @@
   "datesrc": "authored"
  },
  "spitfire": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Supermarine_Spitfire_at_Imperial_War_Museum_London.jpg/1280px-Supermarine_Spitfire_at_Imperial_War_Museum_London.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Supermarine_Spitfire_Mk_XVI_NR.jpg/1280px-Supermarine_Spitfire_Mk_XVI_NR.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY-SA 2.0",
-  "credit": "Peter Trimming",
-  "page": "https://commons.wikimedia.org/wiki/File:Supermarine_Spitfire_at_Imperial_War_Museum_London.jpg",
-  "found": "Supermarine Spitfire at Imperial War Museum London.jpg",
-  "instdate": "2019-02-07",
+  "lic": "CC BY-SA 2.5",
+  "credit": "ChowellsNoise reduction and shadows lifted by Diliff.",
+  "page": "https://commons.wikimedia.org/wiki/File:Supermarine_Spitfire_Mk_XVI_NR.jpg",
+  "found": "Supermarine Spitfire Mk XVI NR.jpg",
+  "instdate": "September 2006 (3 September 2006, accord",
   "key": "spitfire",
   "name": "Supermarine Spitfire",
   "year": 1936,
@@ -5798,21 +5799,21 @@
   "spec": "com:Spitfire aircraft museum static preserved|spitfire|formation,flight,sky,cockpit only,model kit,memorial",
   "cov": 0.38,
   "size": [
-   687,
-   469
+   739,
+   340
   ],
-  "frag": 0.79,
+  "frag": 0.725,
   "dategap": null,
   "datesrc": "authored"
  },
  "v2": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/V-2_engine_in_Deutsches_Technikmuseum_%282570545522%29.jpg/1280px-V-2_engine_in_Deutsches_Technikmuseum_%282570545522%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/2018_Wej%C5%9Bcie_do_kompleksu_Riese_w_Walimiu%2C_pocisk_V-2.jpg/1280px-2018_Wej%C5%9Bcie_do_kompleksu_Riese_w_Walimiu%2C_pocisk_V-2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY-SA 2.0",
-  "credit": "Ricardo Reis from Lisboa, Portugal",
-  "page": "https://commons.wikimedia.org/wiki/File:V-2_engine_in_Deutsches_Technikmuseum_(2570545522).jpg",
-  "found": "V-2 engine in Deutsches Technikmuseum (2570545522).jpg",
-  "instdate": "2008-02-23 16:18",
+  "lic": "CC BY-SA 4.0",
+  "credit": "Jacek Halicki",
+  "page": "https://commons.wikimedia.org/wiki/File:2018_Wej%C5%9Bcie_do_kompleksu_Riese_w_Walimiu,_pocisk_V-2.jpg",
+  "found": "2018 Wejście do kompleksu Riese w Walimiu, pocisk V-2.jpg",
+  "instdate": "2018-10-12 13:09:55",
   "key": "v2",
   "name": "V-2 rocket",
   "year": 1944,
@@ -5823,10 +5824,10 @@
   "spec": "com:V-2 rocket museum display vertical|v-2,v2 rocket,a4 rocket|launch,diagram,portrait,map,factory",
   "cov": 0.342,
   "size": [
-   448,
-   675
+   139,
+   724
   ],
-  "frag": 0.897,
+  "frag": 0.763,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -6006,13 +6007,13 @@
   "datesrc": "authored"
  },
  "eniac": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/ENIAC%2C_Ft._Sill%2C_OK%2C_US_%2860%29.jpg/1280px-ENIAC%2C_Ft._Sill%2C_OK%2C_US_%2860%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/ENIAC%2C_Ft._Sill%2C_OK%2C_US_%2816%29.jpg/1280px-ENIAC%2C_Ft._Sill%2C_OK%2C_US_%2816%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC BY-SA 3.0",
   "credit": "Bubba73",
-  "page": "https://commons.wikimedia.org/wiki/File:ENIAC,_Ft._Sill,_OK,_US_(60).jpg",
-  "found": "ENIAC, Ft. Sill, OK, US (60).jpg",
-  "instdate": "2018-10-24 12:11",
+  "page": "https://commons.wikimedia.org/wiki/File:ENIAC,_Ft._Sill,_OK,_US_(16).jpg",
+  "found": "ENIAC, Ft. Sill, OK, US (16).jpg",
+  "instdate": "2018-10-24 11:58",
   "key": "eniac",
   "name": "ENIAC panel",
   "year": 1946,
@@ -6023,10 +6024,10 @@
   "spec": "com:ENIAC computer panel museum unit|eniac|portrait,diagram,building,plaque",
   "cov": 0.184,
   "size": [
-   827,
-   465
+   735,
+   591
   ],
-  "frag": 0.9,
+  "frag": 0.962,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -6506,13 +6507,13 @@
   "datesrc": "authored"
  },
  "trinitron": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Sony_LV-1901D_%281975%29_19%22_Trinitron_Television_integrated_with_first_Betamax_recorder_SL-6200_X-1%2C_MoMI.jpg/1280px-Sony_LV-1901D_%281975%29_19%22_Trinitron_Television_integrated_with_first_Betamax_recorder_SL-6200_X-1%2C_MoMI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Trinitron_KV-1320UB_front.jpg/1280px-Trinitron_KV-1320UB_front.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY 2.0",
-  "credit": "Marcin Wichary",
-  "page": "https://commons.wikimedia.org/wiki/File:Sony_LV-1901D_(1975)_19%22_Trinitron_Television_integrated_with_first_Betamax_recorder_SL-6200_X-1,_MoMI.jpg",
-  "found": "Sony LV-1901D (1975) 19\" Trinitron Television integrated with first Betamax recorder SL-6200 X-1, MoMI.jpg",
-  "instdate": "2007-12-30 11:59",
+  "lic": "CC BY 4.0",
+  "credit": "The Science Museum UK",
+  "page": "https://commons.wikimedia.org/wiki/File:Trinitron_KV-1320UB_front.jpg",
+  "found": "Trinitron KV-1320UB front.jpg",
+  "instdate": "Unknown date",
   "key": "trinitron",
   "name": "Sony Trinitron television",
   "year": 1968,
@@ -6523,10 +6524,10 @@
   "spec": "com:Sony Trinitron television set vintage|trinitron|logo,advert,screen shot,modern,shop",
   "cov": 0.763,
   "size": [
-   875,
-   536
+   713,
+   563
   ],
-  "frag": 0.533,
+  "frag": 0.579,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -6681,13 +6682,13 @@
   "datesrc": "authored"
  },
  "funangold": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Oc_Eo_Culture_Gold_Jewelry_05.jpg/1280px-Oc_Eo_Culture_Gold_Jewelry_05.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Oc_Eo_Culture_Gold_Foil_1.jpg/1280px-Oc_Eo_Culture_Gold_Foil_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC0",
   "credit": "Gary Todd",
-  "page": "https://commons.wikimedia.org/wiki/File:Oc_Eo_Culture_Gold_Jewelry_05.jpg",
-  "found": "Oc Eo Culture Gold Jewelry 05.jpg",
-  "instdate": "2012-11-28 15:16:48",
+  "page": "https://commons.wikimedia.org/wiki/File:Oc_Eo_Culture_Gold_Foil_1.jpg",
+  "found": "Oc Eo Culture Gold Foil 1.jpg",
+  "instdate": "2012-11-28 15:07:48",
   "key": "funangold",
   "name": "Óc Eo gold plaque",
   "year": 400,
@@ -6698,10 +6699,10 @@
   "spec": "com:Oc Eo gold plaque Funan archaeology|oc eo|map,site,plan",
   "cov": 0.275,
   "size": [
-   747,
-   129
+   722,
+   393
   ],
-  "frag": 1.0,
+  "frag": 0.997,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -6781,13 +6782,13 @@
   "datesrc": "authored"
  },
  "snowgoggles": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Glass_and_wooden_snow_goggles_with_slits._Wellcome_M0000990.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Ivory_Snow_Goggles.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "src": "Wikimedia Commons",
-  "lic": "CC BY 4.0",
-  "credit": "unknown",
-  "page": "https://commons.wikimedia.org/wiki/File:Glass_and_wooden_snow_goggles_with_slits._Wellcome_M0000990.jpg",
-  "found": "Glass and wooden snow goggles with slits. Wellcome M0000990.jpg",
-  "instdate": "",
+  "lic": "CC BY-SA 3.0",
+  "credit": "Ak92mark",
+  "page": "https://commons.wikimedia.org/wiki/File:Ivory_Snow_Goggles.jpg",
+  "found": "Ivory Snow Goggles.jpg",
+  "instdate": "2014-03-22 08:50:37",
   "key": "snowgoggles",
   "name": "Inuit snow goggles",
   "year": 1750,
@@ -6798,10 +6799,10 @@
   "spec": "com:Inuit snow goggles ivory slit wooden|snow goggles|modern,ski,sunglasses,diagram",
   "cov": 0.23,
   "size": [
-   490,
-   855
+   827,
+   387
   ],
-  "frag": 0.953,
+  "frag": 0.517,
   "dategap": null,
   "datesrc": "authored"
  },
@@ -8656,13 +8657,13 @@
   "datesrc": "authored"
  },
  "visionpro": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Apple_Vision_Pro_with_charger_%28cropped%29.jpg/1280px-Apple_Vision_Pro_with_charger_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Vision_Pro_-_Goggles_2.jpg/1280px-Vision_Pro_-_Goggles_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
-  "lic": "CC BY-SA 4.0",
-  "credit": "Miyako Fujimiya",
-  "page": "https://commons.wikimedia.org/wiki/File:Apple_Vision_Pro_with_charger_(cropped).jpg",
-  "found": "Apple Vision Pro with charger (cropped).jpg",
-  "instdate": "3 February 2024, 14:49:22",
+  "lic": "CC BY 4.0",
+  "credit": "Hay Kranen",
+  "page": "https://commons.wikimedia.org/wiki/File:Vision_Pro_-_Goggles_2.jpg",
+  "found": "Vision Pro - Goggles 2.jpg",
+  "instdate": "2024-04-26 11:15:45",
   "key": "visionpro",
   "name": "Apple Vision Pro",
   "year": 2024,
@@ -8673,10 +8674,10 @@
   "spec": "com:Apple Vision Pro headset|vision pro|wearing,logo,store,box,advert,queue",
   "cov": 0.21,
   "size": [
-   463,
-   675
+   900,
+   378
   ],
-  "frag": 0.589,
+  "frag": 0.868,
   "dategap": null,
   "datesrc": "authored"
  },

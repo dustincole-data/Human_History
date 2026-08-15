@@ -22,6 +22,13 @@ prototypes/directions/orig/
 # reproducible from orig/ by rematte02.py. Nothing here is shippable until it is promoted.
 prototypes/directions/alt/
 prototypes/directions/rematte-sheet-*.png
+# lane B's candidate pool: six photographs per `drop` key, their cuts, and the sheets they are
+# chosen on. Same class as alt/ — a scratch pool, re-fetchable by resource02.py --find, and
+# nothing in it reaches the site except through --promote, which writes img/ and sourced.json.
+prototypes/directions/cand/
+prototypes/directions/cand-sheet-*.png
+prototypes/directions/cand-cut-sheet-*.png
+prototypes/directions/cut02.log
 
 .vercel
 .env*

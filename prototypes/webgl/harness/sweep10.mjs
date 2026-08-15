@@ -247,6 +247,7 @@ ok('decay_runs_both_ways',
 await fresh();
 let maxAir = 0;
 const groundViol = [], tieCutViol = [], captions = [], groundWords = [], ghosts = [],
+      tieFloor = new Set(),
       wholeViol = [], credOnPiece = [], lastViol = [];
 const survivors = new Set();                 // 14: whose name outlives impact. Must be exactly {N-1}
 const aliveCurve = [], tieCurve = [];
@@ -275,10 +276,37 @@ for (const y of stops) {
        threshold. 8,934 years NEWER than the moment, and 41 green gates said the page was fine. */
     if (T.years[it.i] - now > T.W) groundViol.push({ y, i: it.i, gap: T.years[it.i] - now, end: 'newer' });
   }
-  // the drawn dash pattern must divide into exactly gap+1 segments
+  /* The drawn dash must divide into exactly gap+1 segments — WHERE THE LINE IS LONG ENOUGH TO
+     HOLD THEM. That second clause is not a softening; it is the ruling gravity.js already makes
+     and this gate had never had to read, because no set had ever produced a line too short.
+
+     The drawing floors the pattern at seg 1.2 / cut 0.25 and says so: "where the span is too
+     short to hold that many breaks the line degrades to a dotted trace, which still says the only
+     thing that matters at eighty years." An unconditional identity therefore asserted something
+     the piece does not claim, and 02 lane B is what found it: dropping twelve items re-spaced the
+     soil, katar and pieceof8 came 8px closer than their 50-year miss can be drawn in, and the
+     line went to 45 breaks where the table says 51 — indistinguishable at 1.45px a period, and a
+     red gate. Verified against HEAD's 236-item build, which has none.
+
+     So the gate now asserts BOTH halves of the contract: an exact count wherever the span can
+     carry it, and the documented floor — not some other wrong period — wherever it cannot. The
+     degraded ones are counted into the pass line, because a set change that quietly turns ten
+     ties into dotted traces is a thing to see. */
   for (const t of s.tieDash) {
     const truth = T.years[t.i] - T.years[T.TIE[t.i]];       // off the tables, not off the page
-    if (t.segments !== truth + 1) tieCutViol.push({ y, i: t.i, drawn: t.segments, truth });
+    const hold = 1.2 * (truth + 1) + 0.25 * truth;          // gravity.js's own floor, as a length
+    /* truth 0 is exempt and it is not an edge case, it is the other half of the encoding: two
+       things that arrived in the same year share ONE UNBROKEN HAIRLINE, so gravity.js takes the
+       `gap > 0 ? [seg, cut] : []` branch, never sets a dash, and the count is 1 at any length.
+       Reading the floor onto it condemned a legitimate 0.92px line on the DEPLOYED build — which
+       is how the first draft of this clause got caught, and the reason the production run is in
+       the chain rather than after the push. */
+    if (truth === 0 || t.len >= hold) {
+      if (t.segments !== truth + 1) tieCutViol.push({ y, i: t.i, drawn: t.segments, truth });
+    } else if (Math.abs(t.seg - 1.2) > 1e-6 || Math.abs(t.cut - 0.25) > 1e-6) {
+      tieCutViol.push({ y, i: t.i, drawn: t.segments, truth, len: t.len,
+                        why: 'too short for its gap, and not at the drawn floor either' });
+    } else tieFloor.add(t.i);
   }
 
   /* ROUND 10 — THE LABEL CONTRACT, in place of round 8's citation contract. Measured off the live
@@ -432,7 +460,12 @@ ok('ground_is_the_moment', groundViol.length === 0,
      : `no field more than ${T.W}y from the counter in EITHER direction, over ${stops.length} stops ` +
        `walked down and ${upStops.length} walked back up`);
 ok('tie_cuts_are_true', tieCutViol.length === 0,
-   `${tieCutViol.length} ties whose drawn segment count is not gap+1`);
+   tieCutViol.length
+     ? `${tieCutViol.length} ties whose drawn segment count is not gap+1: ` +
+       JSON.stringify(tieCutViol[0])
+     : `every tie long enough for its gap draws gap+1 segments; ${tieFloor.size} too short for ` +
+       `theirs and all of them at the drawn floor (seg 1.2 / cut 0.25), which is the dotted ` +
+       `trace gravity.js documents rather than a wrong count`);
 ok('no_miss_caption', captions.length === 0,
    captions.length ? `printed at ${captions.slice(0, 3)}` : 'no year phrase printed anywhere');
 /* ROUND 10 — the four citation gates, RE-AIMED RATHER THAN DELETED. Round 8's build is gone and a
@@ -1133,7 +1166,11 @@ const settleRead = async (y0) => {
 
 /* five stops spanning the ramp, each on a page nobody has scrolled — the head has to be a first
    visit or its objects are already dust and there is nothing on the ground to sample past */
-const ERAS = [6, 40, 150, 196, 226];
+/* 226 was a LITERAL, and it was the fifth stop only while the set had 236 items in it: at 224 it
+   reads y=undefined, the walk lands back at the top, and two gates go red reporting the deep-past
+   sky as the LED era. It was N-10 all along — near the end of the ramp, clear of the ending, whose
+   own gate (only_the_last_one_survives) is the one that owns the last item. */
+const ERAS = [6, 40, 150, 196, N - 10];
 const skyRead = [], skyMiss = [];
 for (const i of ERAS) {
   await fresh();

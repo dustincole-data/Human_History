@@ -41,7 +41,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MASTER = os.path.join(HERE, "img")
 OUT = os.path.abspath(os.path.join(HERE, "..", "..", "site", "thumb"))
 MANIFEST = os.path.abspath(os.path.join(HERE, "..", "..", "site", "thumbs.js"))
-DATA = os.path.join(HERE, "data.js")
+# ../../site/data.js, not HERE/data.js. bake_sprites.py carried the identical bug and it was found
+# and fixed in the promotion of the 37; this script has the same one and nobody looked. The file
+# moved to site/ in 257a1b1, so `python bake_index.py` has exited "no keys in data.js" ever since
+# — which is why site/thumb/ still held the pre-promotion cuts for all 37.
+DATA = os.path.abspath(os.path.join(HERE, "..", "..", "site", "data.js"))
 
 THUMB_PX = 80       # index.js THUMB_MAX
 DPR_CAP = 2         # gravity.js fit(): Math.min(devicePixelRatio, 2)
@@ -118,8 +122,19 @@ def main():
                 f.write(f'  {k}:[{nw},{nh}],\n')
             f.write("};\n")
 
+    # same prune as bake_sprites.py, and for the same reason: a dropped item's thumbnail is a
+    # public file for a row that no longer exists, and no gate looks at the folder
+    keep = set(ks)
+    orphans = [f for f in os.listdir(OUT) if f.endswith(".webp") and f[:-5] not in keep]
+    for f in orphans:
+        if not args.check:
+            os.remove(os.path.join(OUT, f))
+
     mb = lambda b: b / 1048576
     print(f"{len(ks)} thumbnails   {scaled} downscaled to {CAP}px   {copied} already under the cap")
+    if orphans:
+        print(f"{'would remove' if args.check else 'removed'} {len(orphans)} no longer in data.js: "
+              f"{', '.join(sorted(o[:-5] for o in orphans))}")
     if missing:
         print(f"MISSING FROM MASTER ({len(missing)}): {', '.join(missing[:8])}")
     print(f"decoded   masters {mb(dec_master):7.1f} MB -> thumbs {mb(dec_out):7.1f} MB (all resident)")

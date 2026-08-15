@@ -11,15 +11,20 @@ perturbing protects the cheap half.
 
 ## Running it
 
-Serve `prototypes/` on 8812 **with `serve.py`, not `python -m http.server`** — the built-in is
+Serve **`site/`** on 8812 **with `serve.py`, not `python -m http.server`** — the built-in is
 HTTP/1.0 with a listen backlog of 5, and a sweep makes tens of thousands of requests:
 
 ```
-python serve.py 8812 --dir .            # from prototypes/, output redirected to a file
+python ../prototypes/webgl/harness/serve.py 8812 --dir .   # from site/, output redirected
 ```
 
 Redirect its output. A blocked log pipe has hung the server and killed sweep runs.
-The only URL is `/webgl/index.html`.
+The only URL is `/index.html` — `sweep10.mjs` builds it as `HH_BASE + '/index.html'`.
+
+*(This said `prototypes/` and `/webgl/index.html` until 02 lane B, and had done since `257a1b1`
+moved the site root to `site/`. That commit is now three for three: it left `bake_sprites.py`
+dead, `bake_index.py` dead, and this paragraph pointing at a directory the gates do not read.
+Serving `prototypes/` on 8812 gives every sweep a 404 for `/index.html`.)*
 
 ```
 node sweep10.mjs  [out.json] [--slow]     # the piece — 43 gates

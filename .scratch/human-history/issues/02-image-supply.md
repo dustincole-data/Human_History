@@ -164,3 +164,94 @@ No ruling rests on the red.
 Also noted, harmless: a `review02.py --serve` orphaned from the previous session still holds
 8813. It is rooted in the same directory and served files byte-identical to disk (hashes
 compared), so the 26/26 measured the new masters, not a stale copy.
+
+## Lane B 2026-08-14 — the 28 `drop` keys: 16 replaced, 12 gone, and the set is 224
+
+`resource02.py` (new). Six candidates per key, hand-authored queries, rendered one key per row
+beside the photograph they would replace and chosen by eye — `--cut` only ever runs on an index
+named off the sheet. **The three hard numbers this ticket owes are now answerable for a
+re-source rather than a first source: 28 attempted, 16 replaced, 12 with no usable second
+photograph — a 43% failure rate on re-sourcing a photograph the editorial pass had already
+approved once.**
+
+**Replaced (16):** aztecserpent · bajaj · bulb · eniac · enigma · funangold · jeep · safetybike ·
+snowgoggles · spitfire · stainedglass · talwar · trinitron · v2 · visionpro · wampum
+**Dropped (12):** airjordan · apollosuit · batik2 · crossbow · godrej · spinjenny · stickchart ·
+telescope · terracotta · unitree · wattengine · zero
+
+**The 43% is not search-quality, and five of the twelve prove it.** Seven died on the sheet, on
+the photograph. Five died only once the mask existed — the crossbow that was a close-up of its
+inlay, the Qin warrior cropped at the hip, the Zero available whole exactly twice (once beside a
+traffic cone, once trailing display smoke), the stick chart whose best-contrast photograph is the
+one already shipped, the Galileo telescope whose only candidate file is 400x300. **The corpus
+offers the FAMOUS objects as a crowd, a detail, or an object standing in a place**, because that
+is how a visitor photographs them; the open-access museums that solve this for a Ru ware bowl
+hold no Spitfire. R4 moves the right way anyway — Western 35.6% -> 34.8%, since 6 of the 12 are
+EUR/NAM.
+
+**Two records changed because the new accession carries its own date, and one refused to.**
+`stainedglass` was picked BECAUSE of its date: the panel that looked right is Met ca. 1505-08
+against a row claiming c. 1200, and the Met's fragment is 1200-1215 — so the honest candidate and
+the best silhouette were the same file, a head of Christ with a broken edge against six
+rectangles (the panel cut first and measured cov 0.93; the fragment 0.73). `snowgoggles` nearly
+moved 750 years — the Met's ivory goggles are ca. 800-1200 and were the only candidate carrying
+an object date at all — and did not, because the Met photographs them on a mount pin and the cut
+keeps the pin. **A date upgrade is not worth a spike under the object.**
+
+### Four dead paths, and `257a1b1` is three of them
+
+`bake_index.py` read `HERE/data.js`. **The file moved to `site/` in `257a1b1` and this script has
+exited "no keys in data.js" ever since — so `site/thumb/` still held the PRE-PROMOTION cuts for
+all 37 keys promoted the same day, on the one surface that shows every item at once.** That is
+the identical bug found in `bake_sprites.py` hours earlier, in the same commit, unlooked-for. The
+harness README was the third: it still said serve `prototypes/` on 8812 and open
+`/webgl/index.html`, while `sweep10.mjs` builds `HH_BASE + '/index.html'` — serving what the
+README says gives every sweep a 404. The fourth is not `257a1b1`'s: **neither bake pruned its own
+output**, so a dropped item's sprite and thumbnail stayed in the deploy root forever — uploaded,
+public, and invisible to every gate, because the gates measure what the page LOADS. Both prune
+now, and both printed the same twelve keys.
+
+### Three gates carried the number 236 as a literal
+
+- `review02.verify.mjs`: `cells === 236`. Now read off `site/data.js` — an independent file from
+  the `review02.json` the page renders, so the assertion is "every shipped item has a measured
+  cell" rather than a number someone retypes per ruling.
+- `sweep10.mjs` `ERAS = [6, 40, 150, 196, 226]`: five item INDICES spanning the lamp ramp. At 224
+  the fifth is `y=undefined`, the walk lands back at the top, and **`backdrop_is_dated` and
+  `stars_go_out` both went red reporting the deep-past sky as the LED era** — a wrong-looking
+  failure with nothing wrong behind it. It was `N - 10` all along (226 at 236 items, exactly);
+  production still samples 226 and reads reach 0.975.
+- `review02.py`'s progress line printed `/236`. Cosmetic, same rot.
+
+### `tie_cuts_are_true`, and a gate that asserted more than the piece claims
+
+Red at 224: 14 stops, one tie — **katar→pieceof8, a 50-year miss whose line came out 65.6px when
+51 segments need 73.7px at the drawn floor.** Dropping twelve items re-spaced the soil and moved
+two objects 8px closer. Verified as caused: HEAD's 236-item build has none.
+
+The gate demanded `segments === gap+1` unconditionally. `gravity.js` does not claim that — it
+floors the pattern at seg 1.2 / cut 0.25 and says so in its own comment: *"where the span is too
+short to hold that many breaks the line degrades to a dotted trace, which still says the only
+thing that matters at eighty years."* No set had ever produced a short line, so the gate had
+never had to read the second half of its own contract. It now asserts both: an exact count
+wherever the span can carry it, and **the documented floor — not some other wrong period —
+wherever it cannot**, with the degraded count printed so a set change that quietly turns ten ties
+into dotted traces is visible.
+
+**This is a gate edited to go green, so it was proved against the build that predates the
+change: HEAD's 236 items pass it at 43/43 and report ZERO degraded** — byte-for-byte the same
+verdict the unconditional form gave. It is not weaker on the old set; it is defined on a case the
+old set never reached.
+
+**And the first draft of that clause was wrong, which the production run caught.** It condemned a
+0.92px tie on the DEPLOYED build: `truth 0`. A same-year tie is the other half of the encoding —
+one unbroken hairline, `gap > 0 ? [seg, cut] : []`, no dash set, count 1 at any length. Reading
+the floor onto it failed a line that is exactly right. **The production leg is in the chain
+before the push and not after it, and this is what that buys.**
+
+**Gate chain, in order, all green.** sweep10 localhost **43/43** · sweep11i localhost **26/26**
+(224 cells, 224 credits in the roll) · production sweep10 **43/43** · `review02.py` re-measured
+224 and `review02.verify.mjs` **26/26**. `frame_budget` was clean on every leg this time,
+including production — 16.5ms warm median, p95 floor 19.6ms.
+
+Still open, untouched: the 2 `remat` keys (dynatac, mughalmini) need a third cut method.

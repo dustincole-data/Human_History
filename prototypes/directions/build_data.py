@@ -137,10 +137,11 @@ RENAME = {
     "nes":         ("Super Nintendo",                  1990, "1990"),
     "playstation": ("PlayStation Vita",                2011, "2011"),
     "ipod":        ("iPods",                           2001, "2001"),
-    # pass 5: three where the sheet showed a real object of the right date under the wrong name
-    "v2":          ("V-2 rocket engine",               1944, "1944"),
+    # pass 5: three where the sheet showed a real object of the right date under the wrong name.
+    # `v2` names the whole rocket again as of 02 lane B — the engine was what the old photograph
+    # happened to show, and the replacement is the vehicle. `apollosuit` is gone with its photo.
+    "v2":          ("V-2 rocket",                      1944, "1944"),
     "strat":       ("Fender electric guitars",         1954, "c. 1954"),
-    "apollosuit":  ("Apollo 15 mission patch",         1971, "1971"),
 
     # --- DATE VERIFICATION, pass 5. The museum API's own object date was captured alongside every
     # candidate and compared to the authored year; 22 disagreed by more than 150 years once the
@@ -169,6 +170,27 @@ RENAME = {
     # stranger reads as a category rather than by name, so it is retiered to B above.
     "switch2":     ("Joy-Con 2 controllers",            2025, "2025"),
     "torch2":      ("Olympic and Paralympic torches",   2026, "2026"),
+
+    # --- 02 LANE B, 2026-08-14. A new photograph is a new OBJECT RECORD, not a new picture of the
+    # old one: the replacement is a different accession with its own date, and pass 5's rule stands
+    # unchanged — WHERE AN INSTITUTION HOLDS THE OBJECT, THE INSTITUTION WINS.
+    #
+    # `stainedglass` WAS PICKED BECAUSE OF ITS DATE, and it is the case worth writing down. The
+    # panel that looked right (St. Bernard, two saints under a canopy) is dated by the Met to
+    # ca. 1505-08 against a row claiming c. 1200 — 300 years and a different century's craft. The
+    # Met's fragment is 1200-1215. So the honest candidate and the best silhouette turned out to
+    # be the same file: a head of Christ with a broken edge, against six rectangles that cut as
+    # boxes (the St. Bernard panel was cut first and measured cov 0.93; the fragment is 0.73).
+    # Its date also stops being authored and starts being checked, which the set has 15 of.
+    #
+    # `snowgoggles` NEARLY MOVED 750 YEARS AND THEN DID NOT, which is the same lesson from the
+    # other side. The Met's ivory goggles are ca. 800-1200 and were the only candidate carrying an
+    # object date at all — but the Met photographs them on a mount pin, and the cut keeps the pin.
+    # The file chosen instead is undated, so the row keeps the authored c. 1750 it already had. A
+    # date upgrade is not worth a spike under the object.
+    "safetybike":  ("Safety bicycle",                  1890, "c. 1890"),
+    "stainedglass": ("Gothic stained-glass fragment",  1200, "1200–1215"),
+    "trinitron":   ("Sony Trinitron KV-1320",          1970, "c. 1970"),
 }
 
 # the date moved so far that the identity went with it — these are not the objects the row named
@@ -185,6 +207,60 @@ DROP.update({"reveretea": "R4 — Western cap; a colonial teapot no stranger rea
              "dc3":       "R4 — Western cap; flyer, spitfire, zero and b747 already carry aviation",
              "imac":      "R4 — Western cap; the fourth Apple object, behind mac, ipod and iphone"})
 
+# ---------------------------------------------------------------------------------------------
+# TICKET 02 LANE B, 2026-08-14. Dustin flagged 28 masters `2` — *this photograph is no good* —
+# which is a supply question, not a cut one. `resource02.py` gathered six candidates for each and
+# they were chosen on the sheet by eye; 16 found a replacement. These twelve did not, and the
+# reason is worth keeping, because it is the same finding ticket 02 has now measured three times:
+# THE MACHINE CAN ACQUIRE AND CANNOT CHOOSE, AND WHERE IT CANNOT CHOOSE THERE IS OFTEN NOTHING TO
+# CHOOSE FROM. Most of these are a genuine hole in the open-access corpus rather than a search
+# that could have been written better.
+#
+# FIVE OF THE TWELVE WERE CUT BEFORE THEY WERE DROPPED — the sheet is read on the PHOTOGRAPH, and
+# five of these only failed once the mask existed. That is the lane's one transferable lesson, and
+# it is about the corpus rather than the model: THE FAMOUS OBJECTS ARE OFFERED ONLY AS A CROWD, A
+# DETAIL, OR AN OBJECT STANDING IN A PLACE, because that is how a visitor photographs them. The
+# Met's Ulrich V crossbow reaches Commons as two close-ups of its inlay; every licence-clean Qin
+# warrior is cropped at the hip; the Zero is available whole exactly twice, once beside a traffic
+# cone and once trailing display smoke. A cut that ends in a straight horizontal line is not a
+# whole object, and a cut with a cone in it is not one object — and this piece drops whole
+# objects, one at a time.
+DROP.update({
+    "airjordan":  "02 lane B — the shipped file is a signed pair behind case glass, and every "
+                  "other Jordan 1 on Commons is a retro colourway: a 2019 shoe cannot carry 1985",
+    "apollosuit": "02 lane B — the patch exists only as a detail inside a Smithsonian vitrine. "
+                  "Commons' other Apollo 15 objects are flown medallions, which is a different "
+                  "artifact, not a second photograph of this one",
+    "batik2":     "02 lane B — Commons photographs the PROCESS (a hand, a canting, a workshop) "
+                  "and Cleveland holds no batik. A length of cloth shot flat has no silhouette "
+                  "to cut in any case",
+    "crossbow":   "02 lane B — the Met's search index returns 0 for 'crossbow' while holding "
+                  "object 23337, and the two Met crossbow files that reached Commons are both "
+                  "close-ups of the tiller inlay. Cut: a detail, not a weapon",
+    "stickchart": "02 lane B — six candidates, and the shipped photograph still has the best "
+                  "stick-against-ground contrast of any of them. Cut: birefnet dropped half the "
+                  "lattice where the shipped master holds all of it. Nothing here is a better "
+                  "PHOTOGRAPH, which is the only thing this flag asked for",
+    "telescope":  "02 lane B — one candidate existed and the FILE is 400x300, which is this "
+                  "ticket's own item 1 answering itself: a thumbnail is not supply. Cut: 185x300, "
+                  "against a 264px sprite cap and a set whose masters run 600-900px",
+    "terracotta": "02 lane B — every licence-clean Qin warrior on Commons is the pit, a head, a "
+                  "pair of boots, or a figure cropped at the hip. Cut: a torso ending in a "
+                  "straight horizontal line, which reads as sliced rather than whole",
+    "zero":       "02 lane B — six candidates, three of the same airframe. Cut: the tarmac shot "
+                  "keeps a traffic cone, and the in-flight shot keeps the display smoke as a "
+                  "white plume off the fuselage. Both are the `bg` defect, not the plane",
+    "godrej":     "02 lane B — every almirah returned is wooden, in a room, or the Election "
+                  "Commission's vector symbol; no photograph of a steel almirah as an object",
+    "spinjenny":  "02 lane B — 'Spinning Jenny' on Commons is a street in Leigh, six times over. "
+                  "The one machine photograph is the museum's own, stanchion and all",
+    "unitree":    "02 lane B — the G1 photograph is the only one. The other humanoids Commons "
+                  "holds are ASIMO, Sophia and one unattributed factory robot, and a robot whose "
+                  "maker is unknown cannot carry this row's region",
+    "wattengine": "02 lane B — 'Boulton' returns the Paul Defiant and 'beam engine' returns five "
+                  "engine HOUSES. The Watt engine has no photograph of itself as an object",
+})
+
 # the twelve from the first anchor preview; their records live here because they predate sourced.json
 LEGACY = [
     dict(k='jar',     y=-2975, disp="3300–2650 BCE", n="Painted jar", src='Cleveland Museum of Art', lic='CC0', cred='Cleveland Museum of Art', url="https://clevelandart.org/art/2004.64"),
@@ -193,7 +269,11 @@ LEGACY = [
     dict(k='armor',   y=1683,  disp="c. 1683", n="Harquebusier’s armour", src='The Met', lic='CC0', cred='The Met', url="https://www.metmuseum.org/art/collection/search/27792"),
     dict(k='rocket',  y=1829,  disp="1829", n="Stephenson’s Rocket", src='Wikimedia Commons', lic='public domain', cred='Samuel Smiles (engraving)', url="https://commons.wikimedia.org/wiki/File:Rocket_(Smiles).jpg"),
     dict(k='phone',   y=1876,  disp="1876", n="Bell telephone receiver", src='Wikimedia Commons', lic='public domain', cred='C. E. Scribner', url="https://commons.wikimedia.org/wiki/File:Bell_%22iron_box%22_telephone_receiver_1876.jpg"),
-    dict(k='bulb',    y=1880,  disp="c. 1880", n="Edison lamps", src='Wikimedia Commons', lic='CC BY-SA 3.0', cred='Richard Warren Lipack', url="https://commons.wikimedia.org/wiki/File:1880EDISON1881LampsSOCKETSrwLIPACKowner.jpg"),
+    # 02 lane B: `bulb` is the one replaced key whose record lives HERE rather than in
+    # sourced.json, so resource02.py --promote cannot reach it and the row is edited by hand.
+    # One 1881 lamp in its socket on white, replacing a collector's array of four lamps and five
+    # sockets on a cloth — so the name goes singular and the date is the file's own, not c. 1880.
+    dict(k='bulb',    y=1881,  disp="1881", n="Edison lamp", src='Wikimedia Commons', lic='CC BY-SA 3.0', cred='Richard Warren Lipack', url="https://commons.wikimedia.org/wiki/File:Edison_lamp_1881_socket.png"),
     dict(k='flyer',   y=1903,  disp="1903", n="Wright Flyer", src='Wikimedia Commons', lic='public domain', cred="New Student’s Reference Work", url="https://commons.wikimedia.org/wiki/File:NSRW_Wright_Brothers_Aeroplane.png"),
     dict(k='camera',  y=1930,  disp="c. 1930", n="Kodak Beau Brownie", src='Wikimedia Commons', lic='CC BY-SA 4.0', cred='Cquoi', url="https://commons.wikimedia.org/wiki/File:Kodak_2A_Beau_Brownie.jpg"),
     dict(k='chip',    y=1971,  disp="1971", n="Intel 4004", src='Wikimedia Commons', lic='CC BY-SA 4.0', cred='Al. Struk', url="https://commons.wikimedia.org/wiki/File:4-%D0%B1%D1%96%D1%82%D0%BD%D0%B8%D0%B9_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D0%BE%D1%80_Intel_4004.jpg"),
@@ -297,9 +377,14 @@ LIC_FIX = {"public domain": "Public domain", "Public Domain": "Public domain",
 # credit: its Artist field carries a display:none span and stripping the tags doubled the words.
 CREDIT = {
     "mehrgarh":   "uploaded by Nataraja",
-    "snowgoggles": "uploaded by Fæ",
     "djembe":     "uploaded by Fæ",
-    "stickchart": "Unknown author",
+    # 02 lane B: this map is per-FILE, so replacing a photograph invalidates its entry. `stickchart`
+    # left the set and `snowgoggles` got a new file that names its own author (Ak92mark), so both
+    # old overrides are gone rather than rewritten. One new one is owed, and it is a shape this
+    # dict had not seen: `jeep`'s Artist field is not blank, it is PROSE — "For a gallery of some
+    # more of my uploaded pictures see: here." A blank credit fails a licence; that one would have
+    # printed a sentence about a gallery under a falling Jeep. CC0, so the uploader is courtesy.
+    "jeep":       "Spielvogel",
 }
 
 

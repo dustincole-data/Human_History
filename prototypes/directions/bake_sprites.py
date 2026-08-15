@@ -93,8 +93,22 @@ def main():
         dec_out += nw * nh * 4
         tx_out += os.path.getsize(dst) if os.path.exists(dst) else 0
 
+    # An item can now LEAVE the set (02 lane B dropped ten), and until this ran, a dropped item's
+    # sprite stayed in the deploy root forever: still uploaded, still public, and invisible to
+    # every gate, because the gates measure what the page LOADS. A derived directory has to mirror
+    # its source in both directions. The master in img/ is never touched — that is the record of
+    # what was tried.
+    keep = set(ks)
+    orphans = [f for f in os.listdir(OUT) if f.endswith(".webp") and f[:-5] not in keep]
+    for f in orphans:
+        if not args.check:
+            os.remove(os.path.join(OUT, f))
+
     mb = lambda b: b / 1048576
     print(f"{len(ks)} sprites   {scaled} downscaled to {CAP}px   {copied} already under the cap")
+    if orphans:
+        print(f"{'would remove' if args.check else 'removed'} {len(orphans)} no longer in data.js: "
+              f"{', '.join(sorted(o[:-5] for o in orphans))}")
     if missing:
         print(f"MISSING FROM MASTER ({len(missing)}): {', '.join(missing[:8])}")
     print(f"decoded   {mb(dec_in):7.1f} MB -> {mb(dec_out):7.1f} MB")

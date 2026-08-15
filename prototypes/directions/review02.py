@@ -108,7 +108,8 @@ def measure(path):
 def build():
     src = json.load(open(os.path.join(HERE, "sourced.json"), encoding="utf-8"))
     rows = []
-    for i, it in enumerate(shipped()):
+    items = shipped()
+    for i, it in enumerate(items):
         k = it["k"]
         m = measure(os.path.join(IMG, k + ".webp"))
         if m is None:
@@ -121,7 +122,7 @@ def build():
                          # pass has run, and it is read here so the page never probes for 404s
                          o=int(os.path.exists(os.path.join(HERE, "orig", k + ".jpg"))), **m))
         if (i + 1) % 40 == 0:
-            print(f"  {i + 1}/236")
+            print(f"  {i + 1}/{len(items)}")   # not 236: 02 lane B dropped twelve of them
     json.dump(rows, open(OUT, "w", encoding="utf-8"), ensure_ascii=False,
               separators=(",", ":"))
     nourl = sum(1 for r in rows if not r["srcurl"])

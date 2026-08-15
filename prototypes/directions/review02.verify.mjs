@@ -18,8 +18,21 @@ page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
 await page.goto(URL, { waitUntil: 'networkidle' });
 await page.waitForTimeout(600);
 
+/* The count was written as the literal 236 and 02 lane B moved it: seven items had no second
+   photograph and left the set. A literal would have to be re-typed on every such ruling, which is
+   a gate that reports the editor's memory rather than the set — so it is read off site/data.js,
+   which is the SITE's definition of what shipped and an independent file from the review02.json
+   this page renders. The assertion is therefore the one worth making: every shipped item has a
+   measured cell, whatever the number is this week. */
+import fs from 'fs';
+import path from 'path';
+/* Resolved off this module rather than the cwd, and via `import.meta.dirname` rather than
+   `new URL(...)`: this file already binds `URL` as a const above, so the global constructor is
+   shadowed and the tidier form throws "URL is not a constructor" before a single gate runs. */
+const DATA = path.join(import.meta.dirname, '..', '..', 'site', 'data.js');
+const SHIPPED = (fs.readFileSync(DATA, 'utf8').match(/\{k:"/g) || []).length;
 const cells = await page.locator('.cell').count();
-ok('all 236 cells render', cells === 236, `${cells}`);
+ok(`all ${SHIPPED} cells render`, cells === SHIPPED && SHIPPED > 0, `${cells}`);
 
 // images actually decode
 await page.waitForTimeout(1500);
@@ -48,7 +61,7 @@ await page.fill('#lo', '0.85'); await page.waitForTimeout(250);
 const n1 = await page.locator('.cell').count();
 const allAbove = await page.$$eval('.nums', els => els.every(e => {
   const m = e.textContent.match(/cov([\d.]+)/); return m && parseFloat(m[1]) >= 0.845; }));
-ok('range filter cuts the set', n1 > 0 && n1 < 236 && allAbove, `${n1} cells, all cov>=0.85 ${allAbove}`);
+ok('range filter cuts the set', n1 > 0 && n1 < SHIPPED && allAbove, `${n1} cells, all cov>=0.85 ${allAbove}`);
 await page.fill('#lo', ''); await page.waitForTimeout(250);
 
 // text search
