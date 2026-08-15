@@ -226,8 +226,10 @@ DROP.update({"reveretea": "R4 — Western cap; a colonial teapot no stranger rea
 # whole object, and a cut with a cone in it is not one object — and this piece drops whole
 # objects, one at a time.
 DROP.update({
-    "airjordan":  "02 lane B — the shipped file is a signed pair behind case glass, and every "
-                  "other Jordan 1 on Commons is a retro colourway: a 2019 shoe cannot carry 1985",
+    # airjordan RETURNS, 02 lane B round 3. The drop reasoning was sound and its conclusion was
+    # too narrow: no Jordan 1 can carry 1985, but the slot is mid-80s American sport, not that
+    # one shoe. A CC0 Jordan IV on white carries its OWN 1989 date, which is what the record now
+    # says. Ruled by Dustin 2026-08-15 — "use its date".
     "apollosuit": "02 lane B — the patch exists only as a detail inside a Smithsonian vitrine. "
                   "Commons' other Apollo 15 objects are flown medallions, which is a different "
                   "artifact, not a second photograph of this one",
@@ -257,8 +259,12 @@ DROP.update({
     "unitree":    "02 lane B — the G1 photograph is the only one. The other humanoids Commons "
                   "holds are ASIMO, Sophia and one unattributed factory robot, and a robot whose "
                   "maker is unknown cannot carry this row's region",
-    "wattengine": "02 lane B — 'Boulton' returns the Paul Defiant and 'beam engine' returns five "
-                  "engine HOUSES. The Watt engine has no photograph of itself as an object",
+    # wattengine RETURNS, 02 lane B round 3. Lane B asked Commons, the Met and Cleveland — three
+    # of the nine repositories 02 item 3 names — and LOC holds Watt's OWN 1782 specification
+    # plate, catalogued under a title the Commons-shaped must-list rejected outright. The record
+    # is renamed for what the file actually is: a specification plate, not a photograph of an
+    # engine. It carries four figures and its own header text (isl 4, holes 12); shipped on
+    # Dustin's ruling 2026-08-15 after review.
 })
 
 # the twelve from the first anchor preview; their records live here because they predate sourced.json

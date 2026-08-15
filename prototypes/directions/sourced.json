@@ -2782,29 +2782,28 @@
   "datesrc": "authored"
  },
  "wattengine": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Boulton_%26_Watt_beam_engine_%28engine_floor%29_-_Kew_Bridge_Steam_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "src": "Wikimedia Commons",
-  "lic": "CC BY-SA 2.0",
-  "credit": "Chris Allen (Uploaded by User:PeterJewell)",
-  "page": "https://commons.wikimedia.org/wiki/File:Boulton_%26_Watt_beam_engine_(engine_floor)_-_Kew_Bridge_Steam_Museum.jpg",
-  "found": "Boulton & Watt beam engine (engine floor) - Kew Bridge Steam Museum.jpg",
-  "instdate": "1989-12-09",
+  "url": "https://tile.loc.gov/storage-services/service/pnp/cph/3c10000/3c10000/3c10300/3c10376v.jpg",
+  "src": "Library of Congress",
+  "lic": "No known restrictions",
+  "credit": "robison, john",
+  "page": "http://www.loc.gov/item/2006691752/",
+  "found": "Steam engine - Mr. Watt's double steam engine from his specification of 1782",
   "key": "wattengine",
-  "name": "Watt beam engine",
-  "year": 1776,
-  "disp": "1776",
-  "region": "Scotland",
-  "bucket": "EUR",
-  "tier": "A",
-  "spec": "com:Watt beam steam engine museum preserved|watt,beam engine|portrait,statue,diagram,drawing,patent",
-  "cov": 0.305,
+  "name": "Watt's steam engine specification plate",
+  "year": 1782,
+  "disp": "1782",
+  "region": "England",
+  "cov": 0.372,
   "size": [
-   561,
-   248
+   616,
+   730
   ],
-  "frag": 0.773,
+  "frag": 0.812,
+  "instdate": "1822-01-01",
   "dategap": null,
-  "datesrc": "authored"
+  "datesrc": "institution",
+  "bucket": "EUR",
+  "tier": "B"
  },
  "spinjenny": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Spinning_jenny.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -6382,29 +6381,28 @@
   "datesrc": "authored"
  },
  "airjordan": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/1985_Air_Jordan_1s_signature.jpg/1280px-1985_Air_Jordan_1s_signature.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Nike_Air_Jordan_IV.jpg/1280px-Nike_Air_Jordan_IV.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "src": "Wikimedia Commons",
   "lic": "CC0",
-  "credit": "Smithsonian Institute",
-  "page": "https://commons.wikimedia.org/wiki/File:1985_Air_Jordan_1s_signature.jpg",
-  "found": "1985 Air Jordan 1s signature.jpg",
-  "instdate": "2015",
+  "credit": "Osyffar",
+  "page": "https://commons.wikimedia.org/wiki/File:Nike_Air_Jordan_IV.jpg",
+  "found": "Nike Air Jordan IV.jpg",
   "key": "airjordan",
-  "name": "Air Jordan 1",
-  "year": 1985,
-  "disp": "1985",
+  "name": "Nike Air Jordan IV",
+  "year": 1989,
+  "disp": "1989",
   "region": "Oregon",
-  "bucket": "NAM",
-  "tier": "A",
-  "spec": "com:Air Jordan 1 sneaker 1985 original|air jordan|logo,advert,portrait,store,crowd,box only",
-  "cov": 0.812,
+  "cov": 0.5328,
   "size": [
-   735,
-   551
+   847,
+   721
   ],
-  "frag": 0.692,
+  "frag": 0.734,
+  "instdate": "2026-02-10 21:17:33",
   "dategap": null,
-  "datesrc": "authored"
+  "datesrc": "authored",
+  "bucket": "NAM",
+  "tier": "A"
  },
  "n95": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Counterfeit_3M_Surgical_mask_N95.jpg/1280px-Counterfeit_3M_Surgical_mask_N95.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -9030,5 +9028,77 @@
   "frag": 0.614,
   "dategap": null,
   "datesrc": "authored"
+ },
+ "hanbear": {
+  "url": "https://openaccess-cdn.clevelandart.org/1994.203/1994.203_web.jpg",
+  "src": "Cleveland Museum of Art",
+  "lic": "CC0",
+  "credit": "John L. Severance Fund",
+  "page": "https://clevelandart.org/art/1994.203",
+  "found": "Mat Weight in the Form of a Bear",
+  "key": "hanbear",
+  "name": "Mat weight in the form of a bear",
+  "year": -202,
+  "disp": "c. 202 BCE",
+  "region": "China",
+  "cov": 0.75,
+  "size": [
+   496,
+   552
+  ],
+  "frag": 0.8,
+  "instdate": "202 BCE–9 CE",
+  "dategap": null,
+  "datesrc": "institution",
+  "bucket": "EAS",
+  "tier": "C"
+ },
+ "marsbronze": {
+  "url": "https://openaccess-cdn.clevelandart.org/1964.421/1964.421_web.jpg",
+  "src": "Cleveland Museum of Art",
+  "lic": "CC0",
+  "credit": "Purchase from the J. H. Wade Fund",
+  "page": "https://clevelandart.org/art/1964.421",
+  "found": "Mars",
+  "key": "marsbronze",
+  "name": "Mars",
+  "year": 1584,
+  "disp": "1584–1587",
+  "region": "Italy",
+  "cov": 0.455,
+  "size": [
+   325,
+   780
+  ],
+  "frag": 0.815,
+  "instdate": "c. 1584–87",
+  "dategap": null,
+  "datesrc": "institution",
+  "bucket": "EUR",
+  "tier": "C"
+ },
+ "britannia": {
+  "url": "https://openaccess-cdn.clevelandart.org/1917.626/1917.626_web.jpg",
+  "src": "Cleveland Museum of Art",
+  "lic": "CC0",
+  "credit": "Bequest of Mary Warden Harkness",
+  "page": "https://clevelandart.org/art/1917.626",
+  "found": "Figure of Britannia",
+  "key": "britannia",
+  "name": "Figure of Britannia",
+  "year": 1756,
+  "disp": "c. 1756",
+  "region": "England",
+  "cov": 0.557,
+  "size": [
+   526,
+   658
+  ],
+  "frag": 0.946,
+  "instdate": "c. 1756",
+  "dategap": null,
+  "datesrc": "institution",
+  "bucket": "EUR",
+  "tier": "B"
  }
 }
