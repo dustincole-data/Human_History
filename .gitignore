@@ -29,6 +29,10 @@ prototypes/directions/cand/
 prototypes/directions/cand-sheet-*.png
 prototypes/directions/cand-cut-sheet-*.png
 prototypes/directions/cut02.log
+# the third cut method's candidates and its sheet. Same class again — recut02.py rebuilds both
+# from orig/, and a key only reaches img/ through --promote.
+prototypes/directions/alt3/
+prototypes/directions/recut02-sheet.png
 
 .vercel
 .env*

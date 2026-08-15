@@ -196,7 +196,7 @@ window.THUMBS = {
   hellokitty:[109,160],
   hyundaipony:[243,160],
   ae1:[243,160],
-  vhs:[410,160],
+  vhs:[291,160],
   atari2600:[286,160],
   goldenrec:[181,160],
   walkman:[97,160],

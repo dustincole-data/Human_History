@@ -255,3 +255,139 @@ before the push and not after it, and this is what that buys.**
 including production — 16.5ms warm median, p95 floor 19.6ms.
 
 Still open, untouched: the 2 `remat` keys (dynatac, mughalmini) need a third cut method.
+
+## Lane B round 3 2026-08-14 — five items return, and the periods were never empty
+
+*(Transcribed from `8c134ea`, which was the record for this round until now.)*
+
+Dustin's ruling inverted the search: **a slot is a PERIOD, not the dropped object.** Stop
+re-sourcing the twelve dropped objects; ask the open-access museums what they already photograph
+well inside a date window, and choose the object from what exists. Supply is the binding
+constraint, so it should drive the choice rather than be discovered after it.
+
+Six periods produced picks and Dustin approved all six. **Three did not survive the check that
+should have run FIRST — the twelve drops did not leave twelve holes.** The set is dense and the
+drops mostly removed redundancy: c. 1500 already carries Gothic plate armour, an Ottoman turban
+helmet at exactly 1500, a Ming jar, an Aztec serpent and a Japanese blade, so a German armet was a
+duplicate. A Javanese kris at 1400 was already live against a Javanese sword at 1750; a consumer
+quadcopter at 2013 already live against a DJI Mavic Air 2. All three backed out. It surfaced by
+accident: `heitiki` came back UPDATE rather than NEW, because a Māori hei-tiki **is already in the
+set at c. 1850** — the Oceania pick both clobbered a live record and duplicated a live object.
+Master restored from git, record from the pre-write backup. Nothing else in the batch had been
+checked against the live set at all.
+
+The five that ship sit in **measured** gaps: `hanbear` (c. 202 BCE, Cleveland CC0) · `marsbronze`
+(1584–87, Cleveland CC0) · `britannia` (c. 1756, Cleveland CC0) · `wattengine` (1782, LOC —
+REVIVED) · `airjordan` (1989, Commons CC0 — REVIVED). Both revivals are lane B conclusions that
+were sound and too narrow: no Jordan 1 can carry 1985, but the slot is mid-80s American sport and a
+IV carries 1989 honestly; and lane B asked three of the nine repositories item 3 names, while LOC
+holds Watt's plate under a title the Commons-shaped must-list rejected outright. The Watt record is
+renamed for what the file IS — a specification plate — rather than pretending to be a photograph of
+an engine.
+
+Two walls worth keeping. **Art museums stop explaining a period at about 1900:** Cleveland's Japan
+1900–1950 is 28 clean CC0 export vases, perfect supply and zero relevance to 1940; India 1880–1960
+collapsed to one Kashmir shawl. Same wall `build_data.py` hit on 2026-08-11, reached from the other
+side. **NASA is a mission archive, not an object archive:** its six hits titled "Armstrong Apollo 11
+Spacesuit Unveiling" are press-conference photographs of officials at podiums, no suit in frame.
+Apollo object photography is at NASM, the key-blocked source.
+
+`ERAS` needed no edit — it has been `N - 10` since the last session and re-sampled itself at 219.
+Gate chain all green: sweep10 localhost 43/43 · sweep11i 26/26 (229 cells, 229 credits) ·
+production sweep10 · `review02.py` re-measured 229 · `review02.verify.mjs` 26/26. `frame_budget`
+went red on the first localhost run and green minutes later on the same build and origin — **sixth**
+time on this laptop, never on the CDN.
+
+## Round 4 2026-08-15 — `vhs` re-cut, and the `1` flag was never an endorsement
+
+Dustin caught `vhs` on the live site: ragged bottom edge, a stray flange bottom-left. It was not
+touched in round 3; it last changed in `257a1b1`. It survived because the 2026-08-14 review flagged
+it `1` — **and `1` means "keep the original", which is a verdict between two cuts, not a statement
+that either is right.** Seven keys carry that flag. **All seven are defective.**
+
+|  | isl | islfrac | holes | holefrac | what the eye sees |
+|---|---|---|---|---|---|
+| bayeux | 17 | **0.326** | 16 | 0.129 | linen gone, figures shredded and floating |
+| greatwave | 21 | 0.198 | 5 | 0.053 | wave in islands, cartouche adrift |
+| tughra | 2 | — | **38** | **0.412** | the illuminated oval eaten to confetti |
+| kells | 0 | — | 17 | 0.122 | vellum punched through |
+| durerblock | 0 | — | 10 | 0.057 | holes through the rhino's head, feet missing |
+| rocket | 0 | — | 0 | — | paper kept, sky shredded, hard clipped edge |
+| vhs | 0 | — | 0 | — | **top band, bottom edge and most of the shell gone** |
+
+`vhs` is the worst of them by eye and the only one that scores clean, because its defect is the one
+`measure()` cannot see: the mask did not perforate the object, it **ate** it, and what Dustin read
+as a stray flange is the one surviving corner of a bottom edge that is otherwise gone. The
+instrument has no term for "the silhouette is smaller than the object" — Dustin's eye is still the
+only gate on that, which is why the review surface exists.
+
+### The models were not failing, they were answering a different question
+
+`matte.py` used isnet and `rematte02.py` used birefnet, and **both are salient-object models.** They
+find *the subject*: on a woodblock print that is the ink, so the paper goes; on a tapestry the
+figures, so the linen goes; on a black cassette against white the two bright reel windows and the
+label, so the shell goes. Every one of these images is an object photographed against a **uniform
+ground**, which is not a salience problem at all. It is background removal, and it has an exact
+answer. Two models disagreeing about the same wrong question is why a flag between them settled
+nothing.
+
+`recut02.py` (new) is the third method and there is no model in it: sample the ground off the border
+ring, take each pixel's distance from it, ramp the alpha across a soft band for an antialiased edge.
+Then the one rule that does the work — **transparency is only allowed where it is connected to the
+image border.** Ground colour enclosed by the object is INTERIOR and stays: the paper inside Dürer's
+rhino, the cream inside the tughra's oval, the white highlight on a VHS reel hub. Neither model had
+a way to express that constraint, and it is precisely why they punched holes.
+
+**The reach has to cross the ramp, not just the flat background.** Seeding the flood on `d <= lo`
+alone leaves every interior highlight ringed with half-alpha — the first cut of `vhs` came back with
+both reel hubs punched through, for the same reason the promotion pass manufactured a dark fringe on
+all 37: an edge rule applied to one side of a boundary and not the other. `binary_propagation`
+through `d < hi` fixes it.
+
+`vhs` shipped: **cov 0.734 → 0.993, halo 0.95px, 0 islands, 0 holes**, whole cassette, top band
+back, bottom edge straight. Master 883x345 → 900x494, and that aspect change is the fix showing its
+work — the old sprite was a fragment scaled to the same 132px height as everything else, so the
+cassette was drawn about 1.4x too large as well as broken. `thumbs.js` moved `vhs:[410,160]` →
+`[291,160]`, the only line in it that changed.
+
+### Two modes, because a flat artwork has two honest readings
+
+`ground` (the sheet is the object) and `ink` (threshold higher, close the gaps between strokes, fill
+what they enclose). For a 3-D object on white they are the same picture and it is simply the true
+silhouette. For a print they are **not**, and neither is automatically right: `ground` gives
+greatwave a black hole where the sky was, `ink` gives tughra stray fragments in the corners.
+`MODE` records the call per key and a key with no entry is cut both ways onto `recut02-sheet.png`,
+so the choice stays where every other cut on this ticket has been made — Dustin's eye.
+
+**Held as candidates, not shipped:** the six flat artworks. Their fix is not a cut-quality call, it
+is editorial — *is the object the ink or the sheet?* — and it changes how six items read on a
+near-black shelf. Only `vhs` was authorised and only `vhs` was promoted.
+
+### One of the two `remat` keys is solved, and the other is a different problem
+
+`mughalmini` is a folio photographed on white: `ground` takes the surround and keeps the whole
+folio with its pink border, **0 islands, 0 holes**, either mode. It is a candidate awaiting the same
+ruling. `dynatac` is **not** solved and will not be by this method — a phone on a desk against a
+shaded wall has no single ground colour, the flood stops halfway up the wall and comes out as a
+ragged blob. It needs a matte, and it stays open.
+
+### `no_console_errors` went red once, and it was the machine — a new one
+
+First localhost sweep10: 42/43, three `net::ERR_NETWORK_IO_SUSPENDED`, with nine matching
+`ConnectionAbortedError (WinError 10053)` in the static server's own log — the browser aborting
+in-flight requests, not a 404 and not a missing file. Re-run on the same build and origin: **43/43,
+`no_console_errors` clean.** Then production went red on `frame_budget` (p95 floor 25.6ms against
+the 25ms gate) on the build that **does not contain this change** — confirmed independently by
+`sprite_never_exceeds_its_draw` reading 64.7MB there against localhost's 64.5MB, which is the old
+wider `vhs` sprite. Re-run: **43/43, p95 floor 23.2ms.** Seventh time a gate has moved on this
+laptop.
+
+**Gate chain, in order, all green.** sweep10 localhost **43/43** · sweep11i localhost **26/26**
+(229 cells, 229 credits) · production sweep10 **43/43** · `review02.py` re-measured **229** ·
+`review02.verify.mjs` **26/26**.
+
+Still open: **dynatac** needs a matte, not this method. The **six flat artworks** and
+**mughalmini** are cut and waiting on a ruling in `recut02-sheet.png` (columns: original |
+shipped | ground | ink). The four modern periods (1930 India, 1940 Japan, 1969 US, 2024 China)
+are still unverified as gaps — 2024 already holds a Chinese electric car at 2022, so density gets
+checked before anyone spends the Smithsonian key on them.
