@@ -26,7 +26,8 @@ colour enclosed by the object is INTERIOR and stays: the paper inside Dürer's r
 inside the tughra's oval, the white highlight on a VHS reel hub. That single constraint is what
 both models had no way to express, and it is why they punched holes.
 
-Two modes, because a flat artwork has two honest readings and they are not the same picture:
+Three modes, because a flat artwork has more than one honest reading and they are not the
+same picture:
 
   ground  the sheet is the object. Transparency floods in from the border and stops at the
           first thing that is not the ground. For a 3-D object on white this is simply the
@@ -34,10 +35,21 @@ Two modes, because a flat artwork has two honest readings and they are not the s
   ink     the ink is the object. Threshold higher, close the gaps between strokes, then fill
           what they enclose. Keeps the item in the same visual class as every other silhouette
           on the shelf, and fixes the confetti (tughra's oval comes out solid).
+  flat    there is nothing to remove. Full alpha, the frame as it stands.
 
 Neither is automatic and neither is a default: `MODE` records the call per key, and a key with
 no entry is cut both ways onto the sheet so the choice is made by eye, as every other cut on
 this ticket has been.
+
+`flat` EXISTS BECAUSE THE SEVEN FLAT ARTWORKS HAVE NO BACKGROUND AT ALL. Every one of their
+originals is already cropped to the artwork — the linen, the vellum, the laid paper and the
+wove paper all run off all four edges — so the border ring this file samples its "ground"
+from IS the object, and a flood seeded there eats it: bayeux loses the linen behind the
+horseman, greatwave's sky opens into a 26%-of-area hole, rocket's white sky is chewed away,
+kells is bitten ragged down its right edge, durerblock down its left. Where `ground` looked
+right on this class it was removing nothing at all (tughra and mughalmini both measure
+cov 1.000, which is `flat` by another route). The question `MODE` answers for a flat artwork
+is ink-or-sheet; the answer for all seven is the sheet, and the sheet is the whole frame.
 
 WHAT THIS DOES NOT SOLVE: an object photographed in a real scene. dynatac is a phone on a desk
 against a shaded wall — there is no single ground colour, the flood stops halfway up the wall,
@@ -72,6 +84,15 @@ BG = (5, 6, 10)          # site/index.html's own background, so the sheet judges
 # The call per key. Absent = undecided, and --sheet renders it both ways.
 MODE = {
     "vhs": "ground",     # a 3-D object on white: the flood IS the silhouette
+    # The seven flat artworks, ruled 2026-08-15: the object is the SHEET, and each of these
+    # originals is already cropped to it, so the sheet IS the frame and nothing is removed.
+    "bayeux": "flat",       # a crop of the tapestry: linen off all four edges, no ground
+    "durerblock": "flat",   # the woodcut sheet, letterpress text and all
+    "greatwave": "flat",    # `ground` eats the sky (same tone as the margin, connected to it)
+    "kells": "flat",        # the folio; `ground` bit 60% off its last twelve columns
+    "rocket": "flat",       # a wood engraving: the white sky IS the paper IS the picture
+    "tughra": "flat",       # `ground` already measured cov 1.000 here — this says so
+    "mughalmini": "flat",   # likewise cov 1.000, both modes; the pink border is the folio
 }
 
 
@@ -120,7 +141,14 @@ def cut_ink(path, lo=34.0, hi=52.0, close=3, speck=0.0015):
     return _rgba(a, alpha)
 
 
-CUT = {"ground": cut_ground, "ink": cut_ink}
+def cut_flat(path):
+    """No cut. The frame is the object, so the alpha is a constant and the only work left is
+    the master's own resize and encode, which --promote does."""
+    a = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32)
+    return _rgba(a, np.ones(a.shape[:2], np.float32))
+
+
+CUT = {"ground": cut_ground, "ink": cut_ink, "flat": cut_flat}
 
 
 def candidate(key, mode):
@@ -139,9 +167,10 @@ def _tile(im, box, bg=BG):
 
 def sheet(keys):
     os.makedirs(ALT3, exist_ok=True)
-    box, rows = (330, 330), []
+    box, rows, mods = (330, 330), [], []
     for k in keys:
         modes = [MODE[k]] if k in MODE else ["ground", "ink"]
+        mods.append(modes)
         cells = [_tile(Image.open(os.path.join(ORIG, k + ".jpg")), box, (24, 24, 24)),
                  _tile(Image.open(os.path.join(IMG, k + ".webp")), box)]
         for m in modes:
@@ -163,7 +192,135 @@ def sheet(keys):
             out.paste(c.convert("RGB"), (x * box[0], y * box[1]))
     out.save(SHEET)
     print(f"\n{len(rows)} key(s) -> {os.path.relpath(SHEET, HERE)}"
-          f"   columns: original | shipped | " + " | ".join(["ground", "ink"][:w - 2]))
+          f"   columns: original | shipped | " + " | ".join(max(mods, key=len)))
+
+
+REVIEW = os.path.join(HERE, "recut02-review.html")
+
+PAGE = """<!doctype html><meta charset=utf-8><title>recut02 — the seven flat artworks</title>
+<style>
+:root {{ color-scheme: dark }}
+body {{ background:#05060a; color:#c9ccd6; margin:0 auto; padding:32px 28px 80px; max-width:1180px;
+       font:15px/1.55 ui-sans-serif,system-ui,"Segoe UI",sans-serif }}
+h1 {{ font-size:23px; margin:0 0 6px; color:#f0f2f7; font-weight:600 }}
+.lede {{ margin:0 0 4px; max-width:78ch; color:#9aa0ae }}
+.ask {{ margin:18px 0 0; padding:13px 16px; border-left:3px solid #6f8fd6; background:#0c1018;
+        max-width:78ch; color:#dfe3ec }}
+hr {{ border:0; border-top:1px solid #191d27; margin:34px 0 }}
+h2 {{ font-size:18px; margin:0 0 14px; color:#f0f2f7; font-weight:600 }}
+h2 small {{ font-weight:400; color:#7d8496; font-size:13px }}
+code {{ color:#8f97ab }}
+.pair {{ display:grid; grid-template-columns:1fr 1fr; gap:22px }}
+figure {{ margin:0 }}
+figcaption {{ font:600 11px/1 ui-monospace,monospace; letter-spacing:.09em; margin-bottom:8px }}
+.panel {{ background:#05060a; border:1px solid #1c212c; height:340px;
+          display:flex; align-items:center; justify-content:center; padding:12px }}
+.panel img {{ max-width:100%; max-height:100%; object-fit:contain }}
+.bad {{ color:#d98a86 }} .good {{ color:#7fb894 }}
+figure p {{ font-size:12.5px; margin:9px 0 0 }}
+.why {{ margin:16px 0 0; max-width:88ch; color:#9aa0ae; font-size:14px }}
+.shelf {{ display:flex; align-items:flex-end; gap:26px; margin:22px 0 0; padding:20px 22px;
+          background:#05060a; border:1px solid #191d27; overflow-x:auto }}
+.shelf span {{ display:flex; flex-direction:column; align-items:center; gap:9px; flex:0 0 auto }}
+.shelf img {{ height:132px; width:auto; display:block }}
+.shelf b {{ font:400 10.5px/1.3 ui-sans-serif,system-ui,sans-serif; color:#666d7d;
+            max-width:150px; text-align:center }}
+.shelf .me img {{ outline:2px solid #6f8fd6; outline-offset:7px }}
+.shelf .me b {{ color:#93a9dd; font-weight:600 }}
+.shelfnote {{ font-size:12px; color:#666d7d; margin:9px 0 0 }}
+</style>
+<h1>The seven flat artworks &mdash; what ships, and what I want to ship instead</h1>
+<p class=lede>Every one of these {n} source images is <b>already cropped to the artwork</b>:
+the linen, the vellum and the paper run off all four edges. There is no background in any of
+them. The cut-out pass assumed there was one, found the artwork's own paper, and removed
+it &mdash; which is why the left-hand column is broken.</p>
+<p class=lede>So the proposal is not a better cut. It is <b>no cut</b>: ship the source image
+as it is, opaque, a rectangle.</p>
+<p class=ask><b>What I need from you:</b> for each of the {n}, does a rectangle of paper belong
+on that shelf? Look at the bottom strip of each card &mdash; the ringed one is the proposal,
+sitting at real size between its real neighbours. Tell me the keys you want and the keys you
+don't; anything you reject stays broken as it is today until we find another way.</p>
+<hr>
+{cards}
+"""
+
+CARD = """<section>
+<h2>{n} <small>{sub} &middot; <code>{k}</code></small></h2>
+<div class=pair>
+  <figure><figcaption class=bad>ON THE SITE NOW</figcaption>
+    <div class=panel><img src="img/{k}.webp"></div>
+    <p class=bad>{defect}</p></figure>
+  <figure><figcaption class=good>PROPOSED &mdash; the source, nothing removed</figcaption>
+    <div class=panel><img src="alt3/{k}-web.jpg"></div>
+    <p class=good>0 islands &middot; 0 holes &middot; nothing removed</p></figure>
+</div>
+<p class=why>{why}</p>
+<div class=shelf>{shelf}</div>
+<p class=shelfnote>at shelf size, between its real neighbours &mdash; proposed cut ringed</p>
+</section>
+"""
+
+WHY = {
+    "bayeux": "The source is a crop of the tapestry: linen runs off all four edges. The flood "
+              "samples that linen as \"background\" and eats it &mdash; which is what the "
+              "shipped cut did, leaving the figures floating.",
+    "durerblock": "A woodcut sheet, edge to edge. The shipped cut kept the rhino and punched "
+                  "ten holes through it; the letterpress text above it went entirely.",
+    "greatwave": "The print's sky is the same tone as its margin and joins it, so anything "
+                 "that removes \"the background\" removes the sky. The shipped cut kept only "
+                 "the blue and broke it into 21 pieces.",
+    "kells": "A folio photographed edge to edge. The shipped cut punched 17 holes through the "
+             "vellum; removing the \"ground\" bites ~60% off its last twelve columns.",
+    "rocket": "A wood engraving on white paper. The white sky IS the paper IS the picture, so "
+              "there is no background to take &mdash; the shipped cut clipped it square.",
+    "tughra": "The shipped cut ate the illuminated oval to confetti: 38 holes over 41% of it. "
+              "Removing the ground here removes nothing at all &mdash; measured cov 1.000.",
+    "mughalmini": "A folio with its pink border, edge to edge. The shipped cut threw the "
+                  "border away and tore the painting's edges.",
+}
+
+
+def review(keys):
+    """The surface the ruling is made on. Two panels per item, labelled, plus the item at
+    shelf size between its real year-neighbours — the only view that answers "does a sheet
+    of paper belong on that shelf". Writes small previews so the page stays fast."""
+    import json
+    rows = json.load(open(os.path.join(HERE, "review02.json"), encoding="utf-8"))
+    meta = {r["k"]: r for r in rows}
+    order = [r["k"] for r in rows]
+
+    cards = []
+    for k in keys:
+        p = Image.open(os.path.join(ORIG, k + ".jpg")).convert("RGB")
+        p.thumbnail((900, 900), Image.LANCZOS)
+        p.save(os.path.join(ALT3, k + "-web.jpg"), "JPEG", quality=86)
+
+        o, m = meta[k], measure(os.path.join(IMG, k + ".webp"))
+        bits = []
+        if m["isl"]:
+            bits.append(f"{m['isl']} detached pieces &middot; "
+                        f"{m['islfrac'] * 100:.0f}% of it floating")
+        if m["holes"]:
+            bits.append(f"{m['holes']} holes punched through it"
+                        + (f" &middot; {m['holefrac'] * 100:.0f}% of its area"
+                           if m["holefrac"] > 0.05 else ""))
+        if m["halo"] > 2:
+            bits.append(f"{m['halo']:.1f}px fringe of un-cut background")
+
+        i = order.index(k)
+        shelf = "".join(
+            f'<span class="{"me" if c == k else ""}">'
+            f'<img src="{"alt3/%s-web.jpg" % c if c == k else "img/%s.webp" % c}">'
+            f'<b>{meta[c]["n"]}</b></span>'
+            for c in order[max(0, i - 2):i + 3])
+        sub = " &middot; ".join(x for x in (o["disp"], o["reg"]) if x)
+        cards.append(CARD.format(n=o["n"], sub=sub, k=k, shelf=shelf,
+                                 why=WHY.get(k, ""),
+                                 defect=" &middot; ".join(bits) or "no measurable defect"))
+
+    open(REVIEW, "w", encoding="utf-8").write(PAGE.format(
+        n=len(keys), cards="\n".join(cards)))
+    print(f"{len(keys)} card(s) -> http://127.0.0.1:8813/{os.path.basename(REVIEW)}")
 
 
 def promote(keys):
@@ -186,6 +343,8 @@ def main():
         print(__doc__.strip().splitlines()[2]); return
     if "--promote" in sys.argv:
         promote(keys)
+    elif "--review" in sys.argv:
+        review(keys)
     else:
         sheet(keys)
 
