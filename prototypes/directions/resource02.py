@@ -51,6 +51,17 @@ S.headers["AIC-User-Agent"] = "HumanHistory (dustincole.ent@gmail.com)"
 WIKI = "https://commons.wikimedia.org/w/api.php"
 MET = "https://collectionapi.metmuseum.org/public/collection/v1"
 CMA = "https://openaccess-api.clevelandart.org/api/artworks/"
+# ROUND 2. The first pass declared twelve items unsourceable against Commons + the Met + Cleveland
+# — three of the NINE repositories item 3 of this ticket names. That is not a supply finding, it is
+# an unfinished search, and the first query proved it: Smithsonian NASM holds the A6M5 Reisen with
+# 20 CC0 images, and LOC's first hit for "Watt steam engine" is Watt's own 1782 specification
+# engraving. Both were dropped as "no photograph exists".
+LOC = "https://www.loc.gov"
+SI = "https://api.si.edu/openaccess/api/v1.0/search"
+# api.data.gov's DEMO_KEY allows 10 requests an hour, which is enough to prove the source and not
+# enough to search it. A free key in SI_API_KEY lifts it; without one the SI leg degrades to a
+# no-op rather than failing the run.
+SI_KEY = os.environ.get("SI_API_KEY", "DEMO_KEY")
 
 CAND = os.path.join(HERE, "cand")
 CUT = os.path.join(CAND, "cut")
@@ -90,12 +101,16 @@ PLAN = {
     "airjordan": dict(
         bad="a signed pair in a case, shot through glass with the signature as the subject",
         q="Air Jordan I sneaker shoe", must=["air jordan", "jordan 1", "jordan i"],
-        reject=["signature", "signed", "case", "store", "feet", "wearing", "box"], src="com"),
+        reject=["signature", "signed", "case", "store", "feet", "wearing", "box"], srcq={"loc": dict(q="basketball sneaker shoe Nike",
+            must=["sneaker", "basketball shoe"], reject=["game", "player", "court"])},
+        src=["com", "loc"]),
     "apollosuit": dict(
         bad="the patch photographed on the suit inside a Smithsonian vitrine — the vitrine is half "
             "the frame and the patch is a detail in it",
         q="Apollo 15 mission emblem embroidered patch", must=["apollo 15", "apollo15"],
-        reject=["crew", "portrait", "launch", "rover", "surface", "stamp", "cover"], src="com"),
+        reject=["crew", "portrait", "launch", "rover", "surface", "stamp", "cover"], srcq={"si": dict(q="Apollo 15 emblem patch insignia",
+            must=["apollo 15"], reject=["crew", "portrait", "launch"])},
+        src=["si", "com", "loc"]),
     "aztecserpent": dict(
         bad="the British Museum's own gallery shot: case glass, dark ground, the label in frame",
         q="double headed serpent turquoise mosaic Aztec Mixtec British Museum",
@@ -112,7 +127,9 @@ PLAN = {
         q="batik sarong kain panjang Javanese textile", must=["batik", "kain panjang"],
         reject=["making", "wax", "canting", "factory", "shop", "dress", "worn", "pattern detail",
                 "shirt", "market", "process", "stamp", "maestro", "trusmi", "dokumentasi",
-                "yogyakarta", "motif"], src="cma"),
+                "yogyakarta", "motif"], srcq={"loc": dict(q="batik cloth Java textile",
+            must=["batik"], reject=["making", "process", "worker"])},
+        src=["com", "loc", "cma"]),
     "bulb": dict(
         bad="a collector's array of lamps AND sockets on a cloth — six objects, not one",
         q="Edison carbon filament incandescent lamp bulb",
@@ -127,7 +144,9 @@ PLAN = {
         q="medieval crossbow weapon", must=["crossbow", "armbrust"],
         reject=["trigger", "mechanism", "component", "part", "platform", "nodae", "han ", "qin ",
                 "bolt", "quiver", "pistol", "modern", "competition", "sport", "shooting",
-                "hunting", "bow and"], src="com"),
+                "hunting", "bow and"], srcq={"loc": dict(q="crossbow arbalest weapon",
+            must=["crossbow", "arbalest"], reject=["trigger", "mechanism", "hunting"])},
+        src=["com", "loc", "cma"]),
     "eniac": dict(
         bad="a panel bolted into a museum wall, shot in a lit room with the wall in frame",
         q="ENIAC computer unit panel", must=["eniac"],
@@ -147,7 +166,9 @@ PLAN = {
         bad="a steel cupboard standing against a domestic wall, in a room, at an angle",
         q="steel almirah metal cupboard Godrej", must=["almirah", "almyrah", "godrej"],
         reject=["wooden", "wood", "room", "wall", "shop", "showroom", "factory", "logo", "advert",
-                "house", "tomb", "relics", "literary", "aesthetic"], src="com"),
+                "house", "tomb", "relics", "literary", "aesthetic"], srcq={"loc": dict(q="steel almirah cupboard India",
+            must=["almirah", "cupboard"], reject=["wooden", "room"])},
+        src=["com", "loc"]),
     "jeep": dict(
         bad="a museum Jeep on a floor with the hall behind it and a stanchion through the wheels",
         q="Willys MB jeep vehicle", must=["willys mb", "willys jeep", "jeep willys"],
@@ -166,7 +187,9 @@ PLAN = {
         bad="the museum's jenny with its stanchion, rope barrier and floor kept whole",
         q="spinning jenny Hargreaves machine", must=["spinning jenny"],
         reject=["geograph", "way", "street", "road", "pub", "inn", "portrait", "mill", "factory",
-                "worker", "hall", "barrier"], src="com"),
+                "worker", "hall", "barrier"], srcq={"loc": dict(q="spinning jenny Hargreaves machine",
+            must=["spinning", "jenny"], reject=["street", "way", "road", "geograph"])},
+        src=["loc", "com"]),
     "spitfire": dict(
         bad="a Spitfire hung from a museum roof, shot from below against girders",
         q="Supermarine Spitfire aircraft", must=["supermarine spitfire", "spitfire mk"],
@@ -182,7 +205,9 @@ PLAN = {
         q="Marshall Islands stick chart rebbelib navigation chart",
         must=["stick chart", "rebbelib", "mattang", "meddo"],
         reject=["map", "satellite", "atoll", "diagram", "modern", "loc ", "wall", "bhm"],
-        src="com"),
+        srcq={"si": dict(q="Marshall Islands stick chart navigation",
+            must=["stick chart", "navigation chart"], reject=["candle"])},
+        src=["si", "loc", "com"]),
     "talwar": dict(
         bad="the saber laid beside its scabbard — two long objects, and neither reads whole",
         q="talwar sword Indian", must=["talwar", "tulwar", "sword"],
@@ -197,13 +222,17 @@ PLAN = {
         must=["galileo telescope", "galilei's telescope", "telescopio di galileo",
               "cannocchiale di galileo"],
         reject=["eyepiece", "objective", "lens", "part", "detail", "space", "webb", "hubble",
-                "observatory", "vlt", "nebula", "eso", "radio"], src="com"),
+                "observatory", "vlt", "nebula", "eso", "radio"], srcq={"loc": dict(q="Galileo telescope instrument",
+            must=["galileo", "telescope"], reject=["space", "observatory", "hubble", "radio"])},
+        src=["loc", "com", "si"]),
     "terracotta": dict(
         bad="the pit: rows of warriors, a crowd of them, and R1 forbids the crowd",
         q="Terracotta Army warrior standing figure full length Qin",
         must=["terracotta warrior", "terracotta army", "terracotta soldier"],
         reject=["pit", "rows", "site", "excavation", "horses", "hall", "hydria", "sketch",
-                "canova", "figurine", "head", "boots", "hands", "detail", "close"], src="com"),
+                "canova", "figurine", "head", "boots", "hands", "detail", "close"], srcq={"loc": dict(q="terracotta warrior Qin figure",
+            must=["terra cotta", "terracotta"], reject=["pit", "excavation", "horses"])},
+        src=["com", "loc", "cma"]),
     "trinitron": dict(
         bad="a 1975 set with a Betamax deck bolted to it — the wrong object AND two of them",
         q="Sony Trinitron KV-1310 first colour television 1968",
@@ -216,7 +245,9 @@ PLAN = {
         must=["unitree", "humanoid robot"],
         reject=["headquarter", "building", "office", "campus", "expo", "stand", "stage", "booth",
                 "conference", "dog", "quadruped", "go2", "b2", "banner", "demonstration"],
-        src="com"),
+        srcq={"loc": dict(q="humanoid robot",
+            must=["humanoid robot"], reject=["illustration", "cartoon"])},
+        src=["com", "loc"]),
     "v2": dict(
         bad="the engine on its museum rail, which is cut as part of the engine",
         q="V-2 rocket engine A4", must=["v-2", "v2 ", "a4 rocket", "aggregat"],
@@ -237,14 +268,18 @@ PLAN = {
         q="Boulton and Watt rotative beam engine engraving",
         must=["watt engine", "watt's engine", "boulton", "watt beam", "rotative"],
         reject=["floor", "house", "hall", "interior", "portrait", "statue", "patent", "pump",
-                "station", "cornish", "wanlockhead", "geograph"], src="com"),
+                "station", "cornish", "wanlockhead", "geograph"], srcq={"loc": dict(q="Watt steam engine specification",
+            must=["watt's", "watt "], reject=["portrait", "statue", "james watt,"])},
+        src=["loc", "com"]),
     "zero": dict(
         bad="a museum A6M with the hall's floor, lights and neighbouring airframe in the cut",
         q="Mitsubishi A6M Zero fighter aircraft airworthy",
         must=["a6m", "zero fighter", "mitsubishi zero", "reisen"],
         reject=["mock-up", "mockup", "museum", "hangar", "hall", "formation", "cockpit", "model",
                 "wreck", "diagram", "engine", "nose", "slot", "feldbahn", "postcard", "crashing",
-                "port side 2"], src="com"),
+                "port side 2"], srcq={"si": dict(q="Mitsubishi A6M Reisen Zero Fighter",
+            must=["a6m", "reisen", "zero fighter"], reject=["model,", "recognition", "book"])},
+        src=["si", "loc", "com"]),
 }
 
 
@@ -352,7 +387,88 @@ def cma_many(q, must, reject, exclude, n):
     return out
 
 
-GATHER = {"com": commons_many, "met": met_many, "cma": cma_many}
+def loc_many(q, must, reject, exclude, n):
+    """Library of Congress. No key, and the rights answer is per item rather than per collection.
+
+    `unrestricted` and `access_restricted` are the search-level flags, but neither is a licence —
+    the statement that matters is the ITEM's `rights_advisory`, so each candidate costs a second
+    request and the ones that do not say "no known restrictions" are dropped rather than assumed.
+    A collection-level guess is how the GFDL row shipped for three rounds.
+    """
+    try:
+        r = S.get(LOC + "/photos/", params={"q": q, "fo": "json", "c": 40}, timeout=45).json()
+    except Exception:
+        return []
+    out = []
+    for it in r.get("results", []):
+        t = it.get("title") or ""
+        if not _accept(t, must, reject) or t in exclude:
+            continue
+        if it.get("access_restricted") or it.get("unrestricted") is False:
+            continue
+        urls = [u for u in (it.get("image_url") or []) if u.startswith("http")]
+        if not urls:
+            continue
+        # the list runs small -> large with the size in a #w= fragment; take the widest
+        def wide(u):
+            m = re.search(r"[#&]w=(\d+)", u)
+            return int(m.group(1)) if m else 0
+        url = max(urls, key=wide).split("#")[0]
+        page = it.get("id") or it.get("url") or ""
+        adv = ""
+        try:
+            d = S.get(page, params={"fo": "json"}, timeout=40).json().get("item", {})
+            adv = str(d.get("rights_advisory") or d.get("rights") or "")
+            time.sleep(PACE)
+        except Exception:
+            pass
+        if "no known restriction" not in adv.lower():
+            continue
+        out.append(dict(url=url, src="Library of Congress", lic="No known restrictions",
+                        credit=(it.get("contributor") or ["Library of Congress"])[0],
+                        page=page, found=t, instdate=(it.get("date") or "")[:40]))
+        if len(out) >= n:
+            break
+    return out
+
+
+def si_many(q, must, reject, exclude, n):
+    """Smithsonian Open Access, filtered to CC0 images in the query itself."""
+    try:
+        r = S.get(SI, params={"q": f'{q} AND online_media_type:"Images" AND media_usage:"CC0"',
+                              "api_key": SI_KEY, "rows": 40}, timeout=45)
+        if r.status_code != 200:
+            print(f"      SI {r.status_code} — set SI_API_KEY for more than DEMO_KEY's 10/hour")
+            return []
+        rows = r.json().get("response", {}).get("rows", [])
+    except Exception:
+        return []
+    out = []
+    for row in rows:
+        t = row.get("title") or ""
+        if not _accept(t, must, reject) or t in exclude:
+            continue
+        dnr = (row.get("content") or {}).get("descriptiveNonRepeating", {})
+        media = [m for m in ((dnr.get("online_media") or {}).get("media") or [])
+                 if m.get("type") == "Images" and m.get("content")]
+        if not media:
+            continue
+        # ONE RECORD IS A POOL HERE, not a candidate. NASM's A6M5 Reisen carries 20 CC0 images of
+        # the same airframe — every angle the museum shot — and taking media[0] would offer one
+        # arbitrary view of the one object that matters. The other collections give one image per
+        # record and this is the only gatherer where that is untrue.
+        for j, m in enumerate(media[:n], 1):
+            out.append(dict(url=m["content"], src="Smithsonian", lic="CC0",
+                            credit=row.get("unitCode") or "Smithsonian",
+                            page=dnr.get("record_link") or dnr.get("guid") or "",
+                            found=f"{t} [{j}]", instdate=""))
+            if len(out) >= n:
+                return out
+    return out
+
+
+GATHER = {"com": commons_many, "met": met_many, "cma": cma_many,
+          "loc": loc_many, "si": si_many}
 
 
 # ---------------------------------------------------------------- sheets
@@ -473,7 +589,26 @@ def find(keys):
         p = PLAN[k]
         # never re-offer the photograph being replaced
         exclude = {src.get(k, {}).get("found") or "", ""}
-        cands = GATHER[p["src"]](p["q"], p["must"], p["reject"], exclude, NCAND)
+        # ROUND 2: `src` may name several collections. They are asked in order and merged rather
+        # than fallen back through, because the question is no longer "did one answer" but "what
+        # does the whole open corpus hold" — which is what the first pass never asked.
+        srcs = p["src"] if isinstance(p["src"], (list, tuple)) else [p["src"]]
+        cands, seen_urls = [], set()
+        for name in srcs:
+            # A `must` is the artifact's whole name AS THAT COLLECTION WRITES IT, so it cannot be
+            # shared across collections: LOC catalogues Watt's engraving as "Steam engine - Mr.
+            # Watt's double steam engine from his specification of 1782", which the Commons-shaped
+            # must-list ("watt engine", "boulton") rejects outright. `srcq` overrides per source;
+            # without one the whole-name rule silently becomes a whole-name-in-the-wrong-catalogue
+            # rule, and the source reads as empty when it is only mis-asked.
+            o = p.get("srcq", {}).get(name, {})
+            q, must, reject = o.get("q", p["q"]), o.get("must", p["must"]), o.get("reject", p["reject"])
+            for c in GATHER[name](q, must, reject, exclude, NCAND - len(cands)):
+                if c["url"] in seen_urls:
+                    continue
+                seen_urls.add(c["url"]); cands.append(c)
+            if len(cands) >= NCAND:
+                break
         kept = []
         for j, c in enumerate(cands, 1):
             dest = os.path.join(CAND, f"{k}-{j}.jpg")
