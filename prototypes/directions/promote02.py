@@ -30,7 +30,11 @@ exists to catch, manufactured by the promotion itself.
 Reads:  alt/<key>.png    the approved re-cut (rematte02.py --ate)
 Writes: img/<key>.webp   the master, REPLACED (git holds the one it replaced)
 
-Then `python bake_sprites.py` — site/img/ is derived and is not touched here.
+Then `python bake_sprites.py` AND `python bake_index.py` — site/img/ and site/thumb/ are
+both derived and neither is touched here. **Two bakes, not one** (ticket 10): the shelf owns
+assets cut at its own 80 x dpr 2 cap, and its box table lives in site/thumbs.js. Skipping
+bake_index leaves the shelf drawing the new sprite scaled to the OLD one's aspect ratio —
+02 round 7 moved dynatac:[55,160] -> [43,160] and nothing else in that file.
 """
 import os, sys
 
@@ -98,7 +102,8 @@ def main():
     print(f"\n{done} master{'s' if done != 1 else ''} "
           f"{'measured' if check else 'REPLACED'}, {failed} missing"
           + ("   (--check: nothing written)" if check else
-             "\nNext: python bake_sprites.py — site/img/ is derived and still holds the old cut."))
+             "\nNext: python bake_sprites.py AND python bake_index.py — site/img/ and site/thumb/"
+             "\n      are both derived and both still hold the old cut."))
 
 
 if __name__ == "__main__":

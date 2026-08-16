@@ -465,3 +465,67 @@ six flat artworks. To ship: copy `alt/dynatac-fix.png` over `alt/dynatac.png`, t
 
 Still open: **mughalmini** and the six flat artworks await their ruling. **1930 India** remains the
 one genuine unchecked period gap.
+
+## Round 7 2026-08-16 — dynatac promoted, and the promotion chain was missing a bake
+
+**Ruled by Dustin: promote.** `6fe3b3a`, live on both origins. The master went `213x622` ->
+`227x846`; `review02.py` re-measures it at exactly the candidate's numbers — `cov 0.6436 ·
+solid 0.0278 · halo 1.55 · isl 0 · holes 0 · 39 KB` — so nothing moved between the candidate
+and the shipped file.
+
+### The price was re-measured on BOTH surfaces before the ruling, and round 6 had only priced one
+
+Round 6 quoted −16.7% height / −11.5% width, which is `gravity.js` normalising by AREA. **The
+shelf normalises by HEIGHT** (`index.js THUMB_WIDE = 80`, `THUMB_NARROW = 64`), so the whole of
+the antenna's height comes out of the body there: **−26.2%**, and the body draws **21.5x59 px**
+on a wide screen and **17.2x47 px** on a phone. That is the larger of the two prices and it had
+never been named. It was put in front of Dustin at 1:1 alongside x2, on the era-correct ground —
+dynatac is 1983, so its row carries a **lit sky**, not the deep head's near-black, which is the
+condition under which the antenna is legible rather than the one that caused round 5's error.
+Sheet: `alt/dynatac-ruling.png`.
+
+### Re-sourcing was checked and is dead, so the ruling was genuinely two-way
+
+Commons holds **exactly three** DynaTAC photographs (`Category:Motorola DynaTAC`, plus a
+category search). The two that are not the record's own are **`Motorola DynaTAC.jpg`** — Martin
+Cooper holding it to his ear, an identifiable person, fingers across the body, motion-soft — and
+**`Motorola DynaTAC and Samsung Galaxy Note Edge.jpg`** — 6000x4000 and public domain, but the
+phone is gripped in a hand in a phone shop with a second phone in frame. Both fail
+[05](05-arrival-set.md)'s R1 and [11](11-visual-anchor.md)'s cut-out rule. **The 399x977 frame
+already in the record is the best free photograph of this object that exists**, so "get a better
+photo" was never available and the choice really was antenna-or-body.
+
+The truncation was checked too and is **not** an objection: the antenna is cut by the
+photograph's own top edge, but **134 of 386 masters** touch a bbox side along >10% of it. A
+frame-clipped master is the norm here, not a novelty.
+
+### The chain in round 6 was wrong by one step, and it would have shipped a wrong shelf
+
+Round 6 wrote it as `promote02 -> bake_sprites -> gates`. `site/thumb/` is a **SECOND BAKE**
+([10](10-the-index-surface.md)) at `80 x dpr 2 = 160`, and `bake_sprites.py` does not touch it.
+Run without `bake_index.py`, the shelf keeps the old thumbnail **and** the old box —
+`thumbs.js` moved `dynatac:[55,160]` -> `[43,160]`, the antenna narrowing the aspect, and the
+one line in that file is the whole tell. The shelf would have drawn the new sprite scaled to the
+old sprite's ratio, and **no gate would have caught it**: `thumb_never_exceeds_its_draw` reads a
+cap, not a shape. Round 4 escaped this only because `vhs`'s bake was run by hand.
+`promote02.py`'s docstring and its own `Next:` line said `bake_sprites.py` alone and are the
+source of the error; both fixed in this commit.
+
+### `frame_budget`'s eighth move, and this time the discriminator is clean
+
+**Gate chain: sweep10 localhost 44/44 · sweep11i localhost 26/26 · production sweep10 44/44 ·
+`review02.py` 229 · `review02.verify.mjs` 26/26.**
+
+The first production run read **43/44**, `frame_budget` red at p95 34.3ms / worst 49.4ms — and
+`review02.verify.mjs` was driving a second playwright on the same laptop at the time. Re-run
+with nothing else on the machine: **44/44, p95 21.2ms**, against localhost's 21.5ms on the same
+build. **The median never moved** — 16.6 / 17.0 / 16.6 across the three runs — while p95 went
+21.5 -> 34.3 -> 21.2. Load lands in the tail and nowhere else, which is a sharper reading of
+this gate than the seven previous "it is the laptop" findings, all of which compared totals.
+
+`review02.verify.mjs` also needs its own static server on **8813** rooted at
+`prototypes/directions/` (`review02.html`); round 4's chain listed the command without it and it
+dies on `ERR_CONNECTION_REFUSED`.
+
+Still open, unchanged: **mughalmini** and the six flat artworks await their ruling
+(`recut02-review.html`). **1930 India** remains the one genuine unchecked period gap.
