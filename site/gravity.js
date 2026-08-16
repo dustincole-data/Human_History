@@ -270,9 +270,12 @@ function bakeGround() {
     gctx.fillRect(0, (y0 + feather) / k, W / k, (H + 60 - y0 - feather) / k);
     gctx.restore();
   };
-  layer(tile, 2.1, 26, 120, 0.34);
-  layer(mt, 2.4, 20, 150, 0.55);
-  layer(tile, 3.9, 120, 260, 0.46);
+  /* ART PASS · DARK — the feathers lengthened. At 120/150/260 the third band's onset was still
+     readable as a horizontal seam across the field in the 1890 frame; a recession is continuous
+     and its texture growth has to be too. Longer ramps, same bands, same alphas. */
+  layer(tile, 2.1, 26, 170, 0.34);
+  layer(mt, 2.4, 20, 230, 0.55);
+  layer(tile, 3.9, 120, 400, 0.46);
 
   /* THE LANDFORM, FINALLY VISIBLE. Per column, the slope of the real heightfield decides whether
      that facet is turned toward the lamp or away from it — light arrives from `(W/2, gy)`, so for
@@ -348,13 +351,55 @@ function bakeGround() {
     gctx.fillStyle = hexA(SOIL.k, 0.10 + 0.22 * q);              // its shadow, thrown from the lamp
     face(x + sx * sz * 0.95, y + sy * sz * 0.8, sz * 1.15, 0.6);
 
-    gctx.fillStyle = hexA(q < 0.74 ? SOIL.k : SOIL.l, 0.20 + 0.44 * q);
+    /* ART PASS · DARK — one chip in eleven is a MINERAL, not soil: a dull ochre or a cold
+       grey, at the same value as the clods around it. Real ground is not one substance, and a
+       fleck of foreign colour at soil value is what reads as geology rather than decoration —
+       the value discipline is what keeps 06's contrast maths untouched. */
+    const mq = r();
+    gctx.fillStyle = mq < 0.045 ? hexA('#6b4f2c', 0.30 + 0.30 * q)
+                   : mq < 0.09  ? hexA('#3e4147', 0.30 + 0.30 * q)
+                   : hexA(q < 0.74 ? SOIL.k : SOIL.l, 0.20 + 0.44 * q);
     face(x, y, sz, 0.72);
 
     if (sz > 3.4) {                                              // the catch, on the face turned in
       gctx.fillStyle = `rgba(255,226,180,${(0.05 + 0.08 * q).toFixed(3)})`;
       face(x - sx * sz * 0.30, y - sy * sz * 0.26, sz * 0.46, 0.6);
     }
+  }
+
+  /* ART PASS · DARK — SIX STONES. The clods top out around a dozen px, so nothing in the field
+     ever reads at hand scale and the foreground has no anchor. A handful of properly large
+     half-buried stones in the near third — same five-sided face(), same lamp arithmetic, just
+     bigger, with the shadow pulled longer and the catch stronger — gives the recession its
+     nearest term. Six, not sixty: a field of boulders is a quarry. */
+  const rs = rng(77031);
+  for (let i = 0; i < 6; i++) {
+    const x = (0.08 + 0.84 * rs()) * W;
+    const y = gy + near * (0.55 + 0.38 * rs());
+    if (y > H + 20) continue;
+    const sz = 16 + rs() * 22, q = 0.5 + rs() * 0.5, rot = rs() * 6.283;
+    const dx = x - W / 2, dy = Math.max(24, y - gy), Lh = Math.hypot(dx, dy);
+    const sx = dx / Lh, sy = dy / Lh;
+    const face = (cx, cy, s, sq) => {
+      gctx.beginPath();
+      for (let k = 0; k < 5; k++) {
+        const a = rot + k * 1.2566, rr = s * (0.62 + ((k * 41 + i * 13) % 19) / 30);
+        const px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr * sq;
+        k ? gctx.lineTo(px, py) : gctx.moveTo(px, py);
+      }
+      gctx.closePath();
+      gctx.fill();
+    };
+    gctx.fillStyle = hexA(SOIL.k, 0.34);                         // its thrown shadow, long
+    face(x + sx * sz * 1.25, y + sy * sz * 0.9, sz * 1.3, 0.5);
+    /* the body leans LIGHT — a near-black mass at this size reads as a hole in the field, not
+       as a stone on it. SOIL.d body, dark only as the minority, and a real catch on top. */
+    gctx.fillStyle = hexA(q < 0.3 ? SOIL.k : SOIL.d, 0.85);
+    face(x, y, sz, 0.68);
+    gctx.fillStyle = hexA(SOIL.l, 0.5);
+    face(x - sx * sz * 0.18, y - sy * sz * 0.2, sz * 0.62, 0.6);
+    gctx.fillStyle = `rgba(255,226,180,${(0.14 + 0.08 * q).toFixed(3)})`;
+    face(x - sx * sz * 0.34, y - sy * sz * 0.30, sz * 0.40, 0.55);
   }
 
   /* Erosion, lying IN the plane rather than across it: shallow drag marks, each a dark stroke with
@@ -552,7 +597,12 @@ function bakeStars() {
     const a = (0.09 + q * q * q * 0.60) * (1 - ext * 0.66 * (1 - alt)) * mul;
     if (a < 0.006) return;
     const s = q > 0.988 ? 1.7 : q > 0.90 ? 1.2 : 1;
-    const col = t < 0.15 ? [255, 226, 190] : t < 0.29 ? [206, 222, 255] : [244, 246, 252];
+    /* ART PASS · DARK — four temperature classes instead of three. A real field is mostly
+       white with a scatter of blue-white early types and a few properly ORANGE giants; the old
+       warm tier was too pale to read as anything and the sky came out monochrome. The giants
+       are rare (5%) and slightly favoured in size, which is also true of the real ones. */
+    const col = t < 0.05 ? [255, 191, 138] : t < 0.16 ? [255, 224, 184]
+              : t < 0.30 ? [198, 218, 255] : [244, 246, 252];
     c.fillStyle = `rgba(${col.join(',')},${a.toFixed(3)})`;
     c.fillRect(x, y, s, s);
   };
@@ -566,11 +616,20 @@ function bakeStars() {
      as well as on the ground. `w` widens toward the left, which is what a galaxy seen off-centre
      does and what stops it reading as a painted stripe. */
   const r2 = rng(90210);
-  const m = Math.round(W * gy / 190);                 // ~5,300 at 1440×900
+  const m = Math.round(W * gy / 165);                 // ~6,100 at 1440×900
   const spine = u => gy * (0.86 - 1.02 * u + 0.30 * u * u);
+  /* ART PASS · DARK — THE BULGE. A galaxy seen from inside is not an even ribbon: toward the
+     centre the band swells and brightens, and that swelling is the single thing that makes the
+     real Milky Way readable as a STRUCTURE rather than as haze. One gaussian on `u` does it —
+     the band runs up to twice as dense and half again as wide around u 0.30, tapering to what
+     it was at both ends. Points only, like everything else in this sky: density is the one
+     medium the emptiness probe cannot mistake for a photograph. */
+  const bulge = u => Math.exp(-Math.pow((u - 0.30) / 0.17, 2));
   for (let i = 0; i < m; i++) {
     const x = r2() * W * 1.06 - W * 0.03, u = x / W;
-    const wide = gy * (0.21 - 0.075 * u);
+    const b = bulge(u);
+    if (b < 0.92 && r2() < 0.22 * (0.92 - b)) continue;   // thin the band away from the centre
+    const wide = gy * (0.21 - 0.075 * u) * (1 + 0.45 * b);
     // two uniform draws summed is a triangular density — a gaussian without the transcendental
     const off = (r2() + r2() - 1) * wide;
     const y = spine(u) + off;
@@ -578,7 +637,7 @@ function bakeStars() {
     const k = Math.abs(off) / wide;
     const rift = Math.abs(off + wide * 0.14) < wide * (0.10 + 0.07 * noise1(u * 9));
     if (rift && r2() < 0.82) continue;                // the dust lane, drawn by taking them out
-    star(mc, x, y, Math.pow(r2(), 1 + 1.6 * k), r2(), 1.25 * (1 - k * 0.55), 0.5);
+    star(mc, x, y, Math.pow(r2(), 1 + 1.6 * k), r2(), (1.25 + 0.30 * b) * (1 - k * 0.55), 0.5);
   }
 
   /* AND A WASH UNDER THEM, AT THREE PARTS IN 255. The band is unresolved light and points alone
@@ -588,16 +647,55 @@ function bakeStars() {
      hundred pixels takes `stars_go_out` down. Peak here is ~9 summed — a third of the bar, and on
      a sky that sits at 12 it is still most of a doubling, which is the whole trick. Blobs rather
      than one gradient, so it has the irregularity a galaxy has and no edge anywhere. */
+  /* the bulge's own stars — the widened band spreads its extra draws over a wider cross-section,
+     which cancels the density the widening was meant to add. A second, tighter pass at the
+     centre puts the concentration back: an elliptical cloud along the band's own tilt. */
+  const bx = 0.30 * W, by = spine(0.30);
+  const tilt = (spine(0.34) - spine(0.26)) / (0.08 * W);
+  const bn = Math.round(m * 0.16);
+  for (let i = 0; i < bn; i++) {
+    const du = (r2() + r2() - 1) * 0.13 * W;
+    const dv = (r2() + r2() - 1) * gy * 0.085;
+    const x = bx + du, y = by + du * tilt + dv;
+    if (y < 0 || y > gy) continue;
+    const k = Math.abs(dv) / (gy * 0.085);
+    star(mc, x, y, Math.pow(r2(), 1.3 + k), r2(), 1.5 * (1 - k * 0.4), 0.5);
+  }
+
   mc.save();
   mc.globalCompositeOperation = 'lighter';
   for (let i = 0; i < 15; i++) {
     const u = (i + 0.5) / 15 + (r2() - 0.5) * 0.06;
     const x = u * W, y = spine(u) + (r2() - 0.5) * gy * 0.10;
-    const rad = gy * (0.14 + r2() * 0.16);
+    /* the wash follows the bulge the points already have — a swollen band with an even glow
+       under it reads as two different skies drawn on one canvas */
+    const b = bulge(u);
+    const rad = gy * (0.14 + r2() * 0.16) * (1 + 0.30 * b);
     const wg = mc.createRadialGradient(x, y, 0, x, y, rad);
-    wg.addColorStop(0, `rgba(232,228,246,${(0.010 + r2() * 0.005).toFixed(4)})`);
-    wg.addColorStop(1, 'rgba(232,228,246,0)');
+    wg.addColorStop(0, `rgba(234,229,244,${(0.010 + r2() * 0.005 + 0.006 * b).toFixed(4)})`);
+    wg.addColorStop(1, 'rgba(234,229,244,0)');
     mc.fillStyle = wg;
+    mc.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+
+  /* ART PASS · DARK — THE ZODIACAL LIGHT. The second-brightest structure in a truly dark sky
+     and the first to go: a tilted cone of sunlit dust standing up from where the sun went down,
+     about as bright as the band and gone from anywhere with street lighting — so it rides this
+     canvas and MW_OUT takes both out together, which is the honest order of loss. Off-centre on
+     purpose (the fire is at W/2; dusk was not), leaning toward the band's low end, drawn as a
+     chain of blobs whose radius and alpha shrink with height. The whole cone sums to ~7 on the
+     probe's summed channels against its bar of 30, and it lives in the low sky anyway. */
+  const tipY = gy * 0.30;                             // where the cone fades out
+  for (let i = 0; i < 9; i++) {
+    const v = (i + 0.5) / 9;                          // 0 at the horizon, 1 at the tip
+    const x = W * (0.80 + 0.045 * v);                 // leaning, the way the ecliptic actually sits
+    const y = gy - (gy - tipY) * v;
+    const rad = gy * (0.30 - 0.20 * v) * (1 + 0.1 * noise1(v * 5));
+    const a = 0.024 * Math.pow(1 - v, 1.6) + 0.005;
+    const zg = mc.createRadialGradient(x, y, 0, x, y, rad);
+    zg.addColorStop(0, `rgba(240,232,220,${a.toFixed(4)})`);
+    zg.addColorStop(1, 'rgba(240,232,220,0)');
+    mc.fillStyle = zg;
     mc.fillRect(x - rad, y - rad, rad * 2, rad * 2);
   }
   mc.restore();
@@ -615,8 +713,15 @@ function bakeStars() {
    They are kept low. The emptiness probe reads the upper 45% of the sky; a dome whose radius runs
    past that is a smooth horizontal structure inside the band it reads, which is the one thing that
    probe cannot survive. Domes belong on the horizon anyway. */
-const DOMES = [[0.13, 0.30, 0.62], [0.30, 0.16, 0.86], [0.70, 0.22, 0.78],
-               [0.87, 0.40, 0.55], [0.05, 0.52, 0.40], [0.95, 0.60, 0.44]];
+/* ART PASS · DARK — each dome carries its own TEMPERATURE, a fixed multiplier on the era's
+   colour. Six identical glows in the era's exact hue read as one wash with lumps in it; six
+   towns never burn the same lamp on the same night — one is still sodium after the next has
+   gone LED — and that disagreement is most of why a real lit horizon has depth. The multipliers
+   are constants, so the bake stays a pure function of (reach, colour, viewport) and the sky at
+   a given scroll position is still exactly one sky. */
+const DOMES = [[0.13, 0.30, 0.62, [1.12, 0.97, 0.84]], [0.30, 0.16, 0.86, [1.00, 1.00, 1.00]],
+               [0.70, 0.22, 0.78, [0.88, 0.98, 1.14]], [0.87, 0.40, 0.55, [1.16, 0.95, 0.80]],
+               [0.05, 0.52, 0.40, [0.92, 1.00, 1.10]], [0.95, 0.60, 0.44, [1.06, 1.00, 0.92]]];
 
 /* TICKET 02 — ONE AREA, NOT ONE HEIGHT. Dustin: "they all need to be the same size."
 
@@ -2161,11 +2266,21 @@ function frame() {
     bcvs.width = Math.round(W * dpr); bcvs.height = Math.round(H * dpr);
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    /* ART PASS · DARK — AIRGLOW. A moonless pre-industrial sky is not black at the horizon: the
+       air itself luminesces, a grey-green lift in the last few degrees that every dark-sky
+       photograph carries and every planetarium fakes. It is the one colour the deep past owns,
+       it is what the skyglow REPLACES (out by reach 0.30, squared, so the lit eras never see
+       it), and at the probe's sample points it is worth ~3 summed channels — noise against the
+       gate's required +4 rise per era step. Weighted t², so it lives at the horizon and the
+       zenith stays properly black. */
+    const ag = Math.pow(Math.max(0, 1 - rq / 0.30), 2);
+    const AGC = [3, 9, 6];                            // the O(¹S) green line, greyed
     const sky = bctx.createLinearGradient(0, 0, 0, gy);
     for (const t of [0, 0.55, 1]) {
       const amt = (0.12 + 0.34 * t) * rq * 0.24;      // how much of the age's light is in the air
       const dark = 4 + 2 * t;                         // the night under it
-      sky.addColorStop(t, `rgb(${L.map(v => Math.round(dark + v * amt)).join(',')})`);
+      const glow = ag * t * t;
+      sky.addColorStop(t, `rgb(${L.map((v, j) => Math.round(dark + v * amt + AGC[j] * glow)).join(',')})`);
     }
     /* the whole canvas, not just down to the ground line. The earth is opaque over most of what
        is below gy, but the soil contour rises as much as 32px above it, and any band this fill
@@ -2206,13 +2321,14 @@ function frame() {
     /* …and the rest of the horizon, filling up as the centuries do. Each dome is skipped entirely
        until its own onset, so the deep past pays for none of them and the lit end pays for six on
        the frames where the star field costs nothing. */
-    for (const [dx, onset, str] of DOMES) {
+    for (const [dx, onset, str, tint] of DOMES) {
       const f = Math.min(1, (rq - onset) / 0.20);
       if (f <= 0.01) continue;
+      const DL = `rgba(${L.map((v, j) => Math.min(255, Math.round(v * tint[j]))).join(',')},`;
       const dr = gy * (0.11 + 0.34 * rq) * (0.66 + str * 0.6);
       const dg = bctx.createRadialGradient(W * dx, gy + 8, 0, W * dx, gy + 8, dr);
-      dg.addColorStop(0, lit + (f * str * (0.24 + 0.16 * rq)).toFixed(3) + ')');
-      dg.addColorStop(0.42, lit + (f * str * (0.075 + 0.07 * rq)).toFixed(3) + ')');
+      dg.addColorStop(0, DL + (f * str * (0.24 + 0.16 * rq)).toFixed(3) + ')');
+      dg.addColorStop(0.42, DL + (f * str * (0.075 + 0.07 * rq)).toFixed(3) + ')');
       dg.addColorStop(1, 'rgba(0,0,0,0)');
       bctx.fillStyle = dg;
       bctx.fillRect(W * dx - dr, gy - dr, dr * 2, dr * 2);

@@ -7,18 +7,28 @@ export const ITEMS = window.ITEMS;
 export const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* The light people actually had. Kept from direction B, which is the one Dustin picked
-   when forced — dark, lit, cinematic. Here it becomes a real light, not a CSS gradient. */
+   when forced — dark, lit, cinematic. Here it becomes a real light, not a CSS gradient.
+
+   ART PASS · DARK — the ramp re-anchored on what each lamp actually put into the sky, and one
+   entry replaced: PHOSPHOR (a screen lit rooms, but it never lit the sky) gives its slot to
+   SODIUM VAPOUR, the orange blanket that WAS the night sky from the fifties to the nineties and
+   the one colour beat the old ramp skipped — the ramp ran warm → mint → blue and the century
+   everyone alive remembers as orange never happened. Now the last three moves are the real ones:
+   the fluorescent pallor, the sodium decades, and LED scrubbing the orange out. Gaslight is
+   pulled off acid lime toward the pale lime-white a mantle burns at; tungsten warms back toward
+   an actual filament. Every value stays light enough to clear 4.5:1 as the HUD era name and as
+   a date word over its own era's sky — the two gates that bind this table. */
 export const LIGHTS = [
-  [-99999, '#ff7a1a', 'FIRELIGHT'],
-  [-3000,  '#ffa33c', 'OIL LAMP'],
-  [-500,   '#ffcf85', 'CANDLE'],
-  [1780,   '#ffe4ae', 'ARGAND LAMP'],
-  [1820,   '#c9f79c', 'GASLIGHT'],
-  [1880,   '#ffb45c', 'CARBON FILAMENT'],
-  [1910,   '#fff0cf', 'TUNGSTEN'],
-  [1940,   '#cfffe8', 'FLUORESCENT'],
-  [1965,   '#6cffb8', 'PHOSPHOR'],
-  [1985,   '#9fd0ff', 'LED']
+  [-99999, '#ff8226', 'FIRELIGHT'],
+  [-3000,  '#ffa848', 'OIL LAMP'],
+  [-500,   '#ffd282', 'CANDLE'],
+  [1780,   '#ffe9bc', 'ARGAND LAMP'],
+  [1820,   '#dcedb6', 'GASLIGHT'],
+  [1880,   '#ffb254', 'CARBON FILAMENT'],
+  [1910,   '#ffe2a4', 'TUNGSTEN'],
+  [1940,   '#d9f4e4', 'FLUORESCENT'],
+  [1958,   '#ffa53a', 'SODIUM VAPOUR'],
+  [1993,   '#b7d7ff', 'LED']
 ];
 export const lightFor = y => LIGHTS.filter(l => y >= l[0]).pop();
 
