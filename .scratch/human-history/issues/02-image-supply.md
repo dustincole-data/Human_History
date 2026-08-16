@@ -416,3 +416,52 @@ Smithsonian is untried. **1930 India is the one genuine, unchecked gap** — nea
 1850 (Kashmir shawl, a different region tag) and 1972 (Auto rickshaw), an 80-to-122-year void
 nothing has been searched against yet. If the key is spent on one of the two remaining candidates,
 India is the higher-value target; Japan repeats a search this ticket already ran once and lost.
+
+## Round 6 2026-08-16 — the antenna was never missing from the birefnet cut, and the defect is the opposite one
+
+**Round 5's verdict was read off the wrong ground.** `alt/dynatac-compare.png` composites every
+candidate onto `(5,6,10)` near-black, and the antenna is black: on that ground its presence and
+its absence look identical. The two 2x crops that were checked at full resolution —
+`dynatac-shipped-2x.png` and `dynatac-isnetpp-2x.png` — are both isnet, and both isnet cuts do
+genuinely drop it. **birefnet was never checked at 2x, and birefnet keeps the antenna**: full
+length, clean edge, correctly attached at the body's top-left. Composited onto magenta it is
+unmissable. The mask says the same thing without an eye — `alt/dynatac.png` spans rows 0..914
+with a 38 px median run in the top quarter, centred on x≈220, which is exactly where the
+original's dark bar sits (row luma minimum ≈12 against a wall median ≈150).
+
+So this never needed a fourth model, and the "thin-structure failure" framing was wrong on the
+facts: the antenna is 38 px wide in a 399 px frame at hard contrast, which is not a thin
+structure. It needed someone to look at it on a ground that isn't its own colour.
+
+**birefnet's actual defect is the inverse fault** — it kept background, not ate object: the desk
+cord, a 13 px stub running off the left frame edge at rows 824-849 and attached to the base.
+`measure()` cannot see this one either, and for both of its reasons at once: the stub is
+*connected*, so `isl`=0, and it encloses nothing, so `holes`=0. Same class as `vhs` and as the
+antenna itself — a fault that only a ground change or an eye finds. Note also that dynatac's
+shipped row reads `holes:0, isl:0`: it was in the 74 by Dustin's pass, never by a number.
+
+**The fix is a clip, not a cut.** The body's own alpha>0 left edge is a straight run either side
+of the cord — x=84 at row 823, x=74 at row 850 — so rows 824-849 are clipped back to that
+interpolated edge and nothing else is touched. Clipping on **alpha>0 rather than the >=128 mask**
+is load-bearing: `promote02.to_master` crops on `getbbox()`, which sees any nonzero alpha, and a
+>=128-derived clip leaves the cord's faint tail behind and hands the sprite a **76 px transparent
+left margin** — precisely the fault `promote02`'s own docstring warns about, since that margin is
+part of the box `gravity.js` scales. On alpha>0 the margins come out **3/4/0/3** against armor's
+2/3/3/3 (top 0 is inherent: the photograph itself crops the antenna).
+
+Candidate at `alt/dynatac-fix.png`; through the unchanged promote encode it is `227x846`, 39 KB,
+`cov 0.644 · solid 0.028 · halo 1.55 · isl 0 · holes 0`, which sits inside the band the 37
+already-promoted birefnet masters occupy (`solid` 0.02-0.06, `halo` 1.5-2.1). Evidence sheet
+`alt/dynatac-round6.png` — four columns (original | shipped | birefnet | fix) over four grounds,
+because one ground is what caused this in the first place.
+
+**The one real consequence, and it is Dustin's call.** `gravity.js` normalises by area
+(`DRAW_A = 132²`, `h = sqrt(A/ar)`), not by height, so the antenna costs less than it looks: the
+*body* draws **16.7% shorter and 11.5% narrower** than the shipped antenna-less cut (188x68 px
+against 225x77). That is the honest price of the object actually being the object. Not promoted —
+`alt/` is gitignored and cut rulings on this ticket are Dustin's eye, as with `mughalmini` and the
+six flat artworks. To ship: copy `alt/dynatac-fix.png` over `alt/dynatac.png`, then
+`python promote02.py dynatac`, then `python bake_sprites.py`, then the gate chain.
+
+Still open: **mughalmini** and the six flat artworks await their ruling. **1930 India** remains the
+one genuine unchecked period gap.
