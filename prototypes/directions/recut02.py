@@ -229,17 +229,22 @@ figure p {{ font-size:12.5px; margin:9px 0 0 }}
 .shelf .me b {{ color:#93a9dd; font-weight:600 }}
 .shelfnote {{ font-size:12px; color:#666d7d; margin:9px 0 0 }}
 </style>
-<h1>The seven flat artworks &mdash; what ships, and what I want to ship instead</h1>
+<h1>The seven flat artworks &mdash; this is live, and you never ruled on it</h1>
 <p class=lede>Every one of these {n} source images is <b>already cropped to the artwork</b>:
 the linen, the vellum and the paper run off all four edges. There is no background in any of
 them. The cut-out pass assumed there was one, found the artwork's own paper, and removed
-it &mdash; which is why the left-hand column is broken.</p>
-<p class=lede>So the proposal is not a better cut. It is <b>no cut</b>: ship the source image
-as it is, opaque, a rectangle.</p>
+it &mdash; which is the broken left-hand column.</p>
+<p class=lede><b>The fix was not a better cut, it was no cut</b> &mdash; ship the source image
+as it stands, opaque, a rectangle. That went out on <b>15 Aug</b> and is on the site right now.
+The ruling was written down as still owed and never taken, so it has been running unapproved
+for four rounds. This page takes it.</p>
 <p class=ask><b>What I need from you:</b> for each of the {n}, does a rectangle of paper belong
-on that shelf? Look at the bottom strip of each card &mdash; the ringed one is the proposal,
-sitting at real size between its real neighbours. Tell me the keys you want and the keys you
-don't; anything you reject stays broken as it is today until we find another way.</p>
+on that shelf? The map says <i>nothing on the page has an edge except the thing itself</i> &mdash;
+the argument for shipping these is that on a flat artwork <b>the sheet IS the thing</b>, so the
+paper's edge is the artifact's edge. That is the call, and it is yours. Look at the two strips
+at the bottom of each card: the same neighbours, the cut-out then the sheet, at real shelf size.
+Name the keys that stay and the keys that go back &mdash; anything you send back returns to the
+broken cut on the left until another method is found.</p>
 <hr>
 {cards}
 """
@@ -247,16 +252,18 @@ don't; anything you reject stays broken as it is today until we find another way
 CARD = """<section>
 <h2>{n} <small>{sub} &middot; <code>{k}</code></small></h2>
 <div class=pair>
-  <figure><figcaption class=bad>ON THE SITE NOW</figcaption>
-    <div class=panel><img src="img/{k}.webp"></div>
+  <figure><figcaption class=bad>THE CUT-OUT &mdash; what shipped until 15 Aug</figcaption>
+    <div class=panel><img src="alt3/{k}-was.webp"></div>
     <p class=bad>{defect}</p></figure>
-  <figure><figcaption class=good>PROPOSED &mdash; the source, nothing removed</figcaption>
+  <figure><figcaption class=good>LIVE NOW &mdash; the sheet, nothing removed</figcaption>
     <div class=panel><img src="alt3/{k}-web.jpg"></div>
     <p class=good>0 islands &middot; 0 holes &middot; nothing removed</p></figure>
 </div>
 <p class=why>{why}</p>
+<div class=shelf>{shelfwas}</div>
+<p class="shelfnote bad">the cut-out, at shelf size between its real neighbours &mdash; ringed</p>
 <div class=shelf>{shelf}</div>
-<p class=shelfnote>at shelf size, between its real neighbours &mdash; proposed cut ringed</p>
+<p class=shelfnote>the sheet &mdash; what is on the shelf today, same neighbours, same size</p>
 </section>
 """
 
@@ -283,7 +290,17 @@ WHY = {
 def review(keys):
     """The surface the ruling is made on. Two panels per item, labelled, plus the item at
     shelf size between its real year-neighbours — the only view that answers "does a sheet
-    of paper belong on that shelf". Writes small previews so the page stays fast."""
+    of paper belong on that shelf". Writes small previews so the page stays fast.
+
+    THE BEFORE PANEL READS `alt3/<k>-was.webp`, NOT `img/<k>.webp`. Round 5 promoted these
+    seven and built this page in the same commit, so from that moment the page's own "on the
+    site now" column rendered the file it was proposing — two identical pictures under a red
+    caption describing a defect neither of them has. A review surface that sources both of its
+    columns from the same file cannot show a difference. The before column is therefore pinned
+    to the master as it stood at `f91c3de^`, extracted from git:
+
+        git show f91c3de^:prototypes/directions/img/<k>.webp > alt3/<k>-was.webp
+    """
     import json
     rows = json.load(open(os.path.join(HERE, "review02.json"), encoding="utf-8"))
     meta = {r["k"]: r for r in rows}
@@ -295,7 +312,10 @@ def review(keys):
         p.thumbnail((900, 900), Image.LANCZOS)
         p.save(os.path.join(ALT3, k + "-web.jpg"), "JPEG", quality=86)
 
-        o, m = meta[k], measure(os.path.join(IMG, k + ".webp"))
+        was = os.path.join(ALT3, k + "-was.webp")
+        if not os.path.exists(was):
+            raise SystemExit(f"{k}: no alt3/{k}-was.webp — see this function's docstring")
+        o, m = meta[k], measure(was)
         bits = []
         if m["isl"]:
             bits.append(f"{m['isl']} detached pieces &middot; "
@@ -308,13 +328,20 @@ def review(keys):
             bits.append(f"{m['halo']:.1f}px fringe of un-cut background")
 
         i = order.index(k)
-        shelf = "".join(
-            f'<span class="{"me" if c == k else ""}">'
-            f'<img src="{"alt3/%s-web.jpg" % c if c == k else "img/%s.webp" % c}">'
-            f'<b>{meta[c]["n"]}</b></span>'
-            for c in order[max(0, i - 2):i + 3])
+
+        def strip(me):
+            """Same five neighbours both times; only the ringed cell changes, so the strips
+            differ by exactly the thing being ruled on."""
+            return "".join(
+                f'<span class="{"me" if c == k else ""}">'
+                f'<img src="{me if c == k else "img/%s.webp" % c}">'
+                f'<b>{meta[c]["n"]}</b></span>'
+                for c in order[max(0, i - 2):i + 3])
+
         sub = " &middot; ".join(x for x in (o["disp"], o["reg"]) if x)
-        cards.append(CARD.format(n=o["n"], sub=sub, k=k, shelf=shelf,
+        cards.append(CARD.format(n=o["n"], sub=sub, k=k,
+                                 shelfwas=strip("alt3/%s-was.webp" % k),
+                                 shelf=strip("alt3/%s-web.jpg" % k),
                                  why=WHY.get(k, ""),
                                  defect=" &middot; ".join(bits) or "no measurable defect"))
 

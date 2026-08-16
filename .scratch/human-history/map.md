@@ -370,6 +370,21 @@ The span (**~12,000 years, agriculture to now, global**) was settled with Dustin
   hint printed on top of the signature on every phone since 14. The frame's life is now a rule and
   not a number — **it is up until the first thing lands**. 41/41 and 41/41 `--slow`, 26/26 and 27/27,
   `teeth07` 4/4.
+- [02 — Image supply & licence pipeline](issues/02-image-supply.md) — **CLOSED after nine rounds, and
+  the last two were both about a ruling nobody had taken.** The seven flat artworks had been live as
+  opaque rectangles since round 5 while four consecutive rounds copied *"await their ruling"*
+  forward — **Dustin ruled they stay** (*"as they are live now with no editing"*), and the map's
+  *nothing has an edge except the thing itself* survives on the reading that **for a flat artwork the
+  sheet IS the thing**. They are the only 7 opaque masters in 230. The review surface built to ask
+  the question **could not answer it**: both its columns resolved to `img/<k>.webp`, so after the
+  promote it showed one file twice under a caption describing a defect neither picture had — round
+  6's contrasting-ground lesson in general form, *a comparison whose two sides resolve to one file
+  cannot fail*. **1940 Japan closes as a measured wall, not an unrun search**: Smithsonian, the Met,
+  Cleveland, Commons/LOC and Wikidata all say the same thing from five sides — the corpus that
+  **dates** Japanese objects stops at Meiji export ceramics, and the corpus that **has** the
+  period-defining objects cannot date them. The 98-year hole stands, named and priced, and the real
+  gap is **East Asia 1890–1948** rather than Japan alone.
+
 - **The stride is part of the gate — [07](issues/07-copy-voice-and-name.md).** `no_text_collision`
   sampled every 500px across a 144,632px scroll, so the **460px prologue, where every piece of
   furniture on the site lives, got exactly one sample** — at y=0, before anything has fallen far

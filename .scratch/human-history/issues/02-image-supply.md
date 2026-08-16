@@ -1,7 +1,7 @@
 # 02 — Image supply & licence pipeline
 
 Type: research
-Status: open
+Status: closed
 Parent: [Human History — Wayfinder Map](../map.md)
 
 ## Question
@@ -636,3 +636,156 @@ on the soil) and `charkha-shelf.png` (first cell of the 1930s row, citation open
 Still open, unchanged: **mughalmini** and the six flat artworks await their ruling
 (`recut02-review.html`). **1940 Japan** is now the only named period hole left, and round 5 already
 priced it as a search this ticket has run once and lost.
+
+## Round 9 2026-08-16 — the flat artworks were ruled four rounds ago by shipping, and 1940 Japan is a wall measured from five sides
+
+### The "still open" line was stale, and it cost Dustin the same question a sixth time
+
+The seven flat artworks were promoted, baked, gated and pushed in **`f91c3de`, 15 Aug** — `img/`,
+`site/img/` and `site/thumb/` all moved in that commit — and they have been live ever since.
+Rounds 5, 6, 7 and 8 each copied *"mughalmini and the six flat artworks await their ruling"*
+forward without checking it against the repo. Verified against production rather than against the
+log: all seven sprites fetched from `timetakesall.dustincoledata.com` are byte-identical to
+`site/img/` and carry **zero transparent pixels**.
+
+The line was half right, and unreadably so: `f91c3de` shipped the change *and* generated the page
+that asks about it, in one commit. **A ruling recorded as owed, on work already shipped, reads as
+neither — and it survived four rounds because nobody read it against the files.**
+
+### Dustin's ruling: the seven stay exactly as they are
+
+Verbatim: *"I want them as they are live now with no editing."* **CLOSED — not open, not pending,
+not to be re-offered.** No image file was touched this round; the whole diff is the review tool and
+the page it writes.
+
+Measured for the record, because the ruling stands against a map constraint and should say so out
+loud: these seven are the **only opaque masters in all 230** — every other item is a real cut-out.
+The map says *nothing on the page has an edge except the thing itself*. The reading that survives
+is that on a flat artwork **the sheet IS the thing**, so the paper's edge is the artifact's edge.
+That is editorial, not cut-quality, and it is now recorded as **made**.
+
+### The review surface was structurally incapable of showing a difference
+
+`recut02-review.html` sources **both** of its columns from `img/<k>.webp`. From the moment
+`f91c3de` promoted the seven, its own "ON THE SITE NOW" column rendered the file it was proposing:
+**two identical pictures under a red caption naming a defect neither of them has** — bayeux
+captioned *17 detached pieces, 33% of it floating* beside an intact tapestry, twice. The defect
+text is baked in at generation time and the images resolve at read time, so the page rotted the
+instant it was written.
+
+Fixed: the before column is pinned to the master as it stood at **`f91c3de^`**, pulled out of git
+into `alt3/<k>-was.webp`, and `review()` raises rather than falling back to `img/`. Each card
+carries **two shelf strips** — same five neighbours, same size, the cut-out then the sheet — so the
+strips differ by exactly the thing being ruled on. This is round 6's lesson in its general form: **a
+comparison whose two sides resolve to one file cannot fail, and cannot inform a ruling either.**
+
+### 1940 Japan — chased on Dustin's instruction, and the wall now has five sides
+
+**The hole is bigger than the ticket's name for it.** Against `review02.json` the **EAS bucket
+carries exactly ONE item between 1890 and 1948** — a Chinese kesi silk robe at 1890 — while the
+same 58 years hold **22 EUR/NAM items** and are the most recognisable stretch of the whole scroll.
+Japan itself runs 1850 to 1948 with nothing in it.
+
+**There is no Smithsonian key, and there never was.** `resource02.py` reads `SI_API_KEY`; it is
+unset, so round 8 and this round both ran on api.data.gov's `DEMO_KEY`. Read off the response
+headers: `X-Ratelimit-Limit: 10`, `Remaining: 0`, `Retry-After: 3130`. One query got through
+first, and it is the same corpus shape round 8 measured for India: `place:"Japan"` + CC0 images
+returns **50,671 records**, of which the first 1,000 by relevance are **999 natural-history
+specimens** (botany 625, entomology 168, mammals 128, fishes 54, invertebrates 24) and **one**
+cultural record, a Cooper Hewitt folding fan. **Ruled by Dustin: skip the Smithsonian, try
+Commons and LOC.**
+
+**Commons/LOC, twelve authored slots, 72 candidates.** The country-word false positives are worse
+here than India's: `satsuma` returns a *Prunus 'Satsuma'* plum leaf, a post office and an
+elementary school; `geta` returns Roman denarii of the emperor **Geta**; `bento` returns the
+Monastery of Sao Bento in Brazil; `nambu` returns the **JR Nambu railway line**; `toyodaloom`
+returns a Toyoda Gosei football kit and two baseball players. Two plausible objects survived out
+of seventy-two — one Meiji cloisonne vase and one whole Type 38 rifle.
+
+**And neither can carry a date, which is the decisive fault.** Commons' `DateTimeOriginal` — the
+only date the gatherer sees — is the **photograph's** date, not the object's. A 2014 photograph of
+a cloisonne vase says nothing about when the vase was made. Every honest date in this set comes
+from a holding institution, so **Commons cannot supply an arrival on its own, only a photograph of
+one.**
+
+**The Met, untried until now, and it is a zero:** Japan 1885-1950, public domain, with images =
+**5 records, not one of them Japanese** — a Chinese calligraphy scroll and four Western paintings
+(Van Gogh's *L'Arlesienne*, Seurat's *Circus Sideshow*, Gauguin's *Ia Orana Maria*, Benton's
+*America Today*) whose catalogue text merely mentions Japan. Round 8's false-positive magnet,
+reached from the Met's side.
+
+**Cleveland re-measured, and round 3's number was low by 17x:** not 28 export vases but **490**
+CC0 records with images for Japan 1885-1950, of which the first 100 are **89 ceramics** — teacups,
+incense burners, and sake-pourer **lids catalogued as separate objects**. Round 3's *verdict* was
+right and its *measurement* was not.
+
+**Wikidata, the one instrument that indexes objects BY INCEPTION DATE and needs no key:** 491
+distinct Japanese-origin items dated 1885-1950 with images; 297 of them non-flat; and the
+**1915-1950 slice is ferries, ship classes, locomotive classes and weapon models.**
+
+**The shape of the wall, stated once.** The corpus that **dates** Japanese objects — the art
+museums — stops at Meiji export ceramics. The corpus that **has** the period-defining objects —
+Commons — cannot date them. Two halves, neither crossable alone. That is round 3's wall and round
+8's wall meeting from opposite sides, and it is why five sweeps produce one answer.
+
+**What survives is exactly two classes, and both are recorded rather than shipped.** Meiji/Taisho
+**art-ceramics** — dated, museum-photographed, and telling a stranger nothing about 1890-1945 that
+the raku tea bowl at 1600 does not already say, into a set that is already vessel-saturated. And
+**weapons** — a Type 38 at 1905 or a Type 99 at 1939 is the object that genuinely explains the
+period, but the set already carries a **Japanese matchlock** and a **Winchester**, so it duplicates
+twice over, and its only whole-object photographs are a collector's rifle **lying in snow**. The
+one file that shows a Type 38 clean is titled *"CG picture"* — a modern render, a constraint breach
+rather than a lucky find, which is this ticket's oldest recorded trap.
+
+**Nothing was added.** Round 3's `heitiki` cost the rule that a blind add clobbers a live record,
+and every set ruling on this ticket has been Dustin's. **The 98-year hole stands, named and
+priced.** Recorded for a later round and NOT chased here: the gap is **East Asia 1890-1948**, not
+Japan alone, and China or Korea may close it where Japan cannot.
+
+### An instrument fault of my own, paid for in requests
+
+The Smithsonian cache keyed its files on the percent-encoded query, which ran the full path past
+Windows' 260-character `MAX_PATH`. The write threw **after** the network call had returned, so one
+of DEMO_KEY's ten requests an hour was spent on a response that was never written down. Keyed on
+an md5 now, with the query text beside it in a `.q` file.
+
+### Gates
+
+**Nothing that ships changed**, and that is asserted rather than assumed: `git status` over `site/`
+and `prototypes/directions/img/` is empty, and the seven sprites on production are byte-identical
+to disk. The diff is `recut02.py` and the page it generates, neither of which the site loads.
+Run anyway, in round 7's order. `review02.py` re-measured **230** and `review02.json` came back
+**byte-identical**, which is the tightest statement available that nothing moved.
+`review02.verify.mjs` **26/26**. `sweep11i` localhost **26/26** (230 cells, 230 credits;
+`index_frame_budget` p95 floor **19.2ms**). `sweep10` localhost **43/44**.
+
+**No production sweep**, deliberately: the deployed bytes are unchanged, so it would re-measure
+the build round 8 already finished there.
+
+### `frame_budget`'s tenth move, and this time the control cost nothing
+
+Red at warm median **16.9ms, p95 floor 34.5ms**. The median is the same number every green run of
+this gate has produced — 16.4 / 16.6 / 16.9 — and the load lands in the tail, which is round 7's
+sharper reading arriving again.
+
+**The control is free this round and it is the strongest the gate has had.** `git status` over
+`site/` is empty, so the build under test is **byte-identical to the one round 8 measured at
+44/44** — same frame loop, same sprites, same `data.js`. Round 8 had to construct that comparison
+with `git archive` and a second port; here the shipped bytes ARE the comparison, and they scored
+44/44 hours ago and 43/44 now with nothing in between but the machine. `sweep11i`'s own
+`index_frame_budget` passed at p95 19.2ms inside the same window, and **17 Chrome and 8 Edge
+processes were live throughout**. No ruling rests on the red.
+
+### The ticket closes
+
+Both of round 8's open items are resolved: the seven flat artworks by **Dustin's ruling** (they
+stay as they are), and **1940 Japan** as a **measured wall** rather than a search still to run —
+five independent sources, one answer. `dynatac` closed in round 7 and the 28 `drop` keys in lane B.
+
+**Ticket 02's three owed numbers, restated for the last time.** Items obtainable post-1500: the set
+carries 200 of its 230 there. Pre-1500: 30, which 01 reframed as a prologue and which held.
+Re-source failure rate on the inherited 58: superseded by the harder number lane B measured on a
+*re*-source — **43%**, on photographs an editorial pass had already approved once. Round 9 adds the
+fourth, which is the one a future set change will need: **for a period the open corpus does not
+already photograph, the failure rate is 100%, and it fails on the DATE rather than on the photograph.**
+
