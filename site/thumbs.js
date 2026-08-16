@@ -203,7 +203,7 @@ window.THUMBS = {
   tr808:[271,160],
   cochlear:[371,160],
   cd:[138,160],
-  dynatac:[55,160],
+  dynatac:[43,160],
   swatch:[93,160],
   dx7:[149,160],
   mac:[173,160],
