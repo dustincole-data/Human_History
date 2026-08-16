@@ -31,7 +31,24 @@ import path from 'path';
    shadowed and the tidier form throws "URL is not a constructor" before a single gate runs. */
 const DATA = path.join(import.meta.dirname, '..', '..', 'site', 'data.js');
 const SHIPPED = (fs.readFileSync(DATA, 'utf8').match(/\{k:"/g) || []).length;
-const cells = await page.locator('.cell').count();
+/* …and the COUNT was taken on a wall clock, which is the other half of the same mistake. This
+   page builds its cells AFTER networkidle — measured, 0 cells at networkidle every time and the
+   first one at 5,554ms on a loaded laptop — so `waitForTimeout(600)` was reading 230 on a quiet
+   machine and 0 on a busy one, and it reported 0 here on a laptop the frame_budget A/B had just
+   independently caught being slow. Nothing was wrong with the page. The gate now waits for the
+   count to STOP CHANGING and then asserts, which is completeness without a duration in it —
+   02 round 4's rule (`a gate has a direction`) applied to time instead of to scroll. */
+const settled = async () => {
+  let prev = -1;
+  for (let i = 0; i < 60; i++) {
+    const n = await page.locator('.cell').count();
+    if (n > 0 && n === prev) return n;
+    prev = n;
+    await page.waitForTimeout(250);
+  }
+  return prev;
+};
+const cells = await settled();
 ok(`all ${SHIPPED} cells render`, cells === SHIPPED && SHIPPED > 0, `${cells}`);
 
 // images actually decode

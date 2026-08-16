@@ -163,6 +163,7 @@ window.THUMBS = {
   leica:[334,160],
   penicillin:[141,160],
   boomerang:[652,160],
+  charkha:[742,160],
   ute:[227,160],
   bakelite:[252,160],
   spitfire:[348,160],

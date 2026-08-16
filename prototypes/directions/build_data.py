@@ -96,7 +96,15 @@ for _keys, _why in [
       "mongolbow", "celglobe", "zimbird", "vwbeetle", "oxusarmlet"),
      "wrong subject — the query matched a word, not the artifact"),
     # --- A PERSON, or a crowd. R1: the falling object is never someone's body.
-    (("levis", "singer", "charkha", "keffiyeh", "luchamask", "sari", "jaipurfoot", "zulushield",
+    #
+    # charkha RETURNS, 02 round 8. The R1 drop was right about the PHOTOGRAPH and said nothing
+    # about the object: the machine had fetched a press release — a government minister unveiling
+    # "the world's largest wooden charkha" at Delhi airport in 2016, GODL-India, a crowd shot of a
+    # monument that would have carried a 1930 date as a lie twice over. The object was never in
+    # question; catalog.py had already named this exact row. What was missing was a period charkha
+    # photographed as an object, and the Textile Museum's boxed charkha (peti charkha) is one:
+    # CC0, 5472x3648, institution-dated to the 1920s or 1930s, cut clean on four grounds.
+    (("levis", "singer", "keffiyeh", "luchamask", "sari", "jaipurfoot", "zulushield",
       "didgeridoo", "monopoly", "chucktaylor", "wiimote", "hillshoist", "cablesample", "bulla",
       "ahuula", "kente", "talkingdrum", "pokemoncard", "gutenberg", "pekingmask"),
      "R1 — a person, a crowd or a mannequin, not the made object"),
