@@ -693,6 +693,20 @@ const boxes = () => page.evaluate(() => {
       if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«the signature»' });
     }
   }
+  /* TICKET 02, THE ENVIRONMENT PASS — and the HUD, on the identical argument a third time. 14 put
+     the signature in this set and 07 put the intro in it; the counter, the era name and (new this
+     pass) the context line were never in it at all, and a 390px frame had an arrival's name
+     printed through the counter. The INK, not `#hud`, for 07's reason — that box is mostly
+     padding. `#hud` carries the fade on itself; the children do not. */
+  const hud = document.getElementById('hud');
+  if (hud) {
+    const cs = getComputedStyle(hud);
+    if (cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.05)
+      for (const el of hud.children) {
+        const b = el.getBoundingClientRect();
+        if (b.width) r.push({ x: b.x, y: b.y, w: b.width, h: b.height, t: '«hud» ' + el.textContent });
+      }
+  }
   /* TICKET 07 — and the intro, on the identical argument, which nobody had made for it. The
      headline and its paragraph are words on the same screen as the first citations and they were
      outside every collision gate on this site; a probe found them printed through each other at

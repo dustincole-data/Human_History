@@ -159,11 +159,39 @@ function region(c, off, step = 4) {
   c.closePath();
 }
 
-/* Baked once per resize and never again. Grain, inclusions and micro-bedding from burial.js. */
+/* Baked once per resize and never again. Grain, inclusions and micro-bedding from burial.js.
+
+   THE ENVIRONMENT PASS — what this used to be, and why it read as wet cement.
+
+   The first build was right about its rules and wrong about what the picture IS. Every value in
+   it was written for a soil PROFILE — a cut face, bedding, "light dies with depth" — and the
+   picture on screen is not a cut face. Objects stand ON the contour and the band below it runs
+   toward the visitor, so what is being looked at is a GROUND PLANE at a grazing angle with the
+   lamp on the horizon straight ahead. Read that way, four things were wrong:
+
+     · THE VALUE RAN THE WRONG SHAPE. Twenty-six identical steps at 40px spacing is a smooth
+       vertical wash, and a smooth vertical wash on a plane is a WALL. Light on a plane falls off
+       with DISTANCE — fast just past the horizon, slowly underfoot — and distance on a plane seen
+       this way is not linear in screen y.
+     · THE LIGHT HAD NO POSITION. The pool is centred at `(W/2, gy)` at every era, so the ground
+       directly under the lamp is the brightest ground in the frame and the outer corners are the
+       darkest. Nothing was doing that, so the field was evenly lit from nowhere.
+     · THE TEXTURE HAD ONE SCALE. A plane's grain compresses toward its horizon; drawn at one size
+       from the contour to the bottom of the glass it reads as a flat sheet however good the grain
+       is. Nothing in the frame said which end was near.
+     · THE LANDFORM WAS INVISIBLE. `bakeSurface` builds a real three-octave heightfield and then
+       the fill painted every part of it the same value, so a 44px rise and a 44px dip looked
+       identical and the contour read as a decorative wiggle rather than as ground.
+
+   NONE OF THE REPAIR IS DATED, which is the constraint it had to hold. The pool's POSITION is the
+   same at 9000 BCE as at 2026 — only its size and its colour move, and neither is read here.
+   Every number below is a constant of the bake, there is still exactly one bake, and
+   `ground_never_dates` still holds byte-identical earth pixels across every era. */
 function bakeGround() {
   gcvs.width = Math.round(W * dpr); gcvs.height = Math.round(H * dpr);
   gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   gctx.clearRect(0, 0, W, H);
+  const gy = groundY();
 
   const tile = tileFor(SOIL, 3);
   gctx.fillStyle = gctx.createPattern(tile, 'repeat');
@@ -176,26 +204,251 @@ function bakeGround() {
   gctx.fillStyle = gctx.createPattern(mt, 'repeat');
   gctx.fillRect(0, 0, W, H);
 
-  // the top few inches take the sky. Fixed, not era-driven — the ground's colour never moves.
-  gctx.fillStyle = 'rgba(255,236,208,.016)';
-  for (let k = 0; k < 9; k++) { region(gctx, k * 7, 8); gctx.fill(); }
+  /* THE LAMP LIES ON THE GROUND TOO. A pool centred where the sky's pool is centred, in a fixed
+     warm neutral — the position is what is being asserted, never the colour, so this is the same
+     ellipse at firelight and at LED. Wide and flat because a plane takes a light as an ellipse,
+     not as a circle. */
+  const pool = gctx.createRadialGradient(W / 2, gy + 6, 0, W / 2, gy + 6, Math.max(W * 0.62, 460));
+  pool.addColorStop(0, 'rgba(255,214,164,.115)');
+  pool.addColorStop(0.42, 'rgba(255,198,142,.045)');
+  pool.addColorStop(1, 'rgba(255,190,130,0)');
+  gctx.save();
+  gctx.translate(0, gy + 6); gctx.scale(1, 0.46); gctx.translate(0, -(gy + 6));
+  gctx.fillStyle = pool;
+  gctx.fillRect(-W, gy - 400, W * 3, H * 3);
+  gctx.restore();
 
-  // light dies with depth, measured from the local surface so the darkening bends with the land
-  gctx.fillStyle = 'rgba(5,5,7,.055)';
-  for (let k = 0; k < 26; k++) { region(gctx, k * 40, 12); gctx.fill(); }
+  /* DISTANCE, not depth. `u` is how far down the visible plane a row is, 0 at the contour and 1 at
+     the bottom of the glass; the falloff is `u^0.62`, which spends most of its range in the first
+     third — the near ground is a long way from a lamp on the horizon and it goes properly dark
+     there. That darkness is also what stops the field competing with the photographs standing on
+     it, and it is what the signature's corner sits on. */
+  const far = Math.max(80, H + 40 - gy);
+  for (let k = 0; k < 34; k++) {
+    const u = (k + 0.5) / 34;
+    gctx.fillStyle = `rgba(4,4,6,${(0.042 * Math.pow(u, 0.62)).toFixed(4)})`;
+    region(gctx, u * far, 12);
+    gctx.fill();
+  }
+  // …and the far corners, which are the furthest ground in the frame from a light dead ahead
+  const wings = gctx.createLinearGradient(0, 0, W, 0);
+  wings.addColorStop(0, 'rgba(3,3,5,.34)');
+  wings.addColorStop(0.30, 'rgba(3,3,5,0)');
+  wings.addColorStop(0.70, 'rgba(3,3,5,0)');
+  wings.addColorStop(1, 'rgba(3,3,5,.34)');
+  gctx.fillStyle = wings;
+  gctx.fillRect(0, gy - 60, W, H + 60);
+
+  /* THE COARSE TEXTURE GOES ON AFTER THE FALLOFF, and the order is the whole point.
+
+     Laid before it, the near field's material was multiplied by the same 0.35 the falloff applies
+     to everything else, so a ±8 value wobble became ±3 and the mid-ground read as a smooth dark
+     wash however good the tile was — the second render of this pass had a lit contour, a lit
+     horizon and nothing at all between them. Contrast that survives a darkening has to be applied
+     to the darkened thing.
+
+     It is the SAME grain and the SAME blobs, drawn at 2.1×, 2.4× and 3.9× into bands that start
+     further down the plane, so one texture supplies the whole recession and no second asset is
+     baked for it. Growing texture toward the viewer is the cue that says which end of the field is
+     near, and it is doing more work here than any of the value passes above.
+
+     A BAND IS FEATHERED IN BY ITS OWN ALPHA, never by a wash over it. Painting a dark gradient
+     across a band's far edge to soften it puts a horizontal bar of paint on the ground — that is
+     exactly what it looked like, two of them, one under the contour and one across the middle of
+     the field. A pattern fill cannot take a gradient, so the ramp is in the DRAW: eight strips of
+     rising alpha and then the band at full strength. */
+  const layer = (pat, k, off, feather, a) => {
+    gctx.save();
+    gctx.scale(k, k);
+    gctx.fillStyle = gctx.createPattern(pat, 'repeat');
+    const y0 = gy + off, st = feather / 8;
+    for (let s = 0; s < 8; s++) {
+      gctx.globalAlpha = a * (s + 0.5) / 8;
+      gctx.fillRect(0, (y0 + s * st) / k, W / k, (st + 1) / k);
+    }
+    gctx.globalAlpha = a;
+    gctx.fillRect(0, (y0 + feather) / k, W / k, (H + 60 - y0 - feather) / k);
+    gctx.restore();
+  };
+  layer(tile, 2.1, 26, 120, 0.34);
+  layer(mt, 2.4, 20, 150, 0.55);
+  layer(tile, 3.9, 120, 260, 0.46);
+
+  /* THE LANDFORM, FINALLY VISIBLE. Per column, the slope of the real heightfield decides whether
+     that facet is turned toward the lamp or away from it — light arrives from `(W/2, gy)`, so for
+     a column left of centre it comes from `+x` and the lit face is the one whose surface rises
+     toward `+x`. A rise now catches and a dip now falls dark, which is the whole of what makes
+     44px of noise read as ground instead of as a wavy line.
+
+     THERE IS NO CONTACT DARKENING UNDER THE CONTOUR, and the reason is the same mistake as the
+     rest of the old bake: a shadow under the lip belongs to a CUT FACE. On a plane the ground just
+     past the contour is the ground CLOSEST to a lamp on the horizon, so it is the brightest ground
+     in the frame — a 40px dark band there printed a stripe between the lit rim and the field and
+     cut the two apart. What is under the contour is the pool, and the pool is already there. */
+  const SLOPE_K = 6.4;
+  for (let i = 0; i < NCOL; i++) {
+    const x = xAt(i), y = surf[i];
+    const s = (surf[Math.min(NCOL - 1, i + 1)] - surf[Math.max(0, i - 1)]) / (2 * COLW);
+    const lit = Math.max(-1, Math.min(1, -s * SLOPE_K * (x < W / 2 ? 1 : -1)));
+    /* EXACTLY `COLW`, and the 1.2px overlap this replaces is worth a line. Overlapping strips
+       double the alpha on the shared 1.2px, which printed a bright comb along the whole contour —
+       a stroke, which is the one thing 11 says nothing on this page has. `xAt` is integral at
+       COLW 4, so butted strips leave no seam either. */
+    const w = COLW;
+
+    const h = 5 + 9 * Math.abs(lit);
+    const g2 = gctx.createLinearGradient(0, y, 0, y + h);
+    const c2 = lit > 0 ? `255,226,178,${(0.30 * lit).toFixed(3)}` : `6,5,4,${(0.34 * -lit).toFixed(3)}`;
+    g2.addColorStop(0, `rgba(${c2})`);
+    g2.addColorStop(1, 'rgba(0,0,0,0)');
+    gctx.fillStyle = g2;
+    gctx.fillRect(x, y, w, h);
+  }
 
   gctx.globalCompositeOperation = 'source-over';
 
+  /* CLODS, AND THEY HAVE TO HAVE A LIT SIDE. A speck with no light on it is a speck; a chip with
+     a catch on the face turned toward the lamp and its own shadow thrown the other way is a piece
+     of ground, and it is the same arithmetic as the rim above — the direction is away from
+     `(W/2, gy)`. Size grows with distance from the contour, which is the recession stated a second
+     time in a form the base texture cannot state: near the horizon these are a pixel, underfoot
+     they are a dozen.
+
+     THEY ARE ANGULAR AND THEY ARE MOSTLY DARK. The first pass drew round pale ellipses at four
+     times this density and the foreground read as foam on water — a lit convex blob is a bubble,
+     and a field of them evenly spread is a texture rather than a ground. Broken ground is chips:
+     five-sided, jittered, three in four of them DARKER than the soil they lie in, and clustered
+     by a noise field so there are bare patches for the clusters to be read against. The catch is
+     kept for the few that are big enough to have a face at all. */
+  const r = rng(20260815);
+  const near = Math.max(60, H + 46 - gy);
+  const NCL = Math.round(W * near / 760);
+  for (let i = 0; i < NCL; i++) {
+    const x = r() * (W + 80) - 40;
+    const u = Math.pow(r(), 0.86);
+    const y = surfAt(x) + 3 + u * near;
+    const q = r(), rot = r() * 6.283;
+    if (y > H + 30) continue;
+    if (noise1(x * 0.0055 + u * 2.4) + noise1(x * 0.021 + 7) * 0.4 < 0.42) continue;
+    const sz = 0.6 + Math.pow(u, 2.1) * 12 * (0.35 + q);
+    const dx = x - W / 2, dy = Math.max(24, y - gy), L = Math.hypot(dx, dy);
+    const sx = dx / L, sy = dy / L;
+
+    const face = (cx, cy, s, sq) => {
+      gctx.beginPath();
+      for (let k = 0; k < 5; k++) {
+        const a = rot + k * 1.2566, rr = s * (0.66 + ((k * 37 + i * 11) % 17) / 26);
+        const px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr * sq;
+        k ? gctx.lineTo(px, py) : gctx.moveTo(px, py);
+      }
+      gctx.closePath();
+      gctx.fill();
+    };
+
+    gctx.fillStyle = hexA(SOIL.k, 0.10 + 0.22 * q);              // its shadow, thrown from the lamp
+    face(x + sx * sz * 0.95, y + sy * sz * 0.8, sz * 1.15, 0.6);
+
+    gctx.fillStyle = hexA(q < 0.74 ? SOIL.k : SOIL.l, 0.20 + 0.44 * q);
+    face(x, y, sz, 0.72);
+
+    if (sz > 3.4) {                                              // the catch, on the face turned in
+      gctx.fillStyle = `rgba(255,226,180,${(0.05 + 0.08 * q).toFixed(3)})`;
+      face(x - sx * sz * 0.30, y - sy * sz * 0.26, sz * 0.46, 0.6);
+    }
+  }
+
+  /* Erosion, lying IN the plane rather than across it: shallow drag marks, each a dark stroke with
+     a lit lip on the side turned toward the lamp. They run outward from under the light because
+     that is the direction the eye is already reading distance in, and thirty of them do more for
+     "this is a surface" than another thousand specks would. */
+  for (let i = 0; i < 30; i++) {
+    const y0 = gy + 30 + Math.pow(r(), 0.7) * (near - 30);
+    const x0 = r() * W, len = 90 + r() * 320, dir = x0 < W / 2 ? -1 : 1;
+    const bow = (r() - 0.5) * 14;
+    const stroke = (off, col, wd) => {
+      gctx.strokeStyle = col; gctx.lineWidth = wd;
+      gctx.beginPath();
+      gctx.moveTo(x0, y0 + off);
+      gctx.quadraticCurveTo(x0 + dir * len * 0.5, y0 + off + bow, x0 + dir * len, y0 + off + bow * 0.4);
+      gctx.stroke();
+    };
+    stroke(0, hexA(SOIL.k, 0.16 + r() * 0.20), 1.4 + r() * 3.4);
+    stroke(-1.8, 'rgba(255,222,176,.05)', 1.2);
+  }
+
   // loose debris straddling the line, so the eye can never trace one continuous edge
-  const r = rng(9001);
+  const r2 = rng(9001);
   for (let i = 0; i < NCOL; i += 2) {
-    const q = r();
+    const q = r2();
     if (q > 0.4) continue;
     const x = xAt(i), y = surf[i] + (q - 0.2) * 24;
     const s = q < 0.05 ? 2 + q * 44 : 1 + q * 2;
     gctx.fillStyle = hexA(q < 0.2 ? SOIL.k : SOIL.l, 0.3 + q);
     gctx.fillRect(x + q * 4, y, s, s * 0.8);
   }
+}
+
+/* ------------------------------------------------------------------ contact
+
+   THE ONE THING A BETTER BAKE COULD NOT FIX. However good the earth is, a photograph drawn over
+   it with nothing under it is a sticker on a wall — the whole field of wrecks in the 1890 frame
+   read as a strip floating a few pixels above its own ground. What was missing is not more soil,
+   it is the object's own shadow.
+
+   IT IS NEUTRAL BLACK AND IT IS NOT THE EARTH. 13 froze the earth's material and 06 put the dated
+   colour system in the light, so this carries no lamp colour at any era and nothing about it moves
+   when the era does — it is an occlusion belonging to the OBJECT, on the same footing as the
+   impact dust that has always been drawn over the soil.
+
+   AND IT IS A POSITION, NOT AN EVENT — 04 ruling 3. Everything it reads is already a pure function
+   of the scrollbar: `x` and `dxLow` are solved once in `prep`, `t` is where the scrollbar sits
+   inside the fall, `age` is where it sits inside the life. So it rewinds for free, like everything
+   else in the file. One baked sprite and one `drawImage` per object on screen; a radial gradient
+   per object per frame would have been six of them a frame against a 25ms budget. */
+const shcvs = document.createElement('canvas');
+function bakeShadow() {
+  shcvs.width = shcvs.height = 128;
+  const g = shcvs.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, 'rgba(0,0,0,.70)');
+  gr.addColorStop(0.38, 'rgba(0,0,0,.40)');
+  gr.addColorStop(0.72, 'rgba(0,0,0,.11)');
+  gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr;
+  g.fillRect(0, 0, 128, 128);
+}
+bakeShadow();                                      // size-independent: it is scaled at every blit
+
+/* Kept shallow on purpose: a shadow deeper than the tie band would be a mark ON the earth rather
+   than a thing lying in front of it, and 06's ties live in the first 20px under the contour. */
+function drawShadow(c, d) {
+  if (!d.prepped) return;
+  const cx = d.x + d.dxLow;
+  let w, a;
+  if (d.air) {
+    /* falling: a wide, faint smear that tightens and darkens as the object comes down. This is
+       the only depth cue the fall has ever had — before it, an object 400px up and an object 20px
+       up were the same picture at two heights. */
+    const t = Math.max(0, Math.min(1, d.t));
+    w = d.w * (1.55 - 0.62 * t);
+    a = 0.13 + 0.62 * t * t;
+  } else {
+    if (d.gone) return;
+    w = d.w * 0.94;
+    // it goes out with the wreck it belongs to, but not linearly: a wreck is still most of itself
+    // at age 0.5 and a shadow that had already halved by then read as a lighting bug
+    a = 0.86 * Math.pow(1 - Math.max(0, Math.min(1, d.age)), 0.55);
+  }
+  if (a < 0.02) return;
+  const h = Math.min(34, w * 0.34);
+  /* THROWN TOWARD THE VISITOR, because the lamp is on the horizon behind the object — the same
+     arithmetic the clods in the bake use, and the reason the first attempt was invisible: centred
+     on the contact point, most of the ellipse sat above the contour where the earth is not, and
+     what showed was a thin dark smile on the line. */
+  const off = (cx - W / 2) / W;
+  c.globalAlpha = a;
+  c.drawImage(shcvs, cx - w / 2 + off * h * 0.9, surfAt(cx) - h * 0.16, w, h);
+  c.globalAlpha = 1;
 }
 
 /* ------------------------------------------------------------------ the sky
@@ -229,6 +482,7 @@ const logistic = y => 1 / (1 + Math.exp(-(y - REACH_MID) / REACH_W));
 const REACH_TOP = logistic(2030);
 const reachFor = y => Math.min(1, logistic(y) / REACH_TOP);
 const STAR_OUT = 0.72;                                // reach at which the last star is gone
+const MW_OUT = 0.34;                                  // …and at which the galaxy is, long before
 const starAlpha = r => Math.pow(Math.max(0, 1 - r / STAR_OUT), 1.2);
 
 /* THE BACKDROP IS CACHED, and the reason is measured. It is four large fills a frame — a
@@ -249,23 +503,120 @@ const bcvs = document.createElement('canvas');
 const bctx = bcvs.getContext('2d');
 let bkey = '';
 
-/* The stars, drawn straight into the backdrop. Deterministic and completely still: there is no
-   wall clock in this file and a twinkle would be one. */
-function drawStars(c, alpha) {
-  const r = rng(4711), gy = groundY();
-  const n = Math.round(W * gy / 2900);                // ~320 at 1440×900, ~70 on a phone
-  for (let i = 0; i < n; i++) {
-    const x = r() * W, y = r() * gy, q = r(), t = r();
-    // thinner and dimmer toward the horizon, the way real atmosphere takes them
+/* THE STARS, AND THE GALAXY BEHIND THEM.
+
+   Deterministic and completely still: there is no wall clock in this file and a twinkle would be
+   one. What is new is that the field is BAKED, into two layers, and the backdrop blits them at two
+   different alphas — which is both the cheaper way to draw it and the only way the second layer is
+   affordable at all.
+
+   WHY TWO LAYERS. Round 9 gave the deep past a black sky with three hundred specks in it, and the
+   honest picture of a pre-industrial night is not that: it is the MILKY WAY, the one sight the
+   entire span shared and the first thing artificial light took away. It goes at Bortle 4-5, while
+   the bright stars survive into the suburbs — so the band and the field cannot run on one curve.
+   The band is gone by reach 0.34; the individual stars last to `STAR_OUT` 0.72, which is untouched.
+   That is a shape change in the sky rather than a value change, which is what 12 asked for, and it
+   claims only what is true: the more light people made, the less of the sky they could see.
+
+   IT IS DRAWN AS DENSITY, NOT AS A LUMINOUS BAND — and that is a constraint as much as a choice.
+   A soft bright band is a smooth horizontal structure across the sky, and the sweep's emptiness
+   probe reads the upper 45% of the sky as runs of pixels off their own row's median: a band
+   crossing a row part-way is a two-hundred-pixel run and it takes `stars_go_out` down. Unresolved
+   POINTS cannot make a run at any density, which is also what the Milky Way physically is. The
+   dust rift down its middle is drawn the same way, by removing them.
+
+   BAKED PER VIEWPORT, not per frame. It was ~320 `fillRect`s inside a bake that already runs
+   about one frame in five; the band is four times that again, and 1,600 of them on the frame a
+   scroll crosses a quantisation bucket is exactly the spike `frame_budget` measures. Baked, the
+   backdrop pays two `drawImage`s and is cheaper than it was before this pass. */
+const scvs = document.createElement('canvas'), mwcvs = document.createElement('canvas');
+
+function bakeStars() {
+  const gy = groundY();
+  for (const c of [scvs, mwcvs]) {
+    c.width = Math.round(W * dpr); c.height = Math.round(Math.max(1, gy) * dpr);
+    c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  const sc = scvs.getContext('2d'), mc = mwcvs.getContext('2d');
+  sc.clearRect(0, 0, W, gy); mc.clearRect(0, 0, W, gy);
+
+  /* `ext` is how hard the horizon takes them. The field gets the full atmospheric extinction it
+     always had; the BAND gets half of it, because the band is the one thing in the sky that has to
+     survive the whole way across the frame — at full extinction its lower-left half, which is most
+     of its length, faded to nothing and what was left read as a bright patch in one corner rather
+     than as something crossing the sky. */
+  const star = (c, x, y, q, t, mul, ext = 1) => {
     const alt = 1 - y / gy;
-    if (alt < 0.12 && q > alt * 3) continue;
-    const a = (0.09 + q * q * q * 0.60) * (0.34 + alt * 0.66) * alpha;
+    // thinner and dimmer toward the horizon, the way real atmosphere takes them
+    if (alt < 0.12 && q > alt * 3) return;
+    const a = (0.09 + q * q * q * 0.60) * (1 - ext * 0.66 * (1 - alt)) * mul;
+    if (a < 0.006) return;
     const s = q > 0.988 ? 1.7 : q > 0.90 ? 1.2 : 1;
     const col = t < 0.15 ? [255, 226, 190] : t < 0.29 ? [206, 222, 255] : [244, 246, 252];
     c.fillStyle = `rgba(${col.join(',')},${a.toFixed(3)})`;
     c.fillRect(x, y, s, s);
+  };
+
+  const r = rng(4711);
+  const n = Math.round(W * gy / 2900);                // ~320 at 1440×900, ~70 on a phone
+  for (let i = 0; i < n; i++) star(sc, r() * W, r() * gy, r(), r(), 1);
+
+  /* The band: one great circle across the sky, bowed, with the rift along its spine. Density is a
+     gaussian on distance from that spine, so it has no edge anywhere — 11's rule holds in the sky
+     as well as on the ground. `w` widens toward the left, which is what a galaxy seen off-centre
+     does and what stops it reading as a painted stripe. */
+  const r2 = rng(90210);
+  const m = Math.round(W * gy / 190);                 // ~5,300 at 1440×900
+  const spine = u => gy * (0.86 - 1.02 * u + 0.30 * u * u);
+  for (let i = 0; i < m; i++) {
+    const x = r2() * W * 1.06 - W * 0.03, u = x / W;
+    const wide = gy * (0.21 - 0.075 * u);
+    // two uniform draws summed is a triangular density — a gaussian without the transcendental
+    const off = (r2() + r2() - 1) * wide;
+    const y = spine(u) + off;
+    if (y < 0 || y > gy) continue;
+    const k = Math.abs(off) / wide;
+    const rift = Math.abs(off + wide * 0.14) < wide * (0.10 + 0.07 * noise1(u * 9));
+    if (rift && r2() < 0.82) continue;                // the dust lane, drawn by taking them out
+    star(mc, x, y, Math.pow(r2(), 1 + 1.6 * k), r2(), 1.25 * (1 - k * 0.55), 0.5);
   }
+
+  /* AND A WASH UNDER THEM, AT THREE PARTS IN 255. The band is unresolved light and points alone
+     read as gravel; what makes it milk is a faint continuous glow between them. The ceiling on it
+     is not taste, it is the emptiness probe: that scan calls a pixel anomalous at 30 on the summed
+     channels, so anything smooth crossing a row has to stay well inside that or a run of two
+     hundred pixels takes `stars_go_out` down. Peak here is ~9 summed — a third of the bar, and on
+     a sky that sits at 12 it is still most of a doubling, which is the whole trick. Blobs rather
+     than one gradient, so it has the irregularity a galaxy has and no edge anywhere. */
+  mc.save();
+  mc.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 15; i++) {
+    const u = (i + 0.5) / 15 + (r2() - 0.5) * 0.06;
+    const x = u * W, y = spine(u) + (r2() - 0.5) * gy * 0.10;
+    const rad = gy * (0.14 + r2() * 0.16);
+    const wg = mc.createRadialGradient(x, y, 0, x, y, rad);
+    wg.addColorStop(0, `rgba(232,228,246,${(0.010 + r2() * 0.005).toFixed(4)})`);
+    wg.addColorStop(1, 'rgba(232,228,246,0)');
+    mc.fillStyle = wg;
+    mc.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  mc.restore();
 }
+
+/* the skyglow, and by the late eras it is DOMES rather than one pool.
+
+   A single centred radial says "there is a lamp"; what a lit century actually looks like from
+   outside it is several glows standing along the horizon, each one a place, growing and running
+   into each other until the whole horizon is lit. The centre one is the fire and it is there from
+   the first frame; the others come up as reach does, each over a fifth of the curve, so nothing
+   steps and no era boundary is drawn — the claim is only that light got made in more places, which
+   is the same claim `reach` was already making, said in the sky's SHAPE.
+
+   They are kept low. The emptiness probe reads the upper 45% of the sky; a dome whose radius runs
+   past that is a smooth horizontal structure inside the band it reads, which is the one thing that
+   probe cannot survive. Domes belong on the horizon anyway. */
+const DOMES = [[0.13, 0.30, 0.62], [0.30, 0.16, 0.86], [0.70, 0.22, 0.78],
+               [0.87, 0.40, 0.55], [0.05, 0.52, 0.40], [0.95, 0.60, 0.44]];
 
 /* TICKET 02 — ONE AREA, NOT ONE HEIGHT. Dustin: "they all need to be the same size."
 
@@ -339,6 +690,7 @@ function fit() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   bakeSurface();
   bakeGround();
+  bakeStars();                                        // the field and the galaxy, sized to the sky
   bkey = '';                                          // the backdrop is sized to the viewport too
   const flip = wasNarrow !== (W < 720);
   wasNarrow = W < 720;
@@ -1822,16 +2174,49 @@ function frame() {
     bctx.fillStyle = sky;
     bctx.fillRect(0, 0, W, H);
 
+    /* the galaxy goes UNDER the stars, and out first — `MW_OUT` is deliberately not `STAR_OUT`.
+       Squared, because what the eye loses first is the faint end of an already-faint thing. */
+    const ma = Math.pow(Math.max(0, 1 - rq / MW_OUT), 2);
+    if (ma > 0.004) {
+      bctx.save(); bctx.setTransform(1, 0, 0, 1, 0, 0);
+      bctx.globalAlpha = ma; bctx.drawImage(mwcvs, 0, 0);
+      bctx.restore();
+    }
     const sa = starAlpha(rq);
-    if (sa > 0.004) drawStars(bctx, sa);
+    if (sa > 0.004) {
+      bctx.save(); bctx.setTransform(1, 0, 0, 1, 0, 0);
+      bctx.globalAlpha = sa; bctx.drawImage(scvs, 0, 0);
+      bctx.restore();
+    }
 
+    /* The centre pool still grows with reach, but it CONCENTRATES LESS as it does — by the lit
+       eras the light in the sky is not coming from one place in front of the visitor any more, it
+       is coming from everywhere along the horizon, and a single dominant radial was drowning the
+       domes below it so completely that 1890 and 2023 were the same even wash again. The shape
+       change is the whole point of the layer, so the one pool gives ground to the many. */
     const R = Math.max(W, H) * (0.34 + 0.86 * rq);
+    const cf = 1 - 0.5 * rq;
     const glow = bctx.createRadialGradient(W / 2, gy, 0, W / 2, gy, R);
-    glow.addColorStop(0, lit + (0.30 - 0.11 * rq).toFixed(3) + ')');
-    glow.addColorStop(0.34 + 0.28 * rq, lit + (0.045 + 0.055 * rq).toFixed(3) + ')');
+    glow.addColorStop(0, lit + ((0.30 - 0.11 * rq) * cf).toFixed(3) + ')');
+    glow.addColorStop(0.34 + 0.28 * rq, lit + ((0.045 + 0.055 * rq) * cf).toFixed(3) + ')');
     glow.addColorStop(1, 'rgba(0,0,0,0)');
     bctx.fillStyle = glow;
     bctx.fillRect(0, 0, W, H);
+
+    /* …and the rest of the horizon, filling up as the centuries do. Each dome is skipped entirely
+       until its own onset, so the deep past pays for none of them and the lit end pays for six on
+       the frames where the star field costs nothing. */
+    for (const [dx, onset, str] of DOMES) {
+      const f = Math.min(1, (rq - onset) / 0.20);
+      if (f <= 0.01) continue;
+      const dr = gy * (0.11 + 0.34 * rq) * (0.66 + str * 0.6);
+      const dg = bctx.createRadialGradient(W * dx, gy + 8, 0, W * dx, gy + 8, dr);
+      dg.addColorStop(0, lit + (f * str * (0.24 + 0.16 * rq)).toFixed(3) + ')');
+      dg.addColorStop(0.42, lit + (f * str * (0.075 + 0.07 * rq)).toFixed(3) + ')');
+      dg.addColorStop(1, 'rgba(0,0,0,0)');
+      bctx.fillStyle = dg;
+      bctx.fillRect(W * dx - dr, gy - dr, dr * 2, dr * 2);
+    }
 
     /* A low band of lit air sitting on the land — the light has somewhere to land. The ramp rises
        to its value 40px ABOVE the ground line and then HOLDS it flat all the way down. That is
@@ -1880,6 +2265,10 @@ function frame() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.drawImage(gcvs, 0, 0);
   ctx.restore();
+
+  /* the shadows lie ON the earth, so they go on after it — the same place in the order the impact
+     spray has always occupied, and for the same reason. */
+  for (const d of drops) if (d.air || (d.down && !d.gone)) drawShadow(ctx, d);
 
   /* the spray belongs to the impact, so it is on screen exactly while its own object is on the
      ground. The wreck outlives that by BACK px — the window keeps it so a scroll-up costs nothing
@@ -1981,6 +2370,21 @@ function frame() {
   if (markEl.style.visibility !== 'hidden') {
     const b = markEl.getBoundingClientRect();
     if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
+  }
+  /* TICKET 02, THE ENVIRONMENT PASS — and the HUD, which was outside every collision gate on this
+     site. 07 made exactly this finding about `#intro` and `#hint` and did not extend it to the
+     counter; a phone frame taken for this pass has *Halaf painted bowl* printed straight through
+     the `5,500` at 390px, which is 11's contract broken by furniture that was never in the list.
+
+     It is reserved here and it is also added to the sweep's `boxes()`, so it is a subject as well
+     as an obstacle. THE INK, not `#hud` — that box is mostly padding, which is 07's rule for the
+     intro applied to the same problem. The context line is `display:none` when it is not up, so it
+     contributes no box on the frames it is not painted on. */
+  if (hudEl.style.visibility !== 'hidden' && styleO(hudEl, 1) > 0.05) {
+    for (const el of hudEl.children) {
+      const b = el.getBoundingClientRect();
+      if (b.width > 1) taken.push({ x: b.x + b.width / 2, y: b.y, w: b.width, h: b.height });
+    }
   }
   /* 07 — and the intro, for the same reason, found while measuring a longer paragraph rather than
      reasoned about. It was NEVER reserved, and the headline sits in the lower left, which is the

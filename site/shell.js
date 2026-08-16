@@ -22,6 +22,84 @@ export const LIGHTS = [
 ];
 export const lightFor = y => LIGHTS.filter(l => y >= l[0]).pop();
 
+/* ------------------------------------------------------------------ the context line
+
+   Dustin's third ask of the environment pass: "sprinkle in events during certain periods so
+   people understand what time frame they are looking at."
+
+   A COUNTER IS NOT AN ANCHOR. `1831` is a number; *Britain abolishes slavery in its colonies* is a
+   place in history, and the piece's whole subject is what was standing next to what. The counter
+   has always said WHEN and never once said WHAT ELSE.
+
+   IT RIDES THE HUD, AND THAT IS THE ONLY PLACE IT COULD GO. 06 round 10 ruled the ground wordless
+   and Dustin rejected a caption on the soil outright; the sky carries the falling object's own
+   name and date. The HUD is the site's one disclosure surface, it already answers "when", and it
+   is furniture the collision list can reserve. Nothing else on the page had room that did not
+   belong to something.
+
+   THESE ARE NOT ARRIVALS. 05's ruling R1 — *an arrival is always a made object with a body* — is
+   untouched: none of these falls, none of them is drawn, none of them is in the set. They are a
+   caption on the counter. Where a conventional date is approximate it is written `c.`, which is
+   the same hedge the arrivals use, and no date here is contested at the century scale.
+
+   IT IS SPRINKLED, and the gaps are the point. Each line is up only near its own year — half the
+   distance to its neighbours, times 0.66 — so roughly a third of the scroll has no context line at
+   all and one arriving is an event rather than a permanent field. */
+export const EVENTS = [
+  [-9600, 'c.', 'Göbekli Tepe raised'],
+  [-8000, 'c.', 'Farming spreads through the Fertile Crescent'],
+  [-6500, 'c.', 'Rice farmed along the Yangtze'],
+  [-3200, 'c.', 'Writing begins in Sumer'],
+  [-3100, 'c.', 'Egypt unified'],
+  [-2560, 'c.', 'The Great Pyramid finished'],
+  [-1754, '',   'Hammurabi’s laws set down'],
+  [-1200, 'c.', 'The Bronze Age collapses in the east Mediterranean'],
+  [-776,  '',   'The first recorded Olympic games'],
+  [-551,  'c.', 'Confucius born'],
+  [-221,  '',   'China unified under the Qin'],
+  [-27,   '',   'Rome becomes an empire'],
+  [105,   '',   'Papermaking recorded in Han China'],
+  [476,   '',   'The western Roman empire ends'],
+  [622,   '',   'The Hijra, and the Islamic calendar begins'],
+  [762,   '',   'Baghdad founded'],
+  [1040,  'c.', 'Movable type in Song China'],
+  [1206,  '',   'The Mongol empire begins'],
+  [1347,  '',   'Plague reaches Europe'],
+  [1440,  'c.', 'Printing with movable type at Mainz'],
+  [1492,  '',   'Columbus crosses the Atlantic'],
+  [1687,  '',   'Newton publishes the Principia'],
+  [1789,  '',   'Revolution in France'],
+  [1804,  '',   'Haiti wins its independence'],
+  [1833,  '',   'Britain abolishes slavery in its colonies'],
+  [1869,  '',   'The Suez canal opens'],
+  [1885,  '',   'Europe partitions Africa at Berlin'],
+  [1914,  '',   'The First World War begins'],
+  [1929,  '',   'Wall Street crashes'],
+  [1939,  '',   'The Second World War begins'],
+  [1947,  '',   'India and Pakistan become independent'],
+  [1969,  '',   'Apollo 11 lands on the Moon'],
+  [1989,  '',   'The Berlin wall opens'],
+  [1991,  '',   'The first web page goes up'],
+  [2008,  '',   'The financial crisis']
+];
+
+/* The window each one holds, taken off its own neighbours rather than set — the deep head has
+   millennia between lines and the last century has single years, and one fixed number cannot serve
+   both. The ends are capped so the first and last do not run forever. */
+const EV_W = EVENTS.map(([y], i) => {
+  /* the two ends have one neighbour each, and the missing side is MIRRORED off the one they have
+     rather than given a fixed cap. A fixed cap made the last line — the 2008 crisis — the standing
+     caption for every year from 2002 to the end of the set, which is the opposite of sprinkled. */
+  const back = i ? y - EVENTS[i - 1][0] : null;
+  const fwd = i < EVENTS.length - 1 ? EVENTS[i + 1][0] - y : null;
+  return [(back == null ? fwd : back) * 0.33, (fwd == null ? back : fwd) * 0.33];
+});
+export const eventFor = year => {
+  for (let i = 0; i < EVENTS.length; i++)
+    if (year >= EVENTS[i][0] - EV_W[i][0] && year <= EVENTS[i][0] + EV_W[i][1]) return EVENTS[i];
+  return null;
+};
+
 export const fmt = y => (y < 0 ? Math.abs(y).toLocaleString('en-US') : String(y));
 export const unit = y => (y < 0 ? 'BCE' : 'CE');
 /* museum credit lines run to six lines on a label. keep the attribution, lose the endowment. */
@@ -40,12 +118,29 @@ export function hash(str, salt = 0) {
 const hudNum = document.querySelector('#hud .num');
 const hudUnit = document.querySelector('#hud .unit');
 const hudEra = document.querySelector('#hud .era');
+const hudEv = document.querySelector('#hud .ev');
+const hudEvY = document.querySelector('#hud .ev i');
+const hudEvT = document.querySelector('#hud .ev span');
 const root = document.documentElement;
+let evAt = -1e9;
 
 export function setHud(year, eraName, spot) {
   hudNum.textContent = fmt(year);
   hudUnit.textContent = unit(year);
   hudEra.textContent = eraName;
+  /* written only when the line CHANGES. `setHud` runs every frame, and three text writes a frame
+     into a fixed element is three style recalculations a frame for a string that moves about
+     thirty times over 144,632px of scroll. */
+  const ev = eventFor(year);
+  const key = ev ? ev[0] : -1e9;
+  if (key !== evAt) {
+    evAt = key;
+    hudEv.style.display = ev ? 'block' : 'none';
+    if (ev) {
+      hudEvY.textContent = `${ev[1] ? ev[1] + ' ' : ''}${fmt(ev[0])} ${unit(ev[0])}`;
+      hudEvT.textContent = ev[2];
+    }
+  }
   root.style.setProperty('--spot', spot);
 }
 

@@ -93,7 +93,19 @@ export function tileFor(pal, seed = 0, size = 320) {
   return c;
 }
 
-/* large soft value blobs, laid over the grain so the 320px tile never reads as a repeat */
+/* large soft value blobs, laid over the grain so the 320px tile never reads as a repeat.
+
+   THE LIGHT BLOBS ARE WARM, NOT WHITE. Against a neutral speckle a white highlight is the one
+   thing in the stack that takes colour OUT rather than putting it in, and at .09 over the whole
+   field it was desaturating the earth toward concrete — the single biggest reason the first bake
+   read as cement rather than as soil. Warmed, the same value variation reads as moisture in the
+   ground. It is still ONE static material: this is a constant of the bake, not anything dated.
+
+   AND IT IS TWO SCALES NOW. A 512px mottle over a 320px grain tile has a common period of
+   2,560px, so a 1440px viewport shows more than half of one cycle and the repeat is findable —
+   it is visible in the 1890 frame as a soft chequer across the field. The second pass runs at
+   roughly 3× the wavelength and a third of the amplitude into the same tile, which breaks the
+   period without costing a second pattern fill. */
 let mottleTile = null;
 export function mottle() {
   if (mottleTile) return mottleTile;
@@ -102,17 +114,21 @@ export function mottle() {
   c.width = c.height = size;
   const g = c.getContext('2d');
   const r = rng(4242);
-  for (let i = 0; i < 34; i++) {
-    const x = r() * size, y = r() * size, rad = 60 + r() * 190;
-    const dark = r() < 0.5;
-    for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) {
-      const grd = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, rad);
-      grd.addColorStop(0, dark ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.09)');
-      grd.addColorStop(1, 'rgba(0,0,0,0)');
-      g.fillStyle = grd;
-      g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2);
+  const lay = (n, rad0, radSpan, dk, lt) => {
+    for (let i = 0; i < n; i++) {
+      const x = r() * size, y = r() * size, rad = rad0 + r() * radSpan;
+      const col = r() < 0.5 ? dk : lt;
+      for (const dx of [-size, 0, size]) for (const dy of [-size, 0, size]) {
+        const grd = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, rad);
+        grd.addColorStop(0, col);
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        g.fillStyle = grd;
+        g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2);
+      }
     }
-  }
+  };
+  lay(34, 60, 190, 'rgba(0,0,0,.16)', 'rgba(255,226,178,.10)');
+  lay(9, 210, 300, 'rgba(0,0,0,.055)', 'rgba(255,206,138,.05)');
   mottleTile = c;
   return c;
 }
