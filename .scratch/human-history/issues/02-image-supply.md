@@ -391,3 +391,28 @@ Still open: **dynatac** needs a matte, not this method. The **six flat artworks*
 shipped | ground | ink). The four modern periods (1930 India, 1940 Japan, 1969 US, 2024 China)
 are still unverified as gaps — 2024 already holds a Chinese electric car at 2022, so density gets
 checked before anyone spends the Smithsonian key on them.
+
+## Round 5 2026-08-16 — matte.py doesn't solve dynatac either, and three of the four period gaps were already filled
+
+**dynatac.** Re-cut with isnet-general-use + `post_process_mask=True` — the exact call `matte.py`
+used on its HARD set (scenes, non-uniform backgrounds), which the birefnet attempt never tried.
+Candidate at `alt/dynatac-isnet.png`. It measures clean by every number `measure()` has — cov
+0.874, solid 1.0, 0 islands, 0 holes, same shape as the shipped cut — because the defect is the
+one `measure()` cannot see, the same class as `vhs`: **the antenna is entirely absent from both
+cuts.** The original photograph shows a foot-long black antenna in hard contrast against a plain
+wall (checked at 2x, both crops). Neither isnet-with-post-processing nor the earlier birefnet
+re-cut keeps it — the thin-structure failure this project has already documented in both models,
+and `matte.py` was already how the shipped cut was made, so re-running it with more mask
+refinement was always going to hit the same wall a thin appendage puts up. Still open. It does
+not need a fourth model run; it needs a method that doesn't ask a salient-object model to keep a
+part of the object it doesn't think is salient.
+
+**Density, checked before spending the key** (`review02.json`, 229 items, region + year window).
+**1969 US is not a gap** — the Boeing 747 sits at exactly 1969. **2024 China is not a gap** — the
+2022 Chinese electric car is two years off. **1940 Japan has a real hole** (nothing between 1850's
+matchlock and 1948's Nikon rangefinder, a 98-year span) but no new wall to test it against:
+Cleveland's Japan 1900-1950 holdings were already checked and found irrelevant (round 3);
+Smithsonian is untried. **1930 India is the one genuine, unchecked gap** — nearest neighbours are
+1850 (Kashmir shawl, a different region tag) and 1972 (Auto rickshaw), an 80-to-122-year void
+nothing has been searched against yet. If the key is spent on one of the two remaining candidates,
+India is the higher-value target; Japan repeats a search this ticket already ran once and lost.
