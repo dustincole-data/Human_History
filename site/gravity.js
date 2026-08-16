@@ -267,16 +267,38 @@ function drawStars(c, alpha) {
   }
 }
 
-/* TICKET 03 — the two numbers that decide how many pixels this page may ever hold.
+/* TICKET 02 — ONE AREA, NOT ONE HEIGHT. Dustin: "they all need to be the same size."
 
-   Every sprite is drawn DRAW_H CSS px tall, at every viewport and on every device; the canvas is
-   rasterised at DPR_CAP density at most. Their product, 264 device px, is therefore the largest
-   height any photograph is ever put on a screen at, at any zoom. A source row above that is
-   fetched, decoded, held for the life of the page, and then discarded by the resampler on its
-   way to the glass. `bake_sprites.py` caps the shipped files at exactly this product and the
-   sweep asserts the relationship, so moving either number here without re-baking is a red gate
-   rather than a silent 300 MB. */
-const DRAW_H = 132;
+   Ticket 03 drew every sprite DRAW_H = 132 CSS px TALL and let the width follow the photograph's
+   aspect ratio, which is the same size only for a set of squares. Measured over the 229: aspect
+   spans 0.19 (the V-2) to 5.85 (the tanegashima), median 0.96 — so the drawn AREA spanned 3.4k px²
+   to 101.9k, a factor of thirty. The matchlock was 772 px wide on a 390 px phone and the cassette
+   417; the near-square majority, which is most of the set, read as postage stamps beside them.
+
+   So the constant is an area and the two sides are solved from the ratio: `w = sqrt(A·ar)`,
+   `h = sqrt(A/ar)`. A square object is 132 x 132 — exactly what it was, which is why the two
+   items Dustin named as correct (the goldweight on a laptop, the Polaroid on a phone) do not move
+   a pixel. Nothing is cropped or distorted: every photograph keeps its own ratio and only its
+   scale is solved.
+
+   TWO AREAS, BECAUSE A PHONE IS NOT A LAPTOP. The phone anchor is today's — his reading is that
+   mobile is right apart from the outliers, and the outliers are what the area fixes. The wide
+   screen takes WEB_A, because 132 px of object in 900 px of window was too small everywhere and
+   an area is the only place that correction can be made once for 229 items.
+
+   AND IT STILL HAS TO FIT ON THE GLASS. An area alone would put the widest item 319 px across
+   and the tallest 300 px down, which is fine at 1440 and is not on a 320 px phone in landscape.
+   The pair is scaled down together — never one side alone — when either exceeds what the viewport
+   can hold, so an item that cannot be the same size as the others is at least still whole.
+
+   WHAT THE BAKE IS CAPPED ON MOVED WITH IT. 03's rule was a row of source pixels above the drawn
+   height is fetched, decoded, held and then thrown away; the drawn height is now per item, so the
+   bound becomes the one thing that does not vary — DECODED PIXELS PER SPRITE, which is
+   `DPR_CAP² × WEB_A` for every object in the set, at any viewport. `bake_sprites.py` caps on
+   exactly that and `sprite_never_exceeds_its_draw` asserts it, so moving WEB_A here without
+   re-baking is a red gate rather than a silent 300 MB. */
+const DRAW_A = 132 * 132;                 // px² of glass an object gets on a phone
+const WEB_A = Math.round(DRAW_A * 2.0);  // …and on anything wider than 720
 const DPR_CAP = 2;
 
 let wasNarrow = false;
@@ -328,6 +350,13 @@ function fit() {
     if (d.gens) for (const G of d.gens) { rewindPieces(G.pieces); G.n = 0; G.restN = null; }
     if (d.dust) { rewindDust(d.dust); d.dustN = 0; d.dustRest = null; }
     if (!d.down) d.prepped = false;               // the landing solve is against a surface that moved
+    /* TICKET 02 — AND CROSSING 720 IS NOW A SIZE CHANGE, so the wreck has to go with it. The two
+       areas are either side of that width, and a wreck is fragments cut at the size the object had
+       when it landed: left alone, a window dragged past the breakpoint would leave every object
+       already on the ground at the other viewport's scale. `demolish` is free to call — `land()`
+       rebuilds all of it from the index and the tables — and it is the same rebuild the texture
+       window does at both its ends. */
+    if (flip) { d.prepped = false; demolish(d); }
     if (d.atoms) { if (flip) rebuild(d); else d.laid = false; }
   }
   /* The shelf wraps against the width, so it is laid out again — but only once it exists; fit()
@@ -686,9 +715,19 @@ function prep(d) {
      so the same scroll position would draw two frames depending on what had loaded. The caller
      already refuses to get here; this counts the day it stops. */
   if (!d.im) { solvedBlind++; return; }
-  const i = d.i, hh = DRAW_H;
-  d.w = hh * d.ar; d.h = hh;
-  d.x = W * (0.18 + 0.64 * ((i * 0.618034) % 1));
+  const i = d.i;
+  /* the area is the constant and the ratio solves the two sides — see DRAW_A. The fit is the only
+     thing that may overrule it, and it moves both sides by the same factor. */
+  const A = W < 720 ? DRAW_A : WEB_A;
+  let w = Math.sqrt(A * d.ar), h = Math.sqrt(A / d.ar);
+  const shrink = Math.min(1, (W - 24) / w, (groundY() - 40) / h);
+  if (shrink < 1) { w *= shrink; h *= shrink; }
+  d.w = w; d.h = h;
+  /* …and held inside the glass. The golden-ratio walk puts a centre between 18% and 82% of the
+     width, which is a point and takes no account of how wide the thing at it is: at 390px the
+     matchlock hung 90px off the left edge. Clamped by the object's own half-width, which the
+     fit above has already guaranteed is smaller than the half-viewport. */
+  d.x = Math.max(w / 2 + 8, Math.min(W - w / 2 - 8, W * (0.18 + 0.64 * ((i * 0.618034) % 1))));
   d.a0 = (hash(d.it.k, 7) - 0.5) * 0.34;            // deterministic: a reload looks identical
   d.spin = (hash(d.it.k, 21) - 0.5) * 0.5;          // the whole tumble, over the whole fall
   d.ySpawn = -d.h * 0.62;
@@ -1064,14 +1103,28 @@ function stepBuild(d, ms) {
   const t0 = performance.now();
   while (d.gens.length <= SPLITS.length) {
     const at = d.gens.length - 1, from = d.gens[at];
+    /* TICKET 02 — THE POSE A SLICE FINDS IS THE POSE IT LEAVES, AND THAT IS THE LANDING BLINK.
+       `settleGen` below runs the parent to rest because rest is where its children have to be cut
+       from. But the frame drains its cut queue BETWEEN `pose()` and the paint — so a slice that
+       ran on the generation currently ON SCREEN left it settled, and the frame painted a wreck the
+       scrollbar had not asked for. Every arrival did it: the object hit the ground, flashed its own
+       final resting field for a frame, snapped back to nearly-whole when the next `pose()` rewound
+       it, and only then broke. Measured at five landings before this line existed — item 3 painted
+       step 13 where the tables asked for step 1, and the settled gates could not see any of it,
+       because the frame that lies is corrected by the frame after it.
+       So the pose is taken before the settle and put back on every exit below, sliced or forced. A
+       generation that is not the one on screen goes back to its birth instead — the same claim the
+       line at the foot of this loop used to make on its own, now made at every exit rather than
+       only at the one where a generation was published. */
+    const back = at === (d.i === LAST ? 0 : genAt(d.age)) ? from.n : 0;
     settleGen(from);
     /* THE CUT COMES FIRST AND IT IS THE SAME BUDGET. If the tree has not reached this generation
        yet, a sliced call spends its slice on the cut and comes back next frame rather than placing
        pieces that do not exist; a forced call (`ms < 0`, the scrollbar is already here) cuts exactly
        as far as it needs and no further, so a late frame pays for one generation and not for three. */
     if (!treeReady(d, at + 1)) {
-      if (ms >= 0) { stepTree(d, ms, at + 1); return false; }
-      if (!treeTo(d, at + 1)) return false;          // no pixels: it cannot be cut yet
+      if (ms >= 0) { stepTree(d, ms, at + 1); poseTo(from, back); return false; }
+      if (!treeTo(d, at + 1)) { poseTo(from, back); return false; }   // no pixels: it cannot be cut yet
     }
     if (!d.stage || d.stage.at !== at) d.stage = { at, k: 0, out: [] };
     const st = d.stage;
@@ -1082,17 +1135,19 @@ function stepBuild(d, ms) {
          the same by leaving it in place when `splitPiece` returned null. */
       if (kids) st.out.push(...kids); else st.out.push(from.pieces[st.k]);
       st.k++;
-      if (ms >= 0 && performance.now() - t0 > ms) return false;
+      if (ms >= 0 && performance.now() - t0 > ms) { poseTo(from, back); return false; }
     }
     d.gens.push({ pieces: st.out, born: genBorn(d.i, d.gens.length), n: 0, restN: null });
-    /* AND THE PARENT GOES BACK TO ITS BIRTH, unless it is the one on screen. `settleGen` above ran
-       it to rest so its children could be cut from where it actually lies — that is the only reader
-       it has — and leaving it there makes a RETAINED generation's pose depend on when the queue got
-       round to it. Round 9 deleted exactly this in `blank()` for objects that draw nothing; a drawn
-       object's other generations are the same claim and were missed. Nothing could see it: the
-       equivalence walk found three of them with the canvas pixel-identical at every stop. A cache
-       whose contents depend on how the visitor arrived is what 8b exists to delete, seen or not. */
-    if (at !== (d.i === LAST ? 0 : genAt(d.age)) && from.n) { rewindPieces(from.pieces); from.n = 0; }
+    /* AND THE PARENT GOES BACK. `settleGen` above ran it to rest so its children could be cut from
+       where it actually lies — that is the only reader it has — and leaving it there makes a
+       RETAINED generation's pose depend on when the queue got round to it. Round 9 deleted exactly
+       this in `blank()` for objects that draw nothing; a drawn object's other generations are the
+       same claim and were missed. Nothing could see it: the equivalence walk found three of them
+       with the canvas pixel-identical at every stop. A cache whose contents depend on how the
+       visitor arrived is what 8b exists to delete, seen or not.
+       Ticket 02: `back` is that birth for every generation except the one on screen, and for that
+       one it is the pose the scroll asked for — see the head of the loop. */
+    poseTo(from, back);
     d.stage = null;
   }
   return true;
@@ -1957,11 +2012,12 @@ function frame() {
    the mechanic held — it must never exceed 1, at any scroll position, at any scroll speed. */
 window.__hh = {
   drops, queue, surfAt, FALL, TOTAL, W_YEARS, SPLITS, DUST_AT, NAME_OUT,
-  /* the texture window, for the round-10 gates. DRAW_H x DPR_CAP is the claim the shipped files
-     are baked against; `held` is the resident set counted off the live references rather than
-     off any tally the page keeps, and `blind` is the tripwire on a landing solved without its
-     own photograph. */
-  DRAW_H, DPR_CAP, AHEAD, BACK,
+  /* the texture window, for the round-10 gates. WEB_A x DPR_CAP² is the claim the shipped files
+     are baked against — decoded pixels per sprite, since ticket 02 made the drawn HEIGHT a
+     function of each photograph's own ratio and the AREA the thing that does not vary. `held` is
+     the resident set counted off the live references rather than off any tally the page keeps,
+     and `blind` is the tripwire on a landing solved without its own photograph. */
+  DRAW_A, WEB_A, DPR_CAP, AHEAD, BACK,
   held: () => drops.filter(d => d.im).map(d => ({ i: d.i, k: d.it.k, air: d.air, down: d.down,
                                                   w: d.im.naturalWidth, h: d.im.naturalHeight })),
   peakHeld: () => peakHeld, pending: () => inFlight, blind: () => solvedBlind, lateCuts: () => lateCuts,

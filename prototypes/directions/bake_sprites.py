@@ -9,13 +9,21 @@ claim about the record is made against. It is never overwritten by this script.
 `../../site/img/` is a DERIVED asset — the sprite the live page fetches — and until now it was a
 byte-identical copy of the master, which is 301 MB decoded for 230 items against an 80 MB gate.
 
-The cap is not a taste call. gravity.js draws every sprite at exactly `hh = 132` CSS px tall at
-every viewport, and clamps its canvas to `dpr = min(devicePixelRatio, 2)`. So 132 x 2 = 264
-device px is the largest height any sprite is ever rasterised at, on any screen, at any zoom —
-a row of source pixels above that is decoded, held for the life of the page, and then thrown
-away by the resampler on its way to the screen. Both numbers are asserted by the sweep
-(`sprite_never_exceeds_its_draw`), so a change to either side is a red gate rather than a silent
-regression here.
+The cap is not a taste call, and TICKET 02 MOVED WHAT IT IS A CAP ON. Ticket 03's rule was a
+height: gravity.js drew every sprite `hh = 132` CSS px tall, so 132 x dpr 2 = 264 device px was
+the tallest any photograph was ever rasterised at and every source row above it was decoded,
+held for the life of the page, and then thrown away by the resampler.
+
+02 made the drawn size an AREA — `w = sqrt(A·ar)`, `h = sqrt(A/ar)` — because one height across
+229 aspect ratios is one size only for squares, and the set spans 0.19 to 5.85. The drawn height
+is now a function of each photograph's own ratio, so it is no longer the thing to cap. The area
+is: every object is drawn at `WEB_A` px² of glass at most, at any viewport, so
+`WEB_A x dpr² = 139,392` DECODED PIXELS is what no sprite may exceed, whatever shape it is. Same
+claim as 03's, same reason, one dimension up — and it is now a flat per-sprite bound rather than
+one that let a wide object hold four times what a tall one did.
+
+Both numbers are asserted by the sweep (`sprite_never_exceeds_its_draw`), so a change to either
+side is a red gate rather than a silent 300 MB.
 
 Nothing is upscaled. A sprite already under the cap is re-encoded at its own size.
 """
@@ -32,9 +40,9 @@ MASTER = os.path.join(HERE, "img")
 OUT = os.path.abspath(os.path.join(HERE, "..", "..", "site", "img"))
 DATA = os.path.abspath(os.path.join(HERE, "..", "..", "site", "data.js"))
 
-DRAW_PX = 132       # gravity.js prep(): hh
-DPR_CAP = 2         # gravity.js fit(): Math.min(devicePixelRatio, 2)
-CAP = DRAW_PX * DPR_CAP
+WEB_A = round(132 * 132 * 2.0)   # gravity.js: the largest area an object is ever drawn at
+DPR_CAP = 2                      # gravity.js fit(): Math.min(devicePixelRatio, 2)
+CAP = WEB_A * DPR_CAP * DPR_CAP  # decoded pixels, per sprite, whatever its shape
 
 # The masters are already lossy WebP (q88), so the bake is a SECOND lossy pass over the site's
 # central asset. Measured inside the alpha mask, q90 cost up to 10% of a sprite's pixels a
@@ -77,9 +85,9 @@ def main():
         dec_in += w * h * 4
         tx_in += os.path.getsize(src)
 
-        if h > CAP:
-            s = CAP / h
-            nw, nh = max(1, round(w * s)), CAP
+        if w * h > CAP:
+            s = (CAP / (w * h)) ** 0.5          # both sides together: the ratio is the photograph's
+            nw, nh = max(1, round(w * s)), max(1, round(h * s))
             out = im.convert("RGBA").resize((nw, nh), Image.LANCZOS)
             scaled += 1
         else:
@@ -105,7 +113,7 @@ def main():
             os.remove(os.path.join(OUT, f))
 
     mb = lambda b: b / 1048576
-    print(f"{len(ks)} sprites   {scaled} downscaled to {CAP}px   {copied} already under the cap")
+    print(f"{len(ks)} sprites   {scaled} downscaled to {CAP} px²   {copied} already under the cap")
     if orphans:
         print(f"{'would remove' if args.check else 'removed'} {len(orphans)} no longer in data.js: "
               f"{', '.join(sorted(o[:-5] for o in orphans))}")
@@ -113,7 +121,7 @@ def main():
         print(f"MISSING FROM MASTER ({len(missing)}): {', '.join(missing[:8])}")
     print(f"decoded   {mb(dec_in):7.1f} MB -> {mb(dec_out):7.1f} MB")
     print(f"transfer  {mb(tx_in):7.1f} MB -> {mb(tx_out):7.1f} MB")
-    print(f"cap       {DRAW_PX}px drawn x dpr {DPR_CAP} = {CAP}px")
+    print(f"cap       {WEB_A}px² drawn x dpr {DPR_CAP}² = {CAP}px² per sprite")
     if args.check:
         print("(--check: nothing written)")
 

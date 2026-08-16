@@ -243,6 +243,71 @@ ok('decay_runs_both_ways',
    ageA != null && ageA > 0.4 && ageB != null && ageB < 0.02 && ageC === ageA,
    `age ${ageA} -> ${ageB} on the way back up -> ${ageC} returning to the same pixel`);
 
+/* ---- TICKET 02 — THE LANDING BLINK, and it is the first gate on this page that watches a
+        SEQUENCE OF FRAMES rather than a stop. ----
+
+   Every gate above samples a scroll position after the page has settled on it, which is what
+   `pure_function` and `frozen_when_idle` are for. A blink is invisible to all of them by
+   construction: it is one frame that painted something the scrollbar never asked for, corrected by
+   the very next frame — so a probe that stops and looks sees only the correction. Both of the
+   impact gates this defect lived under (`name_dies_at_impact`,
+   `landing_is_solved_from_the_silhouette`) were green through the whole of it.
+
+   What is measured is THE WRECK'S POSE AT THE MOMENT IT WAS PAINTED. The reader below is
+   registered from a callback that itself runs after the piece's `frame()`, so it stays behind
+   `frame()` on every tick of the walk and what it reads is the state the paint was taken from —
+   cut-queue work included. The claim is 8b's, one layer under where the existing gates state it:
+   it is not enough that the same scroll position RESOLVES to the same frame, the frame PAINTED at
+   that position has to be the one the tables resolve to.
+
+   MS_PER_PX and SUB are mirrored here rather than read off the page, exactly as MAXW is: a build
+   that moved the shard clock would otherwise move the number it is tested against and the gate
+   would follow it down. Moving either in gravity.js means moving it here. */
+await fresh();
+const MS_PER_PX = 3.0, SUB = 50;
+const blinkViol = [];
+let blinkFrames = 0;
+for (const I of [3, 40, 100, 170, 220]) {
+  const rows = await page.evaluate(async ([I, STEP, FRAMES, MS_PER_PX, SUB, SLOW]) => {
+    const hh = window.__hh, d = hh.drops[I];
+    const LAND = hh.LAND[I], LIFE = hh.LIFE[I], SPLITS = hh.SPLITS, LAST = hh.drops.length - 1;
+    const genAt = age => { let g = 0; while (g < SPLITS.length && age >= SPLITS[g]) g++; return g; };
+    /* started above its own start, so the object falls the way a visitor's does — a walk that
+       begins after the landing never sees the frame this gate is about. */
+    scrollTo({ top: Math.round(LAND - hh.FALL - 240), behavior: 'instant' });
+    for (let i = 0; i < 60 && hh.pending() > 0; i++) await new Promise(requestAnimationFrame);
+    await new Promise(r => setTimeout(r, SLOW ? 1500 : 600));
+    const out = [];
+    await new Promise(done => {
+      let k = 0;
+      const rec = () => {
+        const age = Math.min(1, Math.max(0, (scrollY - LAND) / LIFE));
+        const g = d.i === LAST ? 0 : genAt(age);
+        const G = d.gens && d.gens[g];
+        if (G) {
+          // the pose the tables ask for at this scroll position, computed from the tables
+          const want = Math.max(0, Math.floor((scrollY - G.born) * MS_PER_PX / SUB));
+          const capped = G.restN != null ? Math.min(want, G.restN) : want;
+          if (G.n !== capped) out.push({ f: k, rel: Math.round(scrollY - LAND), gen: g,
+                                         want: capped, drew: G.n });
+          out.seen = (out.seen || 0) + 1;
+        }
+        if (++k >= FRAMES) return done();
+        scrollBy(0, STEP);
+        requestAnimationFrame(rec);
+      };
+      requestAnimationFrame(rec);
+    });
+    return { viol: [...out], seen: out.seen || 0 };
+  }, [I, 60, 30, MS_PER_PX, SUB, SLOW]);
+  blinkFrames += rows.seen;
+  for (const v of rows.viol) blinkViol.push(`i${I} rel=${v.rel} gen${v.gen} wanted step ${v.want}, painted ${v.drew}`);
+}
+ok('nothing_moves_between_the_pose_and_the_paint', blinkViol.length === 0 && blinkFrames > 60,
+   blinkViol.length ? `${blinkViol.length} painted frames of ${blinkFrames} held a pose the scroll ` +
+                      `never asked for — ${blinkViol.slice(0, 4).join(' · ')}`
+                    : `${blinkFrames} painted frames over five landings, every one of them the pose the tables say`);
+
 /* ---------------- the long sweep: truth gates, from a page nobody has touched ---------------- */
 await fresh();
 let maxAir = 0;
@@ -783,8 +848,16 @@ ok('frame_budget', p95 < 25,
 const GATE = 80;                                    // MB, the ceiling Deep Time shipped against
 
 /* 1. Every shipped sprite, all 230, in a page of their own — the whole-set number, and the one
-      claim the bake makes: no photograph is taller than the height it is drawn at. Read off the
-      files the page actually fetches, in a page that is closed straight after. */
+      claim the bake makes: no photograph carries more pixels than it is ever drawn with. Read off
+      the files the page actually fetches, in a page that is closed straight after.
+
+      TICKET 02 TURNED THAT CLAIM FROM A HEIGHT INTO AN AREA, and the gate had to move with it or
+      it would have gone green on the wrong number. 03 capped the drawn HEIGHT at 132 px, so a
+      sprite taller than 132 x dpr was over. 02 draws every object at one AREA and lets the ratio
+      solve both sides, so the tallest thing on the page is now the thinnest object in the set
+      (the V-2, 428 px) and a height cap would fail it while letting a 5.85-ratio matchlock hold
+      four times the pixels of a square. The bound is `WEB_A x dpr²` DECODED PIXELS, per sprite,
+      whatever its shape — read from the page's own constants, computed here. */
 const audit = await (async () => {
   const p2 = await arrive(() => browser.newPage({ viewport: { width: 400, height: 300 } }), URL);
   await p2.waitForFunction(() => window.__hh && window.__hh.drops.length, null, { timeout: 60000 });
@@ -796,18 +869,23 @@ const audit = await (async () => {
       im.onerror = () => res({ k: d.it.k, w: 0, h: 0 });
       im.src = `img/${d.it.k}.webp`;
     })));
-    return { all, cap: H.DRAW_H * H.DPR_CAP, DRAW_H: H.DRAW_H, DPR_CAP: H.DPR_CAP, AHEAD: H.AHEAD, BACK: H.BACK };
+    return { all, cap: H.WEB_A * H.DPR_CAP * H.DPR_CAP, WEB_A: H.WEB_A, DRAW_A: H.DRAW_A,
+             DPR_CAP: H.DPR_CAP, AHEAD: H.AHEAD, BACK: H.BACK };
   });
   await p2.close();
   return r;
 })();
-const overCap = audit.all.filter(s => s.h > audit.cap);
+/* 1% over the bound is rounding and not a regression: the bake solves one scale factor and then
+   rounds BOTH sides to whole pixels, so a sprite can land a fraction of a row over the area it was
+   solved for. Anything the cap actually failed to hold is over by the ratio it was baked at. */
+const overCap = audit.all.filter(s => s.w * s.h > audit.cap * 1.01);
 const broken = audit.all.filter(s => !s.w);
 const allMB = audit.all.reduce((s, x) => s + x.w * x.h * 4, 0) / 1048576;
+const worstPx = Math.max(...audit.all.map(s => s.w * s.h));
 ok('sprite_never_exceeds_its_draw', overCap.length === 0 && broken.length === 0,
    broken.length ? `${broken.length} sprites failed to load`
-   : `0 of ${audit.all.length} taller than ${audit.cap}px (${audit.DRAW_H} drawn x dpr ${audit.DPR_CAP}); ` +
-     `all ${audit.all.length} resident would be ${allMB.toFixed(1)}MB`);
+   : `0 of ${audit.all.length} over ${audit.cap} px² (${audit.WEB_A} drawn x dpr ${audit.DPR_CAP}²), ` +
+     `worst ${worstPx}; all ${audit.all.length} resident would be ${allMB.toFixed(1)}MB`);
 
 /* 2. The ceiling itself: the most decoded image bytes the page ever held, over every stop the
       long sweep made — including the nine hard jumps. `peakHeld` is accumulated in the page from
