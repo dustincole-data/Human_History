@@ -529,3 +529,110 @@ dies on `ERR_CONNECTION_REFUSED`.
 
 Still open, unchanged: **mughalmini** and the six flat artworks await their ruling
 (`recut02-review.html`). **1930 India** remains the one genuine unchecked period gap.
+
+## Round 8 2026-08-16 — Smithsonian is a dead wall for 1930 India, and the charkha was never the problem
+
+**The gap was worse than "1930".** Against `site/data.js`: South Asia runs **1850 (Kashmir shawl)
+→ 1972 (auto rickshaw)** with nothing between, and the whole **1890–1970** stretch — the densest,
+most-recognisable part of the scroll, 38 items — carried **zero** SAS entries.
+
+### The wall, measured — and the corpus is a natural-history archive
+
+Eight of DEMO_KEY's ten requests an hour, every response cached to disk so no query was paid for
+twice. `place:"India"` + CC0 images across the 1920s–40s returns **12,498** records, and of the
+first 1,000, **993 are botany, entomology, bird and mammal SPECIMENS**. Restricted to cultural
+units and 1880s–1960s: **109 records, all Cooper Hewitt, all 19th-century** textiles, jewellery
+and printing blocks. Dropping the date filter and asking every cultural unit: **875** non-specimen
+India records in total, whose 1885–1975 slice is US postage-stamp plate proofs, Caribbean
+postcards and American portraits. **Not one Indian made object from the 20th century.**
+
+**The National Museum of Asian Art holds 182 India records — 162 of them paintings — and none is
+dated 1885 or later.** The latest is an 1853 bookbinding. That is round 3's wall (*art museums
+stop explaining a period at about 1900*) reached from the Smithsonian side with a number on it:
+**0 of 182**.
+
+Two instrument faults of my own, both caught before they were written down. An earlier query
+concluded *FSG/FSA/NMNHANTHRO return zero CC0 images*, which was a **wrong unit code**, not an
+empty collection — the unit is **NMAA**, and it appeared as soon as a query stopped naming units.
+And the `date` index **range-expands**: "19th century" is indexed as both `1800s` and `1900s`, and
+an undated object is invisible to any decade filter — which is why the closing query used none.
+**"india" is also a false-positive magnet:** India Rubber Company, British East India Company,
+India plate proof, India paper. All three NMAH/NASM "hits" were that.
+
+### The object was already in the catalogue, and its drop was about the photograph
+
+`charkha` was **already in `sourced.json`** — and absent from `data.js`, because `build_data.py`
+dropped it under **"R1 — a person, a crowd or a mannequin"**. The photograph the machine had
+fetched was a press release: a government minister unveiling *"the world's largest wooden
+charkha"* at Delhi airport in 2016, GODL-India — a crowd shot of a **monument**, which would have
+carried a 1930 date as a lie twice over. `catalog.py:248` had already named this exact row,
+1930 · SAS · India.
+
+**Caught by running round 3's collision check FIRST**, which is the lesson `heitiki` cost: a blind
+add would have clobbered a live record. So this is a **revival**, like round 3's `wattengine` and
+`airjordan` — the drop was right about the file and said nothing about the object.
+
+### What ships
+
+The **Textile Museum (GWU) boxed charkha** — a *peti charkha*, the portable spinning wheel —
+photographed as an object. **CC0** (`{{self|cc-zero}}`, the uploader's own dedication, so no
+ShareAlike obligation and no attribution condition), 5472×3648, institution-dated *"1920s or
+1930s"* and printed as **1920–1939**. Master **858×185 · cov 0.7516 · halo 1.16 · isl 0 ·
+holes 1 · 42.9 KB**. The single hole is **78×9 px under the carrying handle** — a real void of the
+object, verified at 3×, not a puncture.
+
+**birefnet over isnet, and the ground is the reason.** isnet keeps **104,220 px more**, and all of
+it is one component: a **2,940×47 strip along the top edge**, the vitrine's back edge — **kept
+background**, round 6's inverse fault, which `measure()` cannot see because it is connected and
+encloses nothing. Both cuts were judged on **four grounds** (near-black, soil, white, magenta)
+*before* choosing, which is round 6's lesson applied ahead of the mistake instead of after it.
+
+Checked rather than assumed: **no spinning or weaving machine anywhere in the set** — lane B's
+`spinjenny` drop had removed textile machinery entirely, and this restores the category as a
+non-Western object; **frag 0.844** against a 0.25 floor and the set's 0.801 median; **ar 4.64**
+inside the shipped range (tanegashima 5.85, kris 5.14); and it lands a **same-year tie with the
+1930 boomerang**, cross-region — `adj:"boomerang", gap:0`, the unbroken-hairline case.
+
+**Recorded as a cost, not smoothed:** it is **tier C** in a window running 30 A / 6 B / 2 C, and
+its tie partner is one of the two Cs. 69 of 229 shipped items are C and the piece prints the name
+as the object falls, so C is not a failure state here — but the 1930 moment is now two of them
+tied together. **Dustin's to overrule.**
+
+### `frame_budget`'s ninth move, and the cleanest attribution the gate has had
+
+Localhost red twice — p95 **28.1 / 27.6 ms** — with the warm median unmoved at 16.6 / 16.4.
+Prod-vs-localhost is **not** a control here, because [06](06-visual-treatment.md) round 10
+established localhost is if anything the *worse* origin. So the control was a **same-origin A/B**:
+HEAD's 229 build extracted with `git archive` to a second port, same laptop, minutes later.
+It read **p95 59.3 ms, worst 77.9 ms**, median drifting to 18.4. **The build without the change is
+the slowest of the three**, which no story about the change can explain. Across five runs today
+the p95 spans 21.1 → 59.3 ms and the *229* build produced both the best and the worst readings.
+`sweep11i`'s own `index_frame_budget` passed at 18.3 ms inside the same window. Sixteen Chrome
+processes were live throughout; the machine was never quiet.
+
+### And the last gate was a wall clock — third instrument fault, page never wrong
+
+`review02.verify.mjs` reported **`all 230 cells render  0`** while the very next assertion decoded
+20 sprites off those same cells. Probed: the page builds its cells **after** `networkidle` — 0 at
+networkidle every time, first cell at **5,554 ms** on this loaded laptop — so the fixed
+`waitForTimeout(600)` was reading 230 on a quiet machine and 0 on a busy one. It now waits for the
+count to **stop changing** and then asserts: completeness, with no duration in it. **Proved it
+still has teeth rather than assumed** — one row pulled from `review02.json` and it went red at
+**229 against 230**, failing for a missing cell rather than for being slow; then restored and
+hash-checked. Round 3 fixed this gate's *literal*; the wall clock beside it survived that round.
+
+### Gate chain
+
+`sweep10` localhost **43/44** (frame_budget, attributed above) · `sweep11i` localhost **26/26**
+(230 cells, 230 credits in the roll) · production `sweep10` **44/44 as the pre-push control** on
+the build that predates the change · `review02.py` re-measured **230** · `review02.verify.mjs`
+**26/26** + 1 perturbation red-then-restored · production `sweep10` on the **shipped** build
+**43/44**, same gate, median 16.6. Both bakes run in round 7's four-step order, and the bake is
+**still deterministic**: exactly one sprite and one thumbnail changed bytes.
+
+Live on both origins, 230 items. Frames: `charkha-piece.png` (1930 CE, tungsten, the tie hairline
+on the soil) and `charkha-shelf.png` (first cell of the 1930s row, citation open).
+
+Still open, unchanged: **mughalmini** and the six flat artworks await their ruling
+(`recut02-review.html`). **1940 Japan** is now the only named period hole left, and round 5 already
+priced it as a search this ticket has run once and lost.
