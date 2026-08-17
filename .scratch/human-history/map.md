@@ -8,8 +8,7 @@ Labels: `wayfinder:map`
 
 Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 
-**COMPLETE 2026-08-16. 14 of 15 tickets closed; only [08](issues/08-accessibility-and-mobile.md)
-is open and its remaining item is not a build task.** Production `sweep10` **finishes** on the real
+**COMPLETE 2026-08-16. ALL 15 TICKETS CLOSED.** Production `sweep10` **finishes** on the real
 domain at **43/44** — the sole red is `frame_budget`, now moved eleven times, always on this laptop
 and never attributable to a change. `sweep11i` 26/26, `review02.verify.mjs` 26/26, 230 items,
 `og.png` and the project card live.
@@ -22,12 +21,17 @@ finished site. **This is the same defect [02](issues/02-image-supply.md) round 9
 claim about the files and rots exactly like any other unchecked claim — reconcile it against the
 repo each round, never against the previous round's text.*
 
-**What is genuinely left, and neither is a build task:**
+**Nothing is left that is a build task.** Two standing items, both Dustin's and neither blocking:
 - **The real-device phone pass** ([08](issues/08-accessibility-and-mobile.md)) — the map's own ship
-  gate, Dustin's, and no emulator substitutes for it (iOS first-tap-is-hover).
-- **The inbound link from Deep Time** — out of scope by this map's own ruling, Dustin's call on a
+  gate, and no emulator substitutes for it (iOS first-tap-is-hover). The site has been live without
+  it since 2026-08-12, so it is a quality item rather than a gate in practice.
+- **The inbound link from Deep Time** — out of scope by this map's own ruling, his call on a
   separate shipped site. The outbound half works alone.
-- Minor and unblocking nothing: 08's 200% text and screen-reader structure of the canvas.
+
+[08](issues/08-accessibility-and-mobile.md) closed on a measurement rather than a decision to stop:
+**the shelf is the piece's text alternative** and always was — 230 `aria-label`led buttons with
+correctly-decorative images and 230 linked citations, already gated. Named and not done: an
+`aria-label` on the canvas pointing there, and 200% text.
 
 **Execution is in scope.** Dustin, verbatim: *"I want you to pretty much take over the project and get it built out."* This overrides wayfinder's default plan-don't-do. The locked spec at `.claude/plans/human-history-spec.md` is the **mid-point milestone**, not the destination — the destination is the shipped site.
 

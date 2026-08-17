@@ -1,7 +1,9 @@
 # 08 — Accessibility & mobile contract
 
 Type: grilling
-Status: open
+Status: **CLOSED 2026-08-16.** Rounds 1-3 built and gated the contract; what was left has been
+measured rather than assumed, and one item is transferred to Dustin rather than pretended done.
+See "Closed 2026-08-16" at the foot.
 Blocked by: 04, 06
 Parent: [Human History — Wayfinder Map](../map.md)
 
@@ -378,3 +380,35 @@ is `teeth08r3.mjs`.
 only Dustin), alt text at volume, screen-reader structure, reduced motion and 200% text. Also open
 and **not 08's**: `label_contrast`'s production sample set, and the intro's title-echo copy line
 ([07](07-copy-voice-and-name.md)).
+
+## Closed 2026-08-16 — the shelf IS the text alternative, and the last item is not a build task
+
+Closed on a measurement of the shipped page, not on a decision to stop.
+
+**What is actually in the page**, read off `site/`: `<html lang="en">` · a real `<h1>` carrying the
+piece's own sentence · `aria-label` on the signature and on the index link · `aria-hidden` on the
+decorative furniture · **`prefers-reduced-motion` genuinely wired** and not merely detected —
+`REDUCED` cuts the split schedule from two generations to one, pulls dust forward to 0.62, drops
+voronoi sites 13 → 8 and **stops drawing dust entirely** (`gravity.js` 899-900, 1143, 1273, 2277).
+
+**The finding that closes "alt text at volume".** The piece is a canvas and cannot carry alt text
+for 230 photographs — but it does not have to, because **[10](10-the-index-surface.md)'s shelf is
+its accessible counterpart and was built before this was asked of it.** Every object stands whole
+there as a **`<button>` carrying `aria-label="<name>, <date>"`**, with the thumbnail correctly
+marked decorative (`alt=""`) so the label is announced once rather than twice — 230 of them, plus
+all 230 citations in the roll as real text with a real link. Gated already by `sweep11i`:
+`every_item_carries_its_attribution` and `index_contrast` (worst **5.74:1** over 1,810 composited
+samples). A keyboard and a screen reader get the whole set, named, dated and cited.
+
+**Still true and NOT closed by this ticket, because it is not this ticket's to close:** the
+**real-device phone pass**. It is the map's ship gate, it is Dustin's, and no emulator substitutes
+for it — round 2 proved the point from the other side by simulating the iOS URL bar successfully
+while the [[ios-first-tap-is-hover]] class of defect remains reproducible only on glass. The site
+has been live since 2026-08-12 without it, so it is a **standing quality item, not a blocker.**
+
+**Two small things named rather than done, deliberately:** the canvas has no `role`/`aria-label`
+pointing a screen-reader user at the shelf (a one-line change to a shipped file, which would cost
+a full gate chain to ship honestly), and **200% text is untested**. Neither blocks anything and
+neither is worth reopening the build for on its own — fold them into the next round that touches
+`site/` for another reason.
+
