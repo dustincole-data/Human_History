@@ -19,7 +19,7 @@ Four ticket `Status:` lines were **reconciled** on this date and had been wrong 
 said open on work 07 had already closed, and 09 was still claiming a mid-point milestone for a
 finished site. **This is the same defect [02](issues/02-image-supply.md) round 9 found in its own
 "still open" line**, which had cost Dustin the same question six times. *A ticket's status is a
-claim about the files and rots exactly like any other uncheck­ed claim — reconcile it against the
+claim about the files and rots exactly like any other unchecked claim — reconcile it against the
 repo each round, never against the previous round's text.*
 
 **What is genuinely left, and neither is a build task:**
