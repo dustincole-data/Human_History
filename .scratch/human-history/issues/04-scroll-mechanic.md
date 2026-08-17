@@ -1,8 +1,11 @@
 # 04 — The scroll mechanic
 
 Type: prototype
-Status: **REOPENED at round 8** by Dustin's ruling that the break reverses too. Round 6's ruling 2
-is half struck; the mechanism is stated below and is **not built**. Rounds 6 and 7 otherwise stand.
+Status: **CLOSED.** Reopened at round 8 by Dustin's ruling that the break reverses too; **round 9
+BUILT it** (nothing in the piece latches any more) and **round 10** closed the frame-budget cost it
+carried, by separating the cut from the placement. Round 6's ruling 2 stays half struck; rounds 6
+and 7 otherwise stand. *(This line said "not built" for five days after it was built — reconciled
+2026-08-16 with 14, 15 and 09, all rotted the same way ticket 02's "still open" line had.)*
 Blocked by: 01, 02
 Parent: [Human History — Wayfinder Map](../map.md)
 

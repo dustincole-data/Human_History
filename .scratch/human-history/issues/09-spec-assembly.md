@@ -1,7 +1,13 @@
 # 09 — Spec assembly
 
 Type: task
-Status: open
+Status: **CLOSED 2026-08-16 as SUPERSEDED — not done, and deliberately not done.** This ticket's
+own text calls itself *"the mid-point milestone, not the destination — the destination is the
+shipped site."* The site shipped on 2026-08-12 and every other ticket is now closed, so assembling a
+decision-free build spec would be writing instructions for a build that already happened. What the
+spec was for — a fresh session being able to work without re-litigating settled rulings — is carried
+by the map's `Decisions so far`, by each ticket's own record, and by the harness README. **Revive
+this only if a rebuild or a hand-off to another builder is actually on the table.**
 Blocked by: 02, 03, 04, 05, 06, 07, 08, 10
 Parent: [Human History — Wayfinder Map](../map.md)
 

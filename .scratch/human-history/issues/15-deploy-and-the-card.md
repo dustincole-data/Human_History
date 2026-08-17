@@ -1,7 +1,13 @@
 # 15 — Deploy, the subdomain, and the project card
 
 Type: build
-Status: SCOPED 2026-08-11, not built. Dustin's instruction was *"Scope it before building."*
+Status: **CLOSED — SHIPPED 2026-08-12, round 1.** Scoped 2026-08-11 first, on Dustin's
+instruction *"Scope it before building."* Live at `timetakesall.dustincoledata.com` (the name
+changed on the way out, superseding `everythingbreaks`), CNAME resolved the same day, project card
+live on dustincoledata.com/projects. Verified again 2026-08-16: `og:image` serves a 615 KB PNG,
+the full OG/Twitter set is present, and production `sweep10` **finishes** at 43/44 with only the
+laptop-attributed `frame_budget` red. *(This line said "not built" for four days after it
+shipped — reconciled 2026-08-16.)*
 Blocked by: 05, 07 (both closed 2026-08-11). **Not blocked by 08** — see "Order" below.
 Parent: [Human History — Wayfinder Map](../map.md)
 

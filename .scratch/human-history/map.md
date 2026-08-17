@@ -8,6 +8,27 @@ Labels: `wayfinder:map`
 
 Sibling to [Deep Time](https://deeptime.dustincoledata.com), not a sequel to it.
 
+**COMPLETE 2026-08-16. 14 of 15 tickets closed; only [08](issues/08-accessibility-and-mobile.md)
+is open and its remaining item is not a build task.** Production `sweep10` **finishes** on the real
+domain at **43/44** — the sole red is `frame_budget`, now moved eleven times, always on this laptop
+and never attributable to a change. `sweep11i` 26/26, `review02.verify.mjs` 26/26, 230 items,
+`og.png` and the project card live.
+
+Four ticket `Status:` lines were **reconciled** on this date and had been wrong for days — 04 said
+*not built* five days after round 9 built it, 15 said *not built* four days after it shipped, 14
+said open on work 07 had already closed, and 09 was still claiming a mid-point milestone for a
+finished site. **This is the same defect [02](issues/02-image-supply.md) round 9 found in its own
+"still open" line**, which had cost Dustin the same question six times. *A ticket's status is a
+claim about the files and rots exactly like any other uncheck­ed claim — reconcile it against the
+repo each round, never against the previous round's text.*
+
+**What is genuinely left, and neither is a build task:**
+- **The real-device phone pass** ([08](issues/08-accessibility-and-mobile.md)) — the map's own ship
+  gate, Dustin's, and no emulator substitutes for it (iOS first-tap-is-hover).
+- **The inbound link from Deep Time** — out of scope by this map's own ruling, Dustin's call on a
+  separate shipped site. The outbound half works alone.
+- Minor and unblocking nothing: 08's 200% text and screen-reader structure of the canvas.
+
 **Execution is in scope.** Dustin, verbatim: *"I want you to pretty much take over the project and get it built out."* This overrides wayfinder's default plan-don't-do. The locked spec at `.claude/plans/human-history-spec.md` is the **mid-point milestone**, not the destination — the destination is the shipped site.
 
 ## Notes

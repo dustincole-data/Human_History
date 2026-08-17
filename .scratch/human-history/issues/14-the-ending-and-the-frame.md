@@ -1,7 +1,15 @@
 # 14 — The ending, the cross-link, and the signature
 
 Type: prototype
-Status: open
+Status: **CLOSED — built 2026-08-11.** The ending (*the last object never breaks*), the signature
+in both places and the colophon cross-link all shipped and are gated: `only_the_last_one_survives`
+and `name_dies_at_impact` on the piece, `signature_is_the_shared_mark` and
+`colophon_links_to_deep_time` on the shelf. Both of this ticket's placeholders were closed by
+[07](07-copy-voice-and-name.md) — the ending stays **wordless** and the colophon reads *"All of
+this fits in its last sliver."* The **social card is resolved too**: `og.png` ships and the card is
+live on the brand site. **Genuinely still open and NOT this ticket's:** the inbound link from Deep
+Time, which the map puts out of scope and which is Dustin's call on a separate shipped site.
+*(Reconciled 2026-08-16.)*
 Blocked by: 05, 06, 07
 Parent: [Human History — Wayfinder Map](../map.md)
 
